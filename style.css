@@ -636,6 +636,8 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   .nav-links, .nav-user { display: none; }
   .bottom-nav { display: flex; }
 
+  .nav-user { display: flex; }
+
   .container {
     padding: 1.5rem 1rem;
     padding-bottom: calc(70px + 1rem); /* espacio para bottom nav */
