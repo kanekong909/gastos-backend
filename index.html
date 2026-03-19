@@ -8,7 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <!-- ChartJs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <!-- JsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -231,7 +234,7 @@
     <section id="section-reporte" class="section">
       <div class="section-header">
         <h1>Descargar reporte</h1>
-        <p>Exporta tus gastos en formato CSV</p>
+        <p>Exporta tus gastos en PDF o CSV</p>
       </div>
 
       <div class="form-card reporte-card">
@@ -242,24 +245,14 @@
           </div>
           <div class="field-group">
             <label>Mes</label>
-            <select id="rep-mes">
-              <option value="1">Enero</option>
-              <option value="2">Febrero</option>
-              <option value="3">Marzo</option>
-              <option value="4">Abril</option>
-              <option value="5">Mayo</option>
-              <option value="6">Junio</option>
-              <option value="7">Julio</option>
-              <option value="8">Agosto</option>
-              <option value="9">Septiembre</option>
-              <option value="10">Octubre</option>
-              <option value="11">Noviembre</option>
-              <option value="12">Diciembre</option>
-            </select>
+            <select id="rep-mes"></select>
           </div>
         </div>
         <div class="form-actions">
-          <button class="btn-primary" id="btn-descargar">
+          <button class="btn-primary" id="btn-descargar-pdf">
+            <span>⬇</span> Descargar PDF
+          </button>
+          <button class="btn-ghost" id="btn-descargar-csv">
             <span>⬇</span> Descargar CSV
           </button>
         </div>
@@ -367,6 +360,30 @@
       <div class="form-actions" style="justify-content:center;">
         <button class="btn-primary" id="btn-delete-confirm" style="background:var(--red); color:#fff;">Eliminar</button>
         <button class="btn-ghost" id="btn-delete-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONTRASEÑA PDF -->
+  <div id="pass-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:360px;">
+      <div class="modal-header">
+        <h3>Cifrar PDF</h3>
+        <button class="btn-close" id="pass-modal-close">✕</button>
+      </div>
+      <p style="color:var(--text2); font-size:14px; margin-bottom:1.2rem;">
+        Ingresa tu contraseña para cifrar el PDF. La necesitarás para abrirlo.
+      </p>
+      <div class="field-group">
+        <label>Contraseña</label>
+        <div class="input-pass">
+          <input type="password" id="pdf-pass" placeholder="Tu contraseña"/>
+          <button type="button" class="btn-eye" data-target="pdf-pass">👁</button>
+        </div>
+      </div>
+      <div id="pass-error" class="auth-error hidden">Ingresa una contraseña</div>
+      <div class="form-actions">
+        <button class="btn-primary btn-full" id="btn-pass-confirm">Generar PDF</button>
       </div>
     </div>
   </div>
