@@ -673,17 +673,23 @@
   }
 
   // ── SECCIÓN GRÁFICOS ───────────────────────────────
-  function initGraficos() {
-    const anioSel = document.getElementById('graf-anio');
-    if (!anioSel.options.length) {
-      const y = new Date().getFullYear();
-      for (let i = y; i >= y - 4; i--) {
-        const o = new Option(i, i);
-        if (i === y) o.selected = true;
-        anioSel.appendChild(o);
-      }
+function initGraficos() {
+  const anioSel = document.getElementById('graf-anio');
+  if (!anioSel.options.length) {
+    const y = new Date().getFullYear();
+    for (let i = y; i >= y - 4; i--) {
+      const o = new Option(i, i);
+      if (i === y) o.selected = true;
+      anioSel.appendChild(o);
     }
+    // Seleccionar mes actual por defecto
+    document.getElementById('graf-mes').value = new Date().getMonth() + 1;
   }
+  // Cargar gráficos automáticamente con los valores actuales
+  const anio = anioSel.value;
+  const mes  = document.getElementById('graf-mes').value;
+  cargarGraficos(anio, mes);
+}
 
   document.getElementById('btn-graf-cargar').addEventListener('click', async () => {
     const anio = document.getElementById('graf-anio').value;
