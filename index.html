@@ -33,8 +33,8 @@
       <div class="field-group">
         <label>Contraseña</label>
         <div class="input-pass">
-          <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
-          <button type="button" class="btn-eye" data-target="reg-pass">👁</button>
+          <input type="password" id="login-pass" placeholder="••••••••"/>
+          <button type="button" class="btn-eye" data-target="login-pass">👁</button>
         </div>
       </div>
       <div id="login-error" class="auth-error hidden"></div>
@@ -56,7 +56,10 @@
       </div>
       <div class="field-group">
         <label>Contraseña</label>
-        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
+        <div class="input-pass">
+          <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
+          <button type="button" class="btn-eye" data-target="reg-pass">👁</button>
+        </div>
       </div>
       <div id="reg-error" class="auth-error hidden"></div>
       <button class="btn-primary btn-full" id="btn-register">Crear cuenta</button>
