@@ -673,22 +673,42 @@
   }
 
   // ── SECCIÓN GRÁFICOS ───────────────────────────────
-function initGraficos() {
+async function initGraficos() {
   const anioSel = document.getElementById('graf-anio');
-  if (!anioSel.options.length) {
-    const y = new Date().getFullYear();
-    for (let i = y; i >= y - 4; i--) {
-      const o = new Option(i, i);
-      if (i === y) o.selected = true;
+  const mesSel  = document.getElementById('graf-mes');
+
+  try {
+    const periodos = await api('/gastos/periodos');
+    anioSel.innerHTML = '';
+
+    const anios = [...new Set(periodos.map(p => p.anio))];
+    anios.forEach(a => {
+      const o = new Option(a, a);
       anioSel.appendChild(o);
-    }
-    // Seleccionar mes actual por defecto
-    document.getElementById('graf-mes').value = new Date().getMonth() + 1;
+    });
+
+    // Al cambiar año actualizar meses
+    anioSel.addEventListener('change', () => actualizarMesesGraf(periodos));
+    actualizarMesesGraf(periodos);
+
+    // Cargar gráficos automáticamente
+    const anio = anioSel.value;
+    const mes  = mesSel.value;
+    cargarGraficos(anio, mes);
+  } catch(e) {
+    console.error(e);
   }
-  // Cargar gráficos automáticamente con los valores actuales
-  const anio = anioSel.value;
-  const mes  = document.getElementById('graf-mes').value;
-  cargarGraficos(anio, mes);
+}
+
+function actualizarMesesGraf(periodos) {
+  const anio  = document.getElementById('graf-anio').value;
+  const mesSel = document.getElementById('graf-mes');
+  mesSel.innerHTML = '<option value="">Todo el año</option>';
+  periodos
+    .filter(p => String(p.anio) === String(anio))
+    .forEach(p => {
+      mesSel.appendChild(new Option(MESES[p.mes], p.mes));
+    });
 }
 
   document.getElementById('btn-graf-cargar').addEventListener('click', async () => {
