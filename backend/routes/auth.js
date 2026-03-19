@@ -64,21 +64,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// GET /api/gastos/periodos — años y meses con registros
-router.get('/periodos', async (req, res) => {
-  const uid = req.usuario.id;
-  try {
-    const [rows] = await pool.query(
-      `SELECT DISTINCT YEAR(fecha) AS anio, MONTH(fecha) AS mes
-       FROM gastos WHERE usuario_id = ?
-       ORDER BY anio DESC, mes DESC`,
-      [uid]
-    );
-    res.json(rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al obtener períodos' });
-  }
-});
+
 
 module.exports = router;
