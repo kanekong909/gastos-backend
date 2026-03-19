@@ -425,16 +425,17 @@
     }
   }
 
-  function actualizarMeses(periodos) {
-    const anio   = document.getElementById('rep-anio').value;
-    const mesSel = document.getElementById('rep-mes');
-    mesSel.innerHTML = '';
-    periodos
-      .filter(p => String(p.anio) === String(anio))
-      .forEach(p => {
-        mesSel.appendChild(new Option(MESES[p.mes], p.mes));
-      });
-  }
+ function actualizarMeses(periodos) {
+  const anio   = document.getElementById('rep-anio').value;
+  const mesSel = document.getElementById('rep-mes');
+  mesSel.innerHTML = '';
+  periodos
+    .filter(p => String(p.anio) === String(anio))
+    .sort((a, b) => a.mes - b.mes)  // ← agrega esto
+    .forEach(p => {
+      mesSel.appendChild(new Option(MESES[p.mes], p.mes));
+    });
+}
 
   document.getElementById('btn-descargar-csv').addEventListener('click', async () => {
     const anio = document.getElementById('rep-anio').value;
@@ -701,11 +702,12 @@ async function initGraficos() {
 }
 
 function actualizarMesesGraf(periodos) {
-  const anio  = document.getElementById('graf-anio').value;
+  const anio   = document.getElementById('graf-anio').value;
   const mesSel = document.getElementById('graf-mes');
   mesSel.innerHTML = '<option value="">Todo el año</option>';
   periodos
     .filter(p => String(p.anio) === String(anio))
+    .sort((a, b) => a.mes - b.mes)  // ← agrega esto
     .forEach(p => {
       mesSel.appendChild(new Option(MESES[p.mes], p.mes));
     });
@@ -770,12 +772,15 @@ function actualizarMesesGraf(periodos) {
     const ctx = document.getElementById('chart-bar').getContext('2d');
     if (chartBar) chartBar.destroy();
 
-    // Agrupar por día
     const byDay = {};
     gastos.forEach(g => {
-      const day = g.fecha.slice(8,10);
-      byDay[day] = (byDay[day] || 0) + Number(g.monto);
+      // Si hay mes seleccionado mostrar solo el día, si no mostrar dd/mm
+      const key = mes
+        ? g.fecha.slice(8,10)
+        : `${g.fecha.slice(8,10)}/${g.fecha.slice(5,7)}`;
+      byDay[key] = (byDay[key] || 0) + Number(g.monto);
     });
+
     const labels = Object.keys(byDay).sort();
     const data   = labels.map(k => byDay[k]);
 
@@ -799,7 +804,7 @@ function actualizarMesesGraf(periodos) {
           tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.parsed.y)}` } }
         },
         scales: {
-          x: { ticks: { color: '#5e5e6e' }, grid: { color: '#1c1c21' } },
+          x: { ticks: { color: '#5e5e6e', maxRotation: 45 }, grid: { color: '#1c1c21' } },
           y: { ticks: { color: '#5e5e6e', callback: v => fmt(v) }, grid: { color: '#1c1c21' } }
         }
       }
