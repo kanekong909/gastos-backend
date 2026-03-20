@@ -880,7 +880,9 @@ async function renderLine(anio) {
 
   try {
     const meses = await api('/gastos/meses');
-    const delAnio = meses.filter(m => Number(m.anio) === Number(anio));
+    const delAnio = meses
+      .filter(m => Number(m.anio) === Number(anio))
+      .sort((a, b) => a.mes - b.mes);
     const labels = delAnio.map(m => MESES[m.mes]);
     const data = delAnio.map(m => Number(m.total));
 
