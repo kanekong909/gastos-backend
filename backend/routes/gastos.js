@@ -106,70 +106,140 @@ router.get('/periodos', async (req, res) => {
 
 // ── POST /api/gastos ───────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { fecha, hora, monto, categoria, descripcion } = req.body;
+  const { fecha, hora, monto, categoria, descripcion, billtera_id } = req.body;
   const uid = req.usuario.id;
 
   if (!fecha || !hora || !monto || !categoria)
     return res.status(400).json({ error: 'Fecha, hora, monto y categoría son requeridos' });
-
   if (isNaN(monto) || Number(monto) <= 0)
     return res.status(400).json({ error: 'El monto debe ser un número positivo' });
 
+  const conn = await pool.getConnection();
   try {
-    const [result] = await pool.query(
-      'INSERT INTO gastos (usuario_id, fecha, hora, monto, categoria, descripcion) VALUES (?, ?, ?, ?, ?, ?)',
-      [uid, fecha, hora, Number(monto), categoria, descripcion || null]
+    await conn.beginTransaction();
+
+    const [result] = await conn.query(
+      'INSERT INTO gastos (usuario_id, fecha, hora, monto, categoria, descripcion, billtera_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [uid, fecha, hora, Number(monto), categoria, descripcion || null, billtera_id || null]
     );
+
+    // Descontar saldo de la billtera si se especificó
+    if (billtera_id) {
+      const [bil] = await conn.query(
+        'SELECT saldo FROM billeteras WHERE id = ? AND usuario_id = ?',
+        [billtera_id, uid]
+      );
+      if (!bil.length) {
+        await conn.rollback();
+        return res.status(404).json({ error: 'Billtera no encontrada' });
+      }
+      await conn.query(
+        'UPDATE billeteras SET saldo = saldo - ? WHERE id = ?',
+        [Number(monto), billtera_id]
+      );
+    }
+
+    await conn.commit();
     const [rows] = await pool.query('SELECT * FROM gastos WHERE id = ?', [result.insertId]);
     res.status(201).json(rows[0]);
   } catch (err) {
+    await conn.rollback();
     console.error(err);
     res.status(500).json({ error: 'Error al crear gasto' });
+  } finally {
+    conn.release();
   }
 });
 
 // ── PUT /api/gastos/:id ────────────────────────────────────
 router.put('/:id', async (req, res) => {
-  const { id }  = req.params;
-  const uid     = req.usuario.id;
-  const { fecha, hora, monto, categoria, descripcion } = req.body;
+  const { id } = req.params;
+  const uid = req.usuario.id;
+  const { fecha, hora, monto, categoria, descripcion, billtera_id } = req.body;
 
+  const conn = await pool.getConnection();
   try {
-    const [existing] = await pool.query(
-      'SELECT id FROM gastos WHERE id = ? AND usuario_id = ?', [id, uid]
-    );
-    if (existing.length === 0)
-      return res.status(404).json({ error: 'Gasto no encontrado' });
+    await conn.beginTransaction();
 
-    await pool.query(
-      'UPDATE gastos SET fecha=?, hora=?, monto=?, categoria=?, descripcion=? WHERE id=?',
-      [fecha, hora, Number(monto), categoria, descripcion || null, id]
+    const [existing] = await conn.query(
+      'SELECT * FROM gastos WHERE id = ? AND usuario_id = ?', [id, uid]
     );
+    if (!existing.length) {
+      await conn.rollback();
+      return res.status(404).json({ error: 'Gasto no encontrado' });
+    }
+
+    const gastoAnterior = existing[0];
+
+    // Revertir descuento anterior si tenía billtera
+    if (gastoAnterior.billtera_id) {
+      await conn.query(
+        'UPDATE billeteras SET saldo = saldo + ? WHERE id = ? AND usuario_id = ?',
+        [Number(gastoAnterior.monto), gastoAnterior.billtera_id, uid]
+      );
+    }
+
+    // Aplicar nuevo descuento si tiene billtera
+    if (billtera_id) {
+      await conn.query(
+        'UPDATE billeteras SET saldo = saldo - ? WHERE id = ? AND usuario_id = ?',
+        [Number(monto), billtera_id, uid]
+      );
+    }
+
+    await conn.query(
+      'UPDATE gastos SET fecha=?, hora=?, monto=?, categoria=?, descripcion=?, billtera_id=? WHERE id=?',
+      [fecha, hora, Number(monto), categoria, descripcion || null, billtera_id || null, id]
+    );
+
+    await conn.commit();
     const [rows] = await pool.query('SELECT * FROM gastos WHERE id = ?', [id]);
     res.json(rows[0]);
   } catch (err) {
+    await conn.rollback();
     console.error(err);
     res.status(500).json({ error: 'Error al actualizar gasto' });
+  } finally {
+    conn.release();
   }
 });
 
 // ── DELETE /api/gastos/:id ─────────────────────────────────
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  const uid    = req.usuario.id;
+  const uid = req.usuario.id;
 
+  const conn = await pool.getConnection();
   try {
-    const [existing] = await pool.query(
-      'SELECT id FROM gastos WHERE id = ? AND usuario_id = ?', [id, uid]
-    );
-    if (existing.length === 0)
-      return res.status(404).json({ error: 'Gasto no encontrado' });
+    await conn.beginTransaction();
 
-    await pool.query('DELETE FROM gastos WHERE id = ?', [id]);
+    const [existing] = await conn.query(
+      'SELECT * FROM gastos WHERE id = ? AND usuario_id = ?', [id, uid]
+    );
+    if (!existing.length) {
+      await conn.rollback();
+      return res.status(404).json({ error: 'Gasto no encontrado' });
+    }
+
+    const gasto = existing[0];
+
+    // Revertir descuento si tenía billtera
+    if (gasto.billtera_id) {
+      await conn.query(
+        'UPDATE billeteras SET saldo = saldo + ? WHERE id = ? AND usuario_id = ?',
+        [Number(gasto.monto), gasto.billtera_id, uid]
+      );
+    }
+
+    await conn.query('DELETE FROM gastos WHERE id = ?', [id]);
+    await conn.commit();
     res.json({ message: 'Gasto eliminado correctamente' });
   } catch (err) {
+    await conn.rollback();
     console.error(err);
     res.status(500).json({ error: 'Error al eliminar gasto' });
+  } finally {
+    conn.release();
   }
 });
 
