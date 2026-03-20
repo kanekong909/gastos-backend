@@ -1223,7 +1223,11 @@ function renderRecurrentesLista() {
         <div class="recurrente-item-detalle">Día ${r.dia_mes} de cada mes · ${r.categoria}</div>
       </div>
       <div class="recurrente-item-monto">${fmt(r.monto)}</div>
-      <button class="btn-rec-eliminar">Eliminar</button>`;
+      <div style="display:flex;gap:.4rem;">
+        <button class="btn-edit btn-rec-editar">Editar</button>
+        <button class="btn-rec-eliminar">Eliminar</button>
+      </div>`;
+    div.querySelector('.btn-rec-editar').addEventListener('click', () => abrirEditarRecurrente(r));
     div.querySelector('.btn-rec-eliminar').addEventListener('click', () => {
       confirmDelete(async () => {
         await api(`/recurrentes/${r.id}`, { method: 'DELETE' });
@@ -1286,12 +1290,14 @@ document.getElementById('recurrentes-modal-close').addEventListener('click', () 
 
 // Crear recurrente
 document.getElementById('btn-crear-recurrente').addEventListener('click', async () => {
-  const nombre   = document.getElementById('rec-nombre').value.trim();
-  const monto    = document.getElementById('rec-monto').value;
-  const dia      = document.getElementById('rec-dia').value;
-  const cat      = document.getElementById('rec-categoria').value;
-  const desc     = document.getElementById('rec-descripcion').value.trim();
-  const bill     = document.getElementById('rec-billtera').value;
+  const nombre = document.getElementById('rec-nombre').value.trim();
+  const monto  = document.getElementById('rec-monto').value;
+  const dia    = document.getElementById('rec-dia').value;
+  const cat    = document.getElementById('rec-categoria').value;
+  const desc   = document.getElementById('rec-descripcion').value.trim();
+  const bill   = document.getElementById('rec-billtera').value;
+  const btn    = document.getElementById('btn-crear-recurrente');
+  const modoEditar = btn.dataset.modo === 'editar';
 
   if (!nombre || !monto || !dia || !cat)
     return showError('rec-error', 'Nombre, monto, día y categoría son obligatorios');
@@ -1299,23 +1305,38 @@ document.getElementById('btn-crear-recurrente').addEventListener('click', async 
     return showError('rec-error', 'El día debe estar entre 1 y 31');
 
   try {
-    document.getElementById('btn-crear-recurrente').textContent = 'Guardando…';
-    await api('/recurrentes', {
-      method: 'POST',
-      body: JSON.stringify({ nombre, monto: Number(monto), dia_mes: Number(dia), categoria: cat, descripcion: desc, billtera_id: bill || null })
-    });
+    btn.textContent = 'Guardando…';
+
+    if (modoEditar) {
+      await api(`/recurrentes/${recurrenteEditId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ nombre, monto: Number(monto), dia_mes: Number(dia), categoria: cat, descripcion: desc, billtera_id: bill || null, activo: 1 })
+      });
+      recurrenteEditId = null;
+      btn.dataset.modo = 'crear';
+    } else {
+      await api('/recurrentes', {
+        method: 'POST',
+        body: JSON.stringify({ nombre, monto: Number(monto), dia_mes: Number(dia), categoria: cat, descripcion: desc, billtera_id: bill || null })
+      });
+    }
+
+    // Limpiar formulario
     document.getElementById('rec-nombre').value = '';
     document.getElementById('rec-monto').value = '';
     document.getElementById('rec-dia').value = '';
     document.getElementById('rec-categoria').value = '';
     document.getElementById('rec-descripcion').value = '';
     document.getElementById('rec-billtera').value = '';
+
     await cargarRecurrentes();
     await verificarPendientes();
   } catch(e) {
     showError('rec-error', e.message);
   } finally {
-    document.getElementById('btn-crear-recurrente').textContent = 'Guardar recurrente';
+    btn.textContent = modoEditar ? 'Actualizar recurrente' : 'Guardar recurrente';
+    btn.textContent = 'Guardar recurrente';
+    btn.dataset.modo = 'crear';
   }
 });
 
