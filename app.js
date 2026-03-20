@@ -1034,6 +1034,7 @@ document.getElementById('toggle-recargar').addEventListener('click', () => {
   document.getElementById('toggle-restar').classList.remove('active');
   document.querySelectorAll('.btn-recarga').forEach(b => {
     b.textContent = `+$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto)/1000)+'K' : b.dataset.monto}`;
+    b.classList.remove('btn-recarga-restar');
   });
 });
 
@@ -1043,6 +1044,7 @@ document.getElementById('toggle-restar').addEventListener('click', () => {
   document.getElementById('toggle-recargar').classList.remove('active');
   document.querySelectorAll('.btn-recarga').forEach(b => {
     b.textContent = `-$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto)/1000)+'K' : b.dataset.monto}`;
+    b.classList.add('btn-recarga-restar');
   });
 });
 

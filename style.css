@@ -847,6 +847,14 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   background: rgba(62,207,142,.1);
   border-color: rgba(62,207,142,.3);
 }
+.btn-recarga-restar {
+  color: var(--red);
+  border-color: rgba(248,113,113,.2);
+}
+.btn-recarga-restar:hover {
+  background: rgba(248,113,113,.1);
+  border-color: rgba(248,113,113,.3);
+}
 
 .recarga-manual {
   display: flex;
