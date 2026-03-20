@@ -1058,12 +1058,32 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   border-radius: var(--radius-sm);
   padding: .75rem 1rem;
   display: flex;
-  align-items: center;
-  gap: .75rem;
+  flex-direction: column;
+  gap: .5rem;
   margin-bottom: .5rem;
 }
-.recurrente-item-info { flex: 1; }
-.recurrente-item-nombre { font-size: 14px; font-weight: 600; }
+.recurrente-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.recurrente-item-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.recurrente-item-info { flex: 1; min-width: 0; }
+.recurrente-item-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .recurrente-item-detalle { font-size: 12px; color: var(--text3); margin-top: 2px; }
 .recurrente-item-monto {
   font-family: var(--font-head);
@@ -1071,6 +1091,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   color: var(--accent);
   font-size: .95rem;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn-rec-eliminar {
   background: rgba(248,113,113,.1);

@@ -1200,7 +1200,7 @@ function renderPendientes(pendientes) {
       </div>
       <div class="rp-monto">${fmt(r.monto)}</div>
       <button class="btn-rp-registrar">Registrar</button>`;
-    div.querySelector('.btn-rp-registrar').addEventListener('click', () => abrirRegistrarRecurrente(r));
+    div.querySelector('.btn-rp-registrar').addEventListenr('click', () => abrirRegistrarRecurrente(r));
     lista.appendChild(div);
   });
 }
@@ -1218,14 +1218,18 @@ function renderRecurrentesLista() {
     const div = document.createElement('div');
     div.className = 'recurrente-item';
     div.innerHTML = `
-      <div class="recurrente-item-info">
-        <div class="recurrente-item-nombre">${r.nombre}</div>
-        <div class="recurrente-item-detalle">Día ${r.dia_mes} de cada mes · ${r.categoria}</div>
+      <div class="recurrente-item-top">
+        <div class="recurrente-item-info">
+          <div class="recurrente-item-nombre">${r.nombre}</div>
+          <div class="recurrente-item-detalle">Día ${r.dia_mes} de cada mes · ${r.categoria}</div>
+        </div>
+        <div class="recurrente-item-monto">${fmt(r.monto)}</div>
       </div>
-      <div class="recurrente-item-monto">${fmt(r.monto)}</div>
-      <div style="display:flex;gap:.4rem;">
-        <button class="btn-edit btn-rec-editar">Editar</button>
-        <button class="btn-rec-eliminar">Eliminar</button>
+      <div class="recurrente-item-bottom">
+        <div style="display:flex;gap:.4rem;">
+          <button class="btn-edit btn-rec-editar">Editar</button>
+          <button class="btn-rec-eliminar">Eliminar</button>
+        </div>
       </div>`;
     div.querySelector('.btn-rec-editar').addEventListener('click', () => abrirEditarRecurrente(r));
     div.querySelector('.btn-rec-eliminar').addEventListener('click', () => {
