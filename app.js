@@ -216,16 +216,32 @@ document.getElementById('pass-modal-close').addEventListener('click', () => {
   document.getElementById('pass-modal').classList.add('hidden');
 });
 
-document.getElementById('btn-pass-confirm').addEventListener('click', () => {
+document.getElementById('btn-pass-confirm').addEventListener('click', async () => {
   const pass = document.getElementById('pdf-pass').value;
   if (!pass) {
     document.getElementById('pass-error').classList.remove('hidden');
+    document.getElementById('pass-error').textContent = 'Ingresa una contraseña';
     return;
   }
-  document.getElementById('pass-error').classList.add('hidden');
-  document.getElementById('pass-modal').classList.add('hidden');
-  const { gastos, anio, mes } = window._pdfData;
-  generarPDF(gastos, anio, mes, pass);
+
+  // Verificar contraseña contra el backend
+  try {
+    document.getElementById('btn-pass-confirm').textContent = 'Verificando…';
+    await api('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: usuario.email, password: pass })
+    });
+    // Si llega aquí, la contraseña es correcta
+    document.getElementById('pass-error').classList.add('hidden');
+    document.getElementById('pass-modal').classList.add('hidden');
+    const { gastos, anio, mes } = window._pdfData;
+    generarPDF(gastos, anio, mes, pass);
+  } catch (e) {
+    document.getElementById('pass-error').classList.remove('hidden');
+    document.getElementById('pass-error').textContent = 'Contraseña incorrecta';
+  } finally {
+    document.getElementById('btn-pass-confirm').textContent = 'Generar PDF';
+  }
 });
 
 document.getElementById('pdf-pass').addEventListener('keydown', e => {
