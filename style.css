@@ -861,6 +861,33 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   display: flex;
   justify-content: flex-end;
 }
+.recarga-toggle {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: .75rem;
+}
+.btn-toggle {
+  flex: 1;
+  padding: .4rem .75rem;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-toggle.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#toggle-restar.active {
+  background: rgba(248,113,113,.1);
+  border-color: rgba(248,113,113,.3);
+  color: var(--red);
+}
 
 /* ── EMOJI PICKER ─────────────────────────────────── */
 .emoji-picker {
