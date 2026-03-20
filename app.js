@@ -1176,6 +1176,9 @@ async function verificarPendientes() {
     document.getElementById('banner-texto').textContent =
       `Tienes ${pendientes.length} gasto${pendientes.length > 1 ? 's' : ''} recurrente${pendientes.length > 1 ? 's' : ''} pendiente${pendientes.length > 1 ? 's' : ''}`;
     banner.classList.remove('hidden');
+        setTimeout(() => {
+      document.getElementById('banner-recurrentes').classList.add('hidden');
+    }, 30000);
 
     // Lista en resumen
     renderPendientes(pendientes);
