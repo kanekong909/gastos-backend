@@ -905,4 +905,15 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
     bottom: calc(70px + 1rem);
     transform: none;
   }
+
+  .recarga-manual {
+  flex-direction: column;
+  }
+  .recarga-manual .input-prefix {
+    width: 100%;
+  }
+  .recarga-manual .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
 }
