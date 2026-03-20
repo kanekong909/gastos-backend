@@ -952,3 +952,135 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
     justify-content: center;
   }
 }
+
+/* ── BANNER RECURRENTES ───────────────────────────── */
+.banner-recurrentes {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  background: rgba(245,166,35,.1);
+  border: 1px solid rgba(245,166,35,.3);
+  border-radius: var(--radius);
+  padding: .75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.banner-icon { font-size: 1.2rem; }
+.banner-recurrentes span:nth-child(2) {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+.banner-btn {
+  background: var(--accent);
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: .35rem .9rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.banner-btn:hover { background: var(--accent2); }
+.banner-close {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 .25rem;
+}
+.banner-close:hover { color: var(--text); }
+
+/* ── RECURRENTES PENDIENTES ───────────────────────── */
+.recurrentes-pendientes-header {
+  margin-bottom: .75rem;
+}
+.rp-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.recurrente-pendiente-item {
+  background: var(--bg3);
+  border: 1px solid rgba(245,166,35,.2);
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .5rem;
+}
+.rp-info { flex: 1; }
+.rp-nombre { font-size: 14px; font-weight: 600; color: var(--text); }
+.rp-detalle { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.rp-monto {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  font-size: .95rem;
+}
+.btn-rp-registrar {
+  background: var(--accent);
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: .35rem .8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.btn-rp-registrar:hover { background: var(--accent2); }
+
+/* ── RECURRENTES LISTA MODAL ──────────────────────── */
+.recurrente-form-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.recurrente-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .5rem;
+}
+.recurrente-item-info { flex: 1; }
+.recurrente-item-nombre { font-size: 14px; font-weight: 600; }
+.recurrente-item-detalle { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.recurrente-item-monto {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--accent);
+  font-size: .95rem;
+  white-space: nowrap;
+}
+.btn-rec-eliminar {
+  background: rgba(248,113,113,.1);
+  color: var(--red);
+  border: 1px solid rgba(248,113,113,.2);
+  padding: .3rem .6rem;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-rec-eliminar:hover { background: rgba(248,113,113,.2); }

@@ -1155,7 +1155,209 @@ document.getElementById('btn-crear-billtera').addEventListener('click', async ()
   }
 });
 
+// ── RECURRENTES ───────────────────────────────────
+let recurrentes = [];
+
+async function cargarRecurrentes() {
+  try {
+    recurrentes = await api('/recurrentes');
+    renderRecurrentesLista();
+    actualizarSelectsRecurrentes();
+  } catch(e) { console.error(e); }
+}
+
+async function verificarPendientes() {
+  try {
+    const pendientes = await api('/recurrentes/pendientes');
+    if (!pendientes.length) return;
+
+    // Banner
+    const banner = document.getElementById('banner-recurrentes');
+    document.getElementById('banner-texto').textContent =
+      `Tienes ${pendientes.length} gasto${pendientes.length > 1 ? 's' : ''} recurrente${pendientes.length > 1 ? 's' : ''} pendiente${pendientes.length > 1 ? 's' : ''}`;
+    banner.classList.remove('hidden');
+
+    // Lista en resumen
+    renderPendientes(pendientes);
+  } catch(e) { console.error(e); }
+}
+
+function renderPendientes(pendientes) {
+  const wrap = document.getElementById('recurrentes-pendientes-wrap');
+  const lista = document.getElementById('recurrentes-pendientes-lista');
+  lista.innerHTML = '';
+
+  if (!pendientes.length) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+
+  pendientes.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'recurrente-pendiente-item';
+    div.innerHTML = `
+      <div class="rp-info">
+        <div class="rp-nombre">${r.nombre}</div>
+        <div class="rp-detalle">Día ${r.dia_mes} · ${r.categoria}${r.billtera_nombre ? ` · ${r.billtera_emoji} ${r.billtera_nombre}` : ''}</div>
+      </div>
+      <div class="rp-monto">${fmt(r.monto)}</div>
+      <button class="btn-rp-registrar">Registrar</button>`;
+    div.querySelector('.btn-rp-registrar').addEventListener('click', () => abrirRegistrarRecurrente(r));
+    lista.appendChild(div);
+  });
+}
+
+function renderRecurrentesLista() {
+  const lista = document.getElementById('recurrentes-lista');
+  lista.innerHTML = '';
+
+  if (!recurrentes.length) {
+    lista.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span class="empty-icon">◎</span><p>No tienes gastos recurrentes</p></div>';
+    return;
+  }
+
+  recurrentes.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'recurrente-item';
+    div.innerHTML = `
+      <div class="recurrente-item-info">
+        <div class="recurrente-item-nombre">${r.nombre}</div>
+        <div class="recurrente-item-detalle">Día ${r.dia_mes} de cada mes · ${r.categoria}</div>
+      </div>
+      <div class="recurrente-item-monto">${fmt(r.monto)}</div>
+      <button class="btn-rec-eliminar">Eliminar</button>`;
+    div.querySelector('.btn-rec-eliminar').addEventListener('click', () => {
+      confirmDelete(async () => {
+        await api(`/recurrentes/${r.id}`, { method: 'DELETE' });
+        await cargarRecurrentes();
+      }, `¿Eliminar "${r.nombre}"?`);
+    });
+    lista.appendChild(div);
+  });
+}
+
+function actualizarSelectsRecurrentes() {
+  ['rec-billtera', 'rr-billtera'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const val = sel.value;
+    sel.innerHTML = '<option value="">Sin especificar</option>';
+    billeteras.forEach(b => {
+      sel.appendChild(new Option(`${b.emoji} ${b.nombre}`, b.id));
+    });
+    if (val) sel.value = val;
+  });
+}
+
+function abrirRegistrarRecurrente(r) {
+  const now = new Date();
+  document.getElementById('registrar-rec-titulo').textContent = `Registrar: ${r.nombre}`;
+  document.getElementById('rr-fecha').value = now.toISOString().slice(0,10);
+  document.getElementById('rr-hora').value  = now.toTimeString().slice(0,5);
+  document.getElementById('rr-monto').value = r.monto;
+  document.getElementById('rr-categoria').value = r.categoria;
+  document.getElementById('rr-descripcion').value = r.descripcion || r.nombre;
+
+  const rrSel = document.getElementById('rr-billtera');
+  rrSel.innerHTML = '<option value="">Sin especificar</option>';
+  billeteras.forEach(b => rrSel.appendChild(new Option(`${b.emoji} ${b.nombre}`, b.id)));
+  if (r.billtera_id) rrSel.value = r.billtera_id;
+
+  document.getElementById('registrar-rec-modal').classList.remove('hidden');
+}
+
+// Banner cerrar
+document.getElementById('banner-close').addEventListener('click', () => {
+  document.getElementById('banner-recurrentes').classList.add('hidden');
+});
+
+// Banner ver pendientes
+document.getElementById('banner-btn-ver').addEventListener('click', () => {
+  document.getElementById('banner-recurrentes').classList.add('hidden');
+  showSection('resumen');
+});
+
+// Modal gestionar recurrentes
+document.getElementById('btn-gestionar-recurrentes').addEventListener('click', async () => {
+  await cargarRecurrentes();
+  document.getElementById('recurrentes-modal').classList.remove('hidden');
+});
+document.getElementById('recurrentes-modal-close').addEventListener('click', () => {
+  document.getElementById('recurrentes-modal').classList.add('hidden');
+});
+
+// Crear recurrente
+document.getElementById('btn-crear-recurrente').addEventListener('click', async () => {
+  const nombre   = document.getElementById('rec-nombre').value.trim();
+  const monto    = document.getElementById('rec-monto').value;
+  const dia      = document.getElementById('rec-dia').value;
+  const cat      = document.getElementById('rec-categoria').value;
+  const desc     = document.getElementById('rec-descripcion').value.trim();
+  const bill     = document.getElementById('rec-billtera').value;
+
+  if (!nombre || !monto || !dia || !cat)
+    return showError('rec-error', 'Nombre, monto, día y categoría son obligatorios');
+  if (dia < 1 || dia > 31)
+    return showError('rec-error', 'El día debe estar entre 1 y 31');
+
+  try {
+    document.getElementById('btn-crear-recurrente').textContent = 'Guardando…';
+    await api('/recurrentes', {
+      method: 'POST',
+      body: JSON.stringify({ nombre, monto: Number(monto), dia_mes: Number(dia), categoria: cat, descripcion: desc, billtera_id: bill || null })
+    });
+    document.getElementById('rec-nombre').value = '';
+    document.getElementById('rec-monto').value = '';
+    document.getElementById('rec-dia').value = '';
+    document.getElementById('rec-categoria').value = '';
+    document.getElementById('rec-descripcion').value = '';
+    document.getElementById('rec-billtera').value = '';
+    await cargarRecurrentes();
+    await verificarPendientes();
+  } catch(e) {
+    showError('rec-error', e.message);
+  } finally {
+    document.getElementById('btn-crear-recurrente').textContent = 'Guardar recurrente';
+  }
+});
+
+// Modal registrar recurrente
+document.getElementById('registrar-rec-close').addEventListener('click', () => {
+  document.getElementById('registrar-rec-modal').classList.add('hidden');
+});
+document.getElementById('btn-rr-cancelar').addEventListener('click', () => {
+  document.getElementById('registrar-rec-modal').classList.add('hidden');
+});
+
+document.getElementById('btn-rr-guardar').addEventListener('click', async () => {
+  const fecha = document.getElementById('rr-fecha').value;
+  const hora  = document.getElementById('rr-hora').value;
+  const monto = document.getElementById('rr-monto').value;
+  const cat   = document.getElementById('rr-categoria').value;
+  const desc  = document.getElementById('rr-descripcion').value.trim();
+  const bill  = document.getElementById('rr-billtera').value;
+
+  if (!fecha || !hora || !monto || !cat)
+    return showError('rr-error', 'Completa todos los campos obligatorios');
+
+  try {
+    document.getElementById('btn-rr-guardar').textContent = 'Guardando…';
+    await api('/gastos', {
+      method: 'POST',
+      body: JSON.stringify({ fecha, hora, monto: Number(monto), categoria: cat, descripcion: desc, billtera_id: bill || null })
+    });
+    document.getElementById('registrar-rec-modal').classList.add('hidden');
+    await verificarPendientes();
+    cargarResumen();
+    cargarBilleteras();
+  } catch(e) {
+    showError('rr-error', e.message);
+  } finally {
+    document.getElementById('btn-rr-guardar').textContent = 'Guardar gasto';
+  }
+});
+
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {
   initApp();
+  cargarRecurrentes();
+  verificarPendientes();
 }
