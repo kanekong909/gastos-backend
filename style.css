@@ -549,6 +549,18 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   font-weight: 700;
 }
 
+/* ── AÑOS en meses anteriores ─────────────────────── */
+.anio-titulo {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 1.5rem 0 .75rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--border);
+}
+.anio-titulo:first-child { margin-top: 0; }
+
 /* ── REPORTE ──────────────────────────────────────── */
 .reporte-card { max-width: 500px; }
 
@@ -687,3 +699,4 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   gap: .75rem; padding: 2rem;
   color: var(--text3); font-size: 14px;
 }
+
