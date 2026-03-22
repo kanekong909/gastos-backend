@@ -1074,3 +1074,28 @@ footer {
   .hero-title { font-size: 2.2rem; }
   .hero-stats { flex-wrap: wrap; justify-content: center; gap: .75rem 1.5rem; }
 }
+
+@media (max-width: 390px) {
+  .hero-title {
+    font-size: 1.6rem;
+    line-height: 1.1;
+  }
+  .hero-sub {
+    font-size: .9rem;
+  }
+  .hero-badge {
+    font-size: 9px;
+    padding: .25rem .75rem;
+  }
+  .hero-stats {
+    gap: .6rem 1rem;
+  }
+  .stat-num { font-size: 1.2rem; }
+  .stat-label { font-size: 10px; }
+  .btn-hero {
+    font-size: 13px;
+    padding: .75rem 1.25rem;
+  }
+  .cta-title { font-size: 1.6rem; }
+  .section-title { font-size: 1.5rem; }
+}
