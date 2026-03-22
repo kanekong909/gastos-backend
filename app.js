@@ -1049,6 +1049,26 @@ async function renderLine(anio) {
   } catch (e) { console.error(e); }
 }
 
+// ── AVATAR NAVBAR ─────────────────────────────────
+function renderNavAvatar() {
+  const navNombre = document.getElementById('nav-nombre');
+  let navAvatar = document.getElementById('nav-avatar');
+
+  if (!navAvatar) {
+    navAvatar = document.createElement('div');
+    navAvatar.id = 'nav-avatar';
+    navAvatar.style.cssText = 'width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;background:var(--accent-dim);';
+    navNombre.parentNode.insertBefore(navAvatar, navNombre);
+    navAvatar.addEventListener('click', abrirPerfilModal);
+  }
+
+  if (usuario && usuario.avatar) {
+    navAvatar.innerHTML = `<img src="${usuario.avatar}" style="width:100%;height:100%;object-fit:cover;"/>`;
+  } else {
+    navAvatar.innerHTML = '👤';
+  }
+}
+
 // ── Init app ──────────────────────────────────────
 function initApp() {
   if (!token || !usuario) return;
