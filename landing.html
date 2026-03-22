@@ -6,6 +6,7 @@
   <title>Kash — Controla tu dinero, vive mejor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="shortcut icon" href="./assets/img/icon.svg" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="./assets/css/landing.css"/>
 </head>
@@ -81,57 +82,111 @@
   <!-- ── MOCKUP ── -->
   <div class="mockup-wrap reveal">
     <div class="mockup">
-      <div class="mockup-bar">
-        <div class="mockup-dot"></div>
-        <div class="mockup-dot"></div>
-        <div class="mockup-dot"></div>
-        <div class="mockup-url">kash.app · Marzo 2026</div>
+      <!-- Navbar real -->
+      <div class="mockup-nav">
+        <div class="mockup-nav-brand">
+          <span style="color:var(--accent);font-size:1rem;">◈</span>
+          <span style="font-family:var(--font-head);font-weight:800;font-size:.85rem;letter-spacing:.12em;">KASH</span>
+        </div>
+        <div class="mockup-nav-links">
+          <span class="mnl active">Nuevo gasto</span>
+          <span class="mnl">Resumen</span>
+          <span class="mnl">Historial</span>
+          <span class="mnl">Reporte</span>
+          <span class="mnl">Gráficos</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <span style="font-size:11px;color:#9898a8;font-weight:500;">María</span>
+          <span style="font-size:10px;color:#5e5e6e;border:1px solid #2e2e35;border-radius:5px;padding:.15rem .4rem;">Salir</span>
+        </div>
       </div>
+
+      <!-- Contenido: sección resumen -->
       <div class="mockup-body">
-        <div class="mock-card">
-          <div class="mock-card-label">Total del mes</div>
-          <div class="mock-card-value">$1.248.500</div>
-          <div class="mock-card-sub">29 registros</div>
-        </div>
-        <div class="mock-card">
-          <div class="mock-card-label">Mayor gasto</div>
-          <div class="mock-card-value" style="color:var(--blue)">$340.000</div>
-          <div class="mock-card-sub">Arriendo</div>
-        </div>
-        <div class="mock-card">
-          <div class="mock-card-label">Nequi</div>
-          <div class="mock-card-value" style="color:var(--green)">$88.500</div>
-          <div class="mock-card-sub">Saldo disponible</div>
-        </div>
-        <div class="mock-card mock-card-full">
-          <div class="mock-card-label">Últimos registros</div>
-          <div class="mock-list">
-            <div class="mock-row">
-              <div class="mock-dot" style="background:#3ecf8e"></div>
-              <div class="mock-row-info">
-                <div class="mock-row-name">Almuerzo ejecutivo</div>
-                <div class="mock-row-cat">Comida · 20/03/2026</div>
-              </div>
-              <div class="mock-row-amount">$18.000</div>
-            </div>
-            <div class="mock-row">
-              <div class="mock-dot" style="background:#60a5fa"></div>
-              <div class="mock-row-info">
-                <div class="mock-row-name">Bus Transmilenio</div>
-                <div class="mock-row-cat">Transporte · 20/03/2026</div>
-              </div>
-              <div class="mock-row-amount">$3.200</div>
-            </div>
-            <div class="mock-row">
-              <div class="mock-dot" style="background:#a78bfa"></div>
-              <div class="mock-row-info">
-                <div class="mock-row-name">Netflix</div>
-                <div class="mock-row-cat">Entretenimiento · 19/03/2026</div>
-              </div>
-              <div class="mock-row-amount">$22.900</div>
-            </div>
+
+        <!-- Header sección -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+          <div>
+            <div style="font-family:var(--font-head);font-size:1.3rem;font-weight:800;">Marzo 2026</div>
+            <div style="font-size:11px;color:#9898a8;margin-top:2px;">Resumen del mes actual</div>
+          </div>
+          <div style="background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:.5rem .9rem;text-align:right;">
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700;">Total del mes</div>
+            <div style="font-family:var(--font-head);font-size:1.1rem;font-weight:800;">$1.248.500</div>
           </div>
         </div>
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
+          <div style="flex:1;background:#18181d;border:1px solid #222228;border-radius:7px;padding:.4rem .7rem;font-size:10px;color:#4a4a60;">⌕ Buscar por descripción…</div>
+          <div style="background:#18181d;border:1px solid #222228;border-radius:7px;padding:.4rem .7rem;font-size:10px;color:#4a4a60;">Todas las categorías ▾</div>
+        </div>
+
+        <!-- Items de gastos -->
+        <div style="display:flex;flex-direction:column;gap:.4rem;">
+
+          <div class="mock-gasto-item">
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <span class="mock-badge" style="background:rgba(60,207,142,.15);color:#3ecf8e;">Comida</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Almuerzo ejecutivo</div>
+                <div style="font-size:10px;color:#5e5e6e;">20/03/2026 · 12:30</div>
+              </div>
+              <div style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--accent);">$18.000</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:10px;color:#5e5e6e;">📱 Nequi</span>
+              <div style="display:flex;gap:.3rem;">
+                <span class="mock-btn-edit">Editar</span>
+                <span class="mock-btn-del">Eliminar</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mock-gasto-item">
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <span class="mock-badge" style="background:rgba(96,165,250,.15);color:#60a5fa;">Transporte</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Bus Transmilenio</div>
+                <div style="font-size:10px;color:#5e5e6e;">20/03/2026 · 08:15</div>
+              </div>
+              <div style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--accent);">$3.200</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:10px;color:#5e5e6e;">💵 Efectivo</span>
+              <div style="display:flex;gap:.3rem;">
+                <span class="mock-btn-edit">Editar</span>
+                <span class="mock-btn-del">Eliminar</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mock-gasto-item">
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <span class="mock-badge" style="background:rgba(167,139,250,.15);color:#a78bfa;">Entret.</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Netflix</div>
+                <div style="font-size:10px;color:#5e5e6e;">19/03/2026 · 00:00</div>
+              </div>
+              <div style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--accent);">$22.900</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:10px;color:#5e5e6e;">🏦 Bancolombia</span>
+              <div style="display:flex;gap:.3rem;">
+                <span class="mock-btn-edit">Editar</span>
+                <span class="mock-btn-del">Eliminar</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Billeteras FAB simuladas -->
+      <div class="mock-fab">
+        <div class="mock-fab-item">📱</div>
+        <div class="mock-fab-item">🏦</div>
+        <div class="mock-fab-item" style="background:var(--accent);color:#000;font-weight:700;">＋</div>
       </div>
     </div>
   </div>
