@@ -168,6 +168,12 @@
             </select>
           </div>
 
+          <!-- Campo categoría personalizada -->
+          <div class="field-group hidden" id="f-categoria-custom-wrap">
+            <label>¿Cuál categoría? <span class="optional">(escríbela)</span></label>
+            <input type="text" id="f-categoria-custom" placeholder="Ej: Salud, Mascota, Hogar…" maxlength="50"/>
+          </div>
+
           <div class="field-group">
             <label>¿Cómo pagaste? <span class="optional">(opcional)</span></label>
             <select id="f-billtera">
@@ -358,6 +364,11 @@
             <option value="Ropa">Ropa</option>
             <option value="Otros">Otros</option>
           </select>
+        </div>
+        <!-- Campo categoría personalizada editar -->
+        <div class="field-group hidden" id="e-categoria-custom-wrap">
+          <label>¿Cuál categoría?</label>
+          <input type="text" id="e-categoria-custom" placeholder="Ej: Salud, Mascota, Hogar…" maxlength="50"/>
         </div>
         <div class="field-group full-width">
           <label>¿Cómo pagaste? <span class="optional">(opcional)</span></label>

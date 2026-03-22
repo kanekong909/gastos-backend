@@ -158,7 +158,9 @@ document.getElementById('btn-guardar').addEventListener('click', async () => {
   const fecha = document.getElementById('f-fecha').value;
   const hora = document.getElementById('f-hora').value;
   const monto = document.getElementById('f-monto').value;
-  const cat = document.getElementById('f-categoria').value;
+  const catSelect = document.getElementById('f-categoria').value;
+  const catCustom = document.getElementById('f-categoria-custom').value.trim();
+  const cat = catSelect === 'Otros' && catCustom ? catCustom : catSelect;
   const desc = document.getElementById('f-descripcion').value.trim();
 
   if (!fecha || !hora || !monto || !cat)
@@ -189,6 +191,8 @@ document.getElementById('btn-limpiar').addEventListener('click', () => {
   document.getElementById('f-monto').value = '';
   document.getElementById('f-categoria').value = '';
   document.getElementById('f-descripcion').value = '';
+  document.getElementById('f-categoria-custom').value = '';
+  document.getElementById('f-categoria-custom-wrap').classList.add('hidden');
   hideError('form-error');
   setDefaultDateTime();
 });
@@ -199,8 +203,21 @@ function openEdit(gasto) {
   document.getElementById('e-fecha').value = gasto.fecha.slice(0, 10);
   document.getElementById('e-hora').value = gasto.hora.slice(0, 5);
   document.getElementById('e-monto').value = gasto.monto;
-  document.getElementById('e-categoria').value = gasto.categoria;
   document.getElementById('e-descripcion').value = gasto.descripcion || '';
+
+  // Categoría — detectar si es fija o personalizada
+  const categoriasFijas = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
+  const esCategoriaFija = categoriasFijas.includes(gasto.categoria);
+
+  if (esCategoriaFija) {
+    document.getElementById('e-categoria').value = gasto.categoria;
+    document.getElementById('e-categoria-custom-wrap').classList.add('hidden');
+    document.getElementById('e-categoria-custom').value = '';
+  } else {
+    document.getElementById('e-categoria').value = 'Otros';
+    document.getElementById('e-categoria-custom').value = gasto.categoria;
+    document.getElementById('e-categoria-custom-wrap').classList.remove('hidden');
+  }
 
   // Actualizar opciones del select de billtera
   const eSel = document.getElementById('e-billtera');
@@ -213,6 +230,31 @@ function openEdit(gasto) {
 
   document.getElementById('edit-modal').classList.remove('hidden');
 }
+
+// ── CATEGORÍA PERSONALIZADA ───────────────────────
+document.getElementById('f-categoria').addEventListener('change', function() {
+  const wrap = document.getElementById('f-categoria-custom-wrap');
+  const input = document.getElementById('f-categoria-custom');
+  if (this.value === 'Otros') {
+    wrap.classList.remove('hidden');
+    input.focus();
+  } else {
+    wrap.classList.add('hidden');
+    input.value = '';
+  }
+});
+
+document.getElementById('e-categoria').addEventListener('change', function() {
+  const wrap = document.getElementById('e-categoria-custom-wrap');
+  const input = document.getElementById('e-categoria-custom');
+  if (this.value === 'Otros') {
+    wrap.classList.remove('hidden');
+    input.focus();
+  } else {
+    wrap.classList.add('hidden');
+    input.value = '';
+  }
+});
 
 document.getElementById('modal-close').addEventListener('click', () => document.getElementById('edit-modal').classList.add('hidden'));
 document.getElementById('btn-cancel-edit').addEventListener('click', () => document.getElementById('edit-modal').classList.add('hidden'));
@@ -287,7 +329,9 @@ document.getElementById('btn-update').addEventListener('click', async () => {
   const fecha = document.getElementById('e-fecha').value;
   const hora = document.getElementById('e-hora').value;
   const monto = document.getElementById('e-monto').value;
-  const cat = document.getElementById('e-categoria').value;
+  const catSelect = document.getElementById('e-categoria').value;
+  const catCustom = document.getElementById('e-categoria-custom').value.trim();
+  const cat = catSelect === 'Otros' && catCustom ? catCustom : catSelect;
   const desc = document.getElementById('e-descripcion').value.trim();
 
   if (!fecha || !hora || !monto || !cat)
