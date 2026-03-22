@@ -360,7 +360,7 @@ function openDetail(g) {
     <div class="detail-grid">
       <div class="detail-row">
         <span class="detail-label">Categoría</span>
-        <span class="cat-badge cat-${g.categoria}">${g.categoria}</span>
+        ${getCategoriaBadge(g.categoria)}
       </div>
       <div class="detail-row">
         <span class="detail-label">Descripción</span>
@@ -386,6 +386,32 @@ function openDetail(g) {
   document.getElementById('detail-modal').classList.remove('hidden');
 }
 
+// ── COLOR DINÁMICO PARA CATEGORÍAS PERSONALIZADAS ──
+const CATEGORIAS_FIJAS = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
+const COLORES_CUSTOM = [
+  { bg: 'rgba(251,191,36,.15)',  color: '#fbbf24' },  // amarillo
+  { bg: 'rgba(34,211,238,.15)',  color: '#22d3ee' },  // cyan
+  { bg: 'rgba(244,114,182,.15)', color: '#f472b6' },  // rosa
+  { bg: 'rgba(74,222,128,.15)',  color: '#4ade80' },  // verde claro
+  { bg: 'rgba(249,115,22,.15)',  color: '#f97316' },  // naranja
+  { bg: 'rgba(168,85,247,.15)',  color: '#a855f7' },  // púrpura
+  { bg: 'rgba(20,184,166,.15)',  color: '#14b8a6' },  // teal
+];
+
+function getCategoriaBadge(categoria) {
+  if (CATEGORIAS_FIJAS.includes(categoria)) {
+    return `<span class="cat-badge cat-${categoria}">${categoria}</span>`;
+  }
+  // Hash simple del texto para elegir siempre el mismo color
+  let hash = 0;
+  for (let i = 0; i < categoria.length; i++) {
+    hash = categoria.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const idx = Math.abs(hash) % COLORES_CUSTOM.length;
+  const { bg, color } = COLORES_CUSTOM[idx];
+  return `<span class="cat-badge" style="background:${bg};color:${color};">${categoria}</span>`;
+}
+
 // ── Construir item de gasto ────────────────────────
 function buildGastoItem(g, onEdit, onDel) {
   const div = document.createElement('div');
@@ -398,7 +424,7 @@ function buildGastoItem(g, onEdit, onDel) {
   const billtera = billeteras.find(b => b.id === g.billtera_id);
   div.innerHTML = `
       <div class="gasto-item-top">
-        <span class="cat-badge cat-${g.categoria}">${g.categoria}</span>
+        ${getCategoriaBadge(g.categoria)}
         <div class="gasto-info">
           <div class="gasto-desc">${desc}</div>
           <div class="gasto-fecha">${fmtFecha(g.fecha.slice(0, 10))} · ${(g.hora || '').slice(0, 5)}</div>
@@ -738,13 +764,25 @@ function generarPDF(gastos, anio, mes, password) {
   });
 
   // ── Tabla de registros ────────────────────────────
-  const CAT_COLORS = {
-    'Comida': [62, 207, 142],
-    'Transporte': [96, 165, 250],
+    const CAT_COLORS_PDF = {
+    'Comida':          [62, 207, 142],
+    'Transporte':      [96, 165, 250],
     'Entretenimiento': [167, 139, 250],
-    'Ropa': [251, 146, 60],
-    'Otros': [148, 163, 184],
+    'Ropa':            [251, 146, 60],
+    'Otros':           [148, 163, 184],
   };
+  const COLORES_CUSTOM_PDF = [
+    [251, 191, 36], [34, 211, 238], [244, 114, 182],
+    [74, 222, 128], [249, 115, 22], [168, 85, 247], [20, 184, 166],
+  ];
+
+  function getCatColorPDF(categoria) {
+    if (CAT_COLORS_PDF[categoria]) return CAT_COLORS_PDF[categoria];
+    let hash = 0;
+    for (let i = 0; i < categoria.length; i++)
+      hash = categoria.charCodeAt(i) + ((hash << 5) - hash);
+    return COLORES_CUSTOM_PDF[Math.abs(hash) % COLORES_CUSTOM_PDF.length];
+  }
 
   // Encabezado tabla
   let y = 92;
@@ -778,7 +816,7 @@ function generarPDF(gastos, anio, mes, password) {
       doc.rect(14, y, W - 28, 9, 'F');
     }
 
-    const catColor = CAT_COLORS[g.categoria] || [148, 163, 184];
+    const catColor = getCatColorPDF(g.categoria);
 
     // Badge categoría
     doc.setFillColor(...catColor.map(c => Math.round(c * 0.15 + dark[0] * 0.85)));
@@ -1273,7 +1311,12 @@ function abrirEditarRecurrente(r) {
   document.getElementById('rec-nombre').value      = r.nombre;
   document.getElementById('rec-monto').value       = r.monto;
   document.getElementById('rec-dia').value         = r.dia_mes;
-  document.getElementById('rec-categoria').value   = r.categoria;
+  const catsFijas = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
+  if (catsFijas.includes(r.categoria)) {
+    document.getElementById('rec-categoria').value = r.categoria;
+  } else {
+    document.getElementById('rec-categoria').value = 'Otros';
+  }
   document.getElementById('rec-descripcion').value = r.descripcion || '';
   document.getElementById('rec-billtera').value    = r.billtera_id || '';
 
@@ -1417,7 +1460,6 @@ document.getElementById('btn-crear-recurrente').addEventListener('click', async 
   } catch(e) {
     showError('rec-error', e.message);
   } finally {
-    btn.textContent = modoEditar ? 'Actualizar recurrente' : 'Guardar recurrente';
     btn.textContent = 'Guardar recurrente';
     btn.dataset.modo = 'crear';
   }
