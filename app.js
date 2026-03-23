@@ -25,6 +25,15 @@ const fmtFecha = d => {
   return `${day}/${m}/${y}`;
 };
 
+const fmtHora = h => {
+  if (!h) return '';
+  const [hh, mm] = h.slice(0, 5).split(':');
+  const hora = parseInt(hh);
+  const ampm = hora >= 12 ? 'PM' : 'AM';
+  const h12 = hora % 12 || 12;
+  return `${h12}:${mm} ${ampm}`;
+};
+
 async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -388,7 +397,7 @@ function openDetail(g) {
       </div>
       <div class="detail-row">
         <span class="detail-label">Hora</span>
-        <span class="detail-value">${(g.hora||'').slice(0,5)}</span>
+        <span class="detail-value">${fmtHora(g.hora)}</span>
       </div>
     </div>`;
   document.getElementById('detail-modal').classList.remove('hidden');
@@ -435,7 +444,7 @@ function buildGastoItem(g, onEdit, onDel) {
         ${getCategoriaBadge(g.categoria)}
         <div class="gasto-info">
           <div class="gasto-desc">${desc}</div>
-          <div class="gasto-fecha">${fmtFecha(g.fecha.slice(0, 10))} · ${(g.hora || '').slice(0, 5)}</div>
+          <div class="gasto-fecha">${fmtFecha(g.fecha.slice(0, 10))} · ${fmtHora(g.hora)}</div>
         </div>
         <div class="gasto-monto">${fmt(g.monto)}</div>
       </div>
@@ -822,7 +831,7 @@ function generarPDF(gastos, anio, mes, password) {
     doc.setFontSize(8);
     doc.setTextColor(...white);
     doc.text(fmtFecha(g.fecha.slice(0, 10)), 18, y + 6);
-    doc.text((g.hora || '').slice(0, 5), 50, y + 6);
+    doc.text(fmtHora(g.hora), 50, y + 6);
     // descripción truncada
     const desc = (g.descripcion || '-').slice(0, 28);
     doc.text(desc, 108, y + 6);
