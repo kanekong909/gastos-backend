@@ -709,29 +709,24 @@ function generarPDF(gastos, anio, mes, password) {
   doc.setFillColor(...dark2);
   doc.rect(0, 0, W, 42, 'F');
 
-  // Línea acento amber
   doc.setFillColor(...amber);
   doc.rect(0, 42, W, 1.5, 'F');
 
-  // Logo KASH
   doc.setTextColor(...amber);
   doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
   doc.text('KASH', 14, 20);
 
-  // Subtítulo
   doc.setFontSize(9);
   doc.setTextColor(...gray);
   doc.setFont('helvetica', 'normal');
   doc.text('REPORTE MENSUAL DE GASTOS', 14, 28);
 
-  // Mes y año alineado a la derecha
   doc.setFontSize(18);
   doc.setTextColor(...white);
   doc.setFont('helvetica', 'bold');
   doc.text(`${MESES[Number(mes)]} ${anio}`, W - 14, 22, { align: 'right' });
 
-  // Usuario
   doc.setFontSize(9);
   doc.setTextColor(...gray);
   doc.setFont('helvetica', 'normal');
@@ -745,7 +740,6 @@ function generarPDF(gastos, anio, mes, password) {
     porCat[g.categoria] = (porCat[g.categoria] || 0) + Number(g.monto);
   });
 
-  // Fondo tarjeta
   doc.setFillColor(28, 28, 33);
   doc.roundedRect(14, 50, W - 28, 32, 4, 4, 'F');
   doc.setDrawColor(...amber);
@@ -767,7 +761,7 @@ function generarPDF(gastos, anio, mes, password) {
   doc.text(`${gastos.length} registro${gastos.length !== 1 ? 's' : ''}`, 22, 78);
 
   // ── Tabla de registros ────────────────────────────
-    const CAT_COLORS_PDF = {
+  const CAT_COLORS_PDF = {
     'Comida':          [62, 207, 142],
     'Transporte':      [96, 165, 250],
     'Entretenimiento': [167, 139, 250],
@@ -796,9 +790,10 @@ function generarPDF(gastos, anio, mes, password) {
   doc.setTextColor(...gray);
   doc.setFont('helvetica', 'bold');
   doc.text('FECHA', 18, y + 5.5);
-  doc.text('HORA', 50, y + 5.5);
-  doc.text('CATEGORÍA', 70, y + 5.5);
-  doc.text('DESCRIPCIÓN', 108, y + 5.5);
+  doc.text('HORA', 46, y + 5.5);
+  doc.text('CATEGORÍA', 63, y + 5.5);
+  doc.text('DESCRIPCIÓN', 101, y + 5.5);
+  doc.text('MÉTODO', 148, y + 5.5);
   doc.text('MONTO', W - 18, y + 5.5, { align: 'right' });
 
   y += 8;
@@ -813,7 +808,6 @@ function generarPDF(gastos, anio, mes, password) {
       y = 14;
     }
 
-    // Fila alterna
     if (i % 2 === 0) {
       doc.setFillColor(20, 20, 23);
       doc.rect(14, y, W - 28, 9, 'F');
@@ -823,24 +817,24 @@ function generarPDF(gastos, anio, mes, password) {
 
     // Badge categoría
     doc.setFillColor(...catColor.map(c => Math.round(c * 0.15 + dark[0] * 0.85)));
-    doc.roundedRect(67, y + 1.5, 36, 5.5, 1.5, 1.5, 'F');
+    doc.roundedRect(61, y + 1.5, 36, 5.5, 1.5, 1.5, 'F');
     doc.setTextColor(...catColor);
     doc.setFontSize(6.5);
-    doc.text(g.categoria.toUpperCase(), 85, y + 5.5, { align: 'center' });
+    doc.text(g.categoria.toUpperCase(), 79, y + 5.5, { align: 'center' });
 
     doc.setFontSize(8);
     doc.setTextColor(...white);
     doc.text(fmtFecha(g.fecha.slice(0, 10)), 18, y + 6);
-    doc.text(fmtHora(g.hora), 50, y + 6);
-    // descripción truncada
-    const desc = (g.descripcion || '-').slice(0, 28);
-    doc.text(desc, 108, y + 6);
+    doc.text(fmtHora(g.hora), 46, y + 6);
+    const desc = (g.descripcion || '-').slice(0, 22);
+    doc.text(desc, 101, y + 6);
+    const metodo = (g.metodo_pago || '-').slice(0, 10);
+    doc.text(metodo, 148, y + 6);
     doc.setTextColor(...amber);
     doc.setFont('helvetica', 'bold');
     doc.text(fmt(g.monto), W - 18, y + 6, { align: 'right' });
     doc.setFont('helvetica', 'normal');
 
-    // Línea separadora
     doc.setDrawColor(46, 46, 53);
     doc.setLineWidth(0.2);
     doc.line(14, y + 9, W - 14, y + 9);
@@ -852,7 +846,6 @@ function generarPDF(gastos, anio, mes, password) {
   const catEntries = Object.entries(porCat);
   const altCat = catEntries.length * 10 + 14;
 
-  // Si no cabe en la página, nueva página
   if (y + altCat > H - 20) {
     doc.addPage();
     doc.setFillColor(...dark);
