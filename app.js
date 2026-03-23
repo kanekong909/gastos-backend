@@ -1171,7 +1171,6 @@ function renderFabBilleteras() {
         <div class="wallet-drawer-item-saldo ${Number(b.saldo) < 0 ? 'negativo' : ''}">${fmt(b.saldo)}</div>
       </div>`;
     item.addEventListener('click', () => {
-      cerrarWalletDrawer();
       abrirBillteraModal(b);
     });
     lista.appendChild(item);
@@ -1192,7 +1191,7 @@ function actualizarSelectBilltera() {
 }
 
 function abrirBillteraModal(b) {
-  cerrarWalletDrawer();
+  // cerrarWalletDrawer();
   billteraActiva = b;
   document.getElementById('billtera-modal-titulo').textContent = `${b.emoji} ${b.nombre}`;
   const saldoEl = document.getElementById('billtera-saldo-display');
