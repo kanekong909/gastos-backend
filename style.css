@@ -1220,3 +1220,162 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   color: var(--accent);
   background: var(--accent-dim);
 }
+
+/* ── FAB WALLET ───────────────────────────────────── */
+.fab-wallet-btn {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 2rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 20px rgba(245,166,35,.45);
+  transition: all var(--transition);
+  z-index: 90;
+}
+.fab-wallet-btn:hover {
+  background: var(--accent2);
+  transform: scale(1.08);
+  box-shadow: 0 6px 28px rgba(245,166,35,.5);
+}
+
+@media (max-width: 768px) {
+  .fab-wallet-btn {
+    bottom: calc(70px + 1rem);
+  }
+}
+
+/* ── WALLET DRAWER ────────────────────────────────── */
+.wallet-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(4px);
+  z-index: 150;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+.wallet-drawer-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.wallet-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 300px;
+  max-width: 85vw;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  z-index: 151;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 1rem;
+  transform: translateX(100%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  box-shadow: -8px 0 32px rgba(0,0,0,.4);
+}
+.wallet-drawer.open {
+  transform: translateX(0);
+}
+
+.wallet-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.wallet-drawer-title {
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.wallet-drawer-sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+/* Items de billetera en el drawer */
+#wallet-drawer-lista {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.wallet-drawer-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .85rem 1rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.wallet-drawer-item:hover {
+  border-color: var(--accent);
+  background: var(--bg4);
+}
+.wallet-drawer-item-emoji {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.wallet-drawer-item-info {
+  flex: 1;
+  min-width: 0;
+}
+.wallet-drawer-item-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wallet-drawer-item-saldo {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.wallet-drawer-item-saldo.negativo { color: var(--red); }
+
+.wallet-drawer-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  width: 100%;
+  padding: .75rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  border: 1px dashed rgba(245,166,35,.4);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: auto;
+}
+.wallet-drawer-add:hover {
+  background: rgba(245,166,35,.2);
+  border-color: var(--accent);
+}

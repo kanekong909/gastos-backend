@@ -1153,34 +1153,46 @@ async function cargarBilleteras() {
 }
 
 function renderFabBilleteras() {
-  const lista = document.getElementById('billeteras-lista-fab');
+  const lista = document.getElementById('wallet-drawer-lista');
   lista.innerHTML = '';
+
+  if (!billeteras.length) {
+    lista.innerHTML = '<div class="empty-state" style="padding:2rem 0;"><span class="empty-icon">💳</span><p>No tienes billeteras</p></div>';
+    return;
+  }
+
   billeteras.forEach(b => {
-    const btn = document.createElement('button');
-    btn.className = 'fab-billtera';
-    btn.innerHTML = `
-      <span class="fab-billtera-emoji">${b.emoji}</span>
-      <div class="fab-billtera-info">
-        <span class="fab-billtera-nombre">${b.nombre}</span>
-        <span class="fab-billtera-saldo ${Number(b.saldo) < 0 ? 'negativo' : ''}">${fmt(b.saldo)}</span>
+    const item = document.createElement('div');
+    item.className = 'wallet-drawer-item';
+    item.innerHTML = `
+      <span class="wallet-drawer-item-emoji">${b.emoji}</span>
+      <div class="wallet-drawer-item-info">
+        <div class="wallet-drawer-item-nombre">${b.nombre}</div>
+        <div class="wallet-drawer-item-saldo ${Number(b.saldo) < 0 ? 'negativo' : ''}">${fmt(b.saldo)}</div>
       </div>`;
-    btn.addEventListener('click', () => abrirBillteraModal(b));
-    lista.appendChild(btn);
+    item.addEventListener('click', () => {
+      cerrarWalletDrawer();
+      abrirBillteraModal(b);
+    });
+    lista.appendChild(item);
   });
 }
 
 function actualizarSelectBilltera() {
-  const sel = document.getElementById('f-billtera');
-  const val = sel.value;
-  sel.innerHTML = '<option value="">Sin especificar</option>';
-  billeteras.forEach(b => {
-    const o = new Option(`${b.emoji} ${b.nombre} — ${fmt(b.saldo)}`, b.id);
-    sel.appendChild(o);
+  ['f-billtera', 'e-billtera'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const val = sel.value;
+    sel.innerHTML = '<option value="">Sin especificar</option>';
+    billeteras.forEach(b => {
+      sel.appendChild(new Option(`${b.emoji} ${b.nombre} — ${fmt(b.saldo)}`, b.id));
+    });
+    if (val) sel.value = val;
   });
-  if (val) sel.value = val;
 }
 
 function abrirBillteraModal(b) {
+  cerrarWalletDrawer();
   billteraActiva = b;
   document.getElementById('billtera-modal-titulo').textContent = `${b.emoji} ${b.nombre}`;
   const saldoEl = document.getElementById('billtera-saldo-display');
@@ -1189,6 +1201,23 @@ function abrirBillteraModal(b) {
   document.getElementById('recarga-manual-input').value = '';
   document.getElementById('billtera-modal').classList.remove('hidden');
 }
+
+// ── WALLET DRAWER ─────────────────────────────────
+function abrirWalletDrawer() {
+  document.getElementById('wallet-drawer').classList.add('open');
+  document.getElementById('wallet-drawer-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarWalletDrawer() {
+  document.getElementById('wallet-drawer').classList.remove('open');
+  document.getElementById('wallet-drawer-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('fab-wallet-btn').addEventListener('click', abrirWalletDrawer);
+document.getElementById('wallet-drawer-close').addEventListener('click', cerrarWalletDrawer);
+document.getElementById('wallet-drawer-overlay').addEventListener('click', cerrarWalletDrawer);
 
 // Recargar o restar billetera
 let modoRecarga = 'recargar'; // 'recargar' | 'restar'

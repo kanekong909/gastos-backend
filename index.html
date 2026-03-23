@@ -437,10 +437,25 @@
     </div>
   </div>
 
-  <!-- BILLETERAS FLOTANTES -->
-  <div class="billeteras-fab" id="billeteras-fab">
-    <div id="billeteras-lista-fab"></div>
-    <button class="fab-add-btn" id="fab-add-billtera" title="Nueva billtera">＋</button>
+  <!-- FAB ÚNICO BILLETERAS -->
+  <button class="fab-wallet-btn" id="fab-wallet-btn" title="Mis billeteras">
+    <span class="fab-wallet-icon">💳</span>
+  </button>
+
+  <!-- DRAWER BILLETERAS -->
+  <div class="wallet-drawer-overlay" id="wallet-drawer-overlay"></div>
+  <div class="wallet-drawer" id="wallet-drawer">
+    <div class="wallet-drawer-header">
+      <div>
+        <h3 class="wallet-drawer-title">Mis billeteras</h3>
+        <p class="wallet-drawer-sub">Toca una para ver el saldo</p>
+      </div>
+      <button class="btn-close" id="wallet-drawer-close">✕</button>
+    </div>
+    <div id="wallet-drawer-lista"></div>
+    <button class="wallet-drawer-add" id="fab-add-billtera">
+      <span>＋</span> Nueva billtera
+    </button>
   </div>
 
   <!-- MODAL BILLTERA DETALLE -->
