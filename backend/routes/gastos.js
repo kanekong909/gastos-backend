@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const pool   = require('../db');
 const auth   = require('../middleware/auth');
+const { logActividad } = require('./actividad');
 
 // Todas las rutas requieren autenticación
 router.use(auth);
@@ -142,6 +143,9 @@ router.post('/', async (req, res) => {
     );
 
     await conn.commit();
+    await logActividad(uid, 'CREAR', 'gasto',
+      `Monto: $${Number(monto).toLocaleString()} | Categoria: ${categoria} | Fecha: ${fecha}`,
+      req.ip);
     const [rows] = await pool.query('SELECT * FROM gastos WHERE id = ?', [result.insertId]);
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -203,6 +207,9 @@ router.put('/:id', async (req, res) => {
     );
 
     await conn.commit();
+    await logActividad(uid, 'EDITAR', 'gasto',
+      `ID: ${id} | Monto: $${Number(monto).toLocaleString()} | Categoria: ${categoria}`,
+      req.ip);
     const [rows] = await pool.query('SELECT * FROM gastos WHERE id = ?', [id]);
     res.json(rows[0]);
   } catch (err) {
@@ -243,6 +250,9 @@ router.delete('/:id', async (req, res) => {
 
     await conn.query('DELETE FROM gastos WHERE id = ?', [id]);
     await conn.commit();
+    await logActividad(uid, 'ELIMINAR', 'gasto',
+      `ID: ${id} | Monto: $${Number(gasto.monto).toLocaleString()} | Categoria: ${gasto.categoria}`,
+      req.ip);
     res.json({ message: 'Gasto eliminado correctamente' });
   } catch (err) {
     await conn.rollback();

@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const pool   = require('../db');
 const auth   = require('../middleware/auth');
+const { logActividad } = require('./actividad');
 
 router.use(auth);
 
@@ -75,6 +76,9 @@ router.post('/', async (req, res) => {
       [uid, nombre.trim(), Number(monto), categoria, descripcion || null, billtera_id || null, dia_mes]
     );
     const [rows] = await pool.query('SELECT * FROM recurrentes WHERE id = ?', [result.insertId]);
+    await logActividad(uid, 'CREAR', 'recurrente',
+      `Nombre: ${nombre.trim()} | Monto: $${Number(monto).toLocaleString()} | Dia: ${dia_mes}`,
+      req.ip);
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -102,6 +106,9 @@ router.put('/:id', async (req, res) => {
        billtera_id || null, dia_mes, activo ?? 1, id]
     );
     const [rows] = await pool.query('SELECT * FROM recurrentes WHERE id = ?', [id]);
+    await logActividad(uid, 'EDITAR', 'recurrente',
+      `ID: ${id} | Nombre: ${nombre} | Monto: $${Number(monto).toLocaleString()}`,
+      req.ip);
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -122,6 +129,9 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Recurrente no encontrado' });
 
     await pool.query('DELETE FROM recurrentes WHERE id = ?', [id]);
+    await logActividad(uid, 'ELIMINAR', 'recurrente',
+    `ID: ${id}`,
+    req.ip);
     res.json({ message: 'Recurrente eliminado' });
   } catch (err) {
     console.error(err);

@@ -1901,7 +1901,6 @@ async function ejecutarComparar() {
       </div>`;
 
     document.getElementById('comparar-resultado').classList.remove('hidden');
-    await generarAnalisisComparar(labelA, labelB, totalA, totalB, catsA, catsB);
   } catch(e) {
     console.error(e);
   } finally {
@@ -1916,65 +1915,80 @@ document.getElementById('btn-back-comparar').addEventListener('click', () => {
 });
 document.getElementById('btn-comparar-cargar').addEventListener('click', ejecutarComparar);
 
-// ── ANÁLISIS IA COMPARAR ──────────────────────────
-async function generarAnalisisComparar(labelA, labelB, totalA, totalB, catsA, catsB) {
-  const contenedor = document.getElementById('comparar-analisis');
-  contenedor.innerHTML = `
-    <div class="analisis-loading">
-      <span class="spinner"></span> Analizando tus gastos…
-    </div>`;
-  contenedor.classList.remove('hidden');
+// ── ACTIVIDAD LOG ─────────────────────────────────
+const ACCION_META = {
+  CREAR:    { icon: '＋', color: 'var(--green)' },
+  EDITAR:   { icon: '✎',  color: 'var(--blue)'  },
+  ELIMINAR: { icon: '✕',  color: 'var(--red)'   },
+  RECARGAR: { icon: '↑',  color: 'var(--accent)' },
+  RESTAR:   { icon: '↓',  color: 'var(--text3)'  },
+  LOGIN:    { icon: '→',  color: 'var(--text3)'  },
+  REGISTRO: { icon: '★',  color: 'var(--accent)' },
+};
 
-  const diffPct = totalA > 0 ? (((totalB - totalA) / totalA) * 100).toFixed(1) : 0;
-  const todasCats = [...new Set([...Object.keys(catsA), ...Object.keys(catsB)])];
-  const resumenCats = todasCats.map(cat => {
-    const vA = catsA[cat] || 0;
-    const vB = catsB[cat] || 0;
-    const d = vB - vA;
-    return `- ${cat}: ${labelA} $${vA.toLocaleString()} → ${labelB} $${vB.toLocaleString()} (${d >= 0 ? '+' : ''}$${d.toLocaleString()})`;
-  }).join('\n');
+const ENTIDAD_LABEL = {
+  gasto: 'Gasto', billtera: 'Billtera',
+  recurrente: 'Recurrente', perfil: 'Perfil'
+};
 
-  const prompt = `Eres un asesor financiero personal que analiza gastos mensuales de un usuario colombiano. 
-Compara estos dos meses y da un análisis breve, cálido y útil en español:
-
-Mes A: ${labelA} — Total: $${totalA.toLocaleString()} COP
-Mes B: ${labelB} — Total: $${totalB.toLocaleString()} COP
-Diferencia: ${diffPct}% ${totalB > totalA ? 'más' : 'menos'} en ${labelB}
-
-Desglose por categoría:
-${resumenCats}
-
-Escribe 3 párrafos cortos:
-1. Resumen general de la diferencia entre meses (positivo o negativo según corresponda)
-2. Qué categoría tuvo el cambio más significativo y qué podría significar
-3. Una recomendación concreta y práctica
-
-Usa un tono amigable pero profesional. No uses markdown, asteriscos ni bullets. Solo texto plano en párrafos. Máximo 120 palabras en total.`;
+document.getElementById('btn-ver-actividad').addEventListener('click', async () => {
+  document.getElementById('perfil-modal').classList.add('hidden');
+  const lista = document.getElementById('actividad-lista');
+  lista.innerHTML = '<div class="loading-row"><span class="spinner"></span> Cargando…</div>';
+  document.getElementById('actividad-modal').classList.remove('hidden');
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await response.json();
-    const texto = data.content?.[0]?.text || 'No se pudo generar el análisis.';
+    const logs = await api('/actividad/mia');
+    if (!logs.length) {
+      lista.innerHTML = '<div class="empty-state"><span class="empty-icon">◎</span><p>Sin actividad reciente</p></div>';
+      return;
+    }
 
-    const parrafos = texto.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
-    contenedor.innerHTML = `
-      <div class="analisis-header">
-        <span class="analisis-icon">✦</span>
-        <span class="analisis-titulo">Análisis de IA</span>
-      </div>
-      <div class="analisis-texto">${parrafos}</div>`;
+    // Agrupar por fecha
+    const grupos = {};
+    logs.forEach(l => {
+      const fecha = new Date(l.created_at);
+      const key = fecha.toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' });
+      if (!grupos[key]) grupos[key] = [];
+      grupos[key].push(l);
+    });
+
+    lista.innerHTML = Object.entries(grupos).map(([fecha, items]) => `
+      <div class="actividad-grupo">
+        <div class="actividad-grupo-fecha">${fecha}</div>
+        ${items.map(l => {
+          const meta = ACCION_META[l.accion] || { icon: '·', color: 'var(--text3)' };
+          const entidad = ENTIDAD_LABEL[l.entidad] || l.entidad;
+          const hora = fmtHora(new Date(l.created_at).toTimeString());
+          return `
+            <div class="actividad-item">
+              <div class="actividad-icon" style="color:${meta.color};border-color:${meta.color}20;">
+                ${meta.icon}
+              </div>
+              <div class="actividad-info">
+                <div class="actividad-titulo">
+                  <span style="color:${meta.color};font-weight:700;font-size:12px;">${l.accion}</span>
+                  <span class="actividad-entidad">${entidad}</span>
+                </div>
+                ${l.detalle ? `<div class="actividad-detalle">${l.detalle}</div>` : ''}
+                <div class="actividad-fecha">${hora}</div>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`
+    ).join('');
   } catch(e) {
-    contenedor.innerHTML = `<p style="color:var(--text3);font-size:13px;">No se pudo generar el análisis.</p>`;
+    lista.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
   }
-}
+});
+
+document.getElementById('actividad-modal-close').addEventListener('click', () => {
+  document.getElementById('actividad-modal').classList.add('hidden');
+});
+document.getElementById('actividad-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('actividad-modal'))
+    document.getElementById('actividad-modal').classList.add('hidden');
+});
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {

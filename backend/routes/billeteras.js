@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const pool   = require('../db');
 const auth   = require('../middleware/auth');
+const { logActividad } = require('./actividad');
 
 router.use(auth);
 
@@ -30,6 +31,9 @@ router.post('/', async (req, res) => {
       [uid, nombre.trim(), Number(saldo) || 0, emoji || '💳']
     );
     const [rows] = await pool.query('SELECT * FROM billeteras WHERE id = ?', [result.insertId]);
+    await logActividad(uid, 'CREAR', 'billtera',
+      `Nombre: ${nombre.trim()} | Saldo inicial: $${(Number(saldo) || 0).toLocaleString()}`,
+      req.ip);
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -54,6 +58,10 @@ router.put('/:id/recargar', async (req, res) => {
       [Number(monto), id]
     );
     const [rows] = await pool.query('SELECT * FROM billeteras WHERE id = ?', [id]);
+    const accion = Number(monto) > 0 ? 'RECARGAR' : 'RESTAR';
+    await logActividad(uid, accion, 'billtera',
+      `${existing[0].nombre} | Monto: $${Math.abs(Number(monto)).toLocaleString()} | Saldo nuevo: $${Number(rows[0].saldo).toLocaleString()}`,
+      req.ip);
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -76,6 +84,9 @@ router.put('/:id', async (req, res) => {
       [nombre, emoji || '💳', id]
     );
     const [rows] = await pool.query('SELECT * FROM billeteras WHERE id = ?', [id]);
+    await logActividad(uid, 'EDITAR', 'billtera',
+      `ID: ${id} | Nombre: ${nombre}`,
+      req.ip);
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -93,6 +104,9 @@ router.delete('/:id', async (req, res) => {
     );
     if (!existing.length) return res.status(404).json({ error: 'Billtera no encontrada' });
     await pool.query('DELETE FROM billeteras WHERE id = ?', [id]);
+    await logActividad(uid, 'ELIMINAR', 'billtera',
+      `ID: ${id}`,
+      req.ip);
     res.json({ message: 'Billtera eliminada' });
   } catch (err) {
     console.error(err);

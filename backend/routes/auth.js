@@ -2,6 +2,7 @@ const router  = require('express').Router();
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const pool    = require('../db');
+const { logActividad } = require('./actividad');
 
 // ── POST /api/auth/register ────────────────────────────────
 router.post('/register', async (req, res) => {
@@ -27,6 +28,9 @@ router.post('/register', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+    await logActividad(result.insertId, 'REGISTRO', 'perfil',
+      `Nombre: ${nombre.trim()} | Email: ${email}`,
+      req.ip);
     res.status(201).json({
       token,
       usuario: { id: result.insertId, nombre: nombre.trim(), email, avatar: null }
@@ -73,6 +77,10 @@ router.post('/login', async (req, res) => {
       'UPDATE usuarios SET ultimo_login = NOW(), ultimo_dispositivo = ? WHERE id = ?',
       [dispositivoActual, usuario.id]
     );
+
+    await logActividad(usuario.id, 'LOGIN', 'perfil',
+      `Dispositivo: ${dispositivoActual}`,
+      req.ip);
 
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email, nombre: usuario.nombre },
@@ -144,6 +152,17 @@ router.put('/perfil', async (req, res) => {
       'UPDATE usuarios SET nombre = ?, email = ?, password = ?, avatar = ?, updated_at = NOW() WHERE id = ?',
       [nuevoNombre, nuevoEmail, nuevoHash, nuevoAvatar, userId]
     );
+
+    const cambios = [];
+    if (nuevoNombre !== user.nombre) cambios.push('nombre');
+    if (nuevoEmail !== user.email) cambios.push('email');
+    if (password_nueva) cambios.push('password');
+    if (avatar !== undefined && avatar !== user.avatar) cambios.push('avatar');
+    if (cambios.length > 0) {
+      await logActividad(userId, 'EDITAR', 'perfil',
+        `Campos modificados: ${cambios.join(', ')}`,
+        req.ip);
+    }
 
     res.json({
       mensaje: 'Perfil actualizado',
