@@ -826,7 +826,7 @@ function generarPDF(gastos, anio, mes, password) {
   }
 
   // Encabezado tabla
-  let y = 92;
+  let y = 92 + alturaExtra;
   doc.setFillColor(36, 36, 41);
   doc.rect(14, y, W - 28, 8, 'F');
 
