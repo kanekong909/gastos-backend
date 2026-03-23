@@ -1901,6 +1901,7 @@ async function ejecutarComparar() {
       </div>`;
 
     document.getElementById('comparar-resultado').classList.remove('hidden');
+    await generarAnalisisComparar(labelA, labelB, totalA, totalB, catsA, catsB);
   } catch(e) {
     console.error(e);
   } finally {
@@ -1914,6 +1915,66 @@ document.getElementById('btn-back-comparar').addEventListener('click', () => {
   document.getElementById('lista-meses').classList.remove('hidden');
 });
 document.getElementById('btn-comparar-cargar').addEventListener('click', ejecutarComparar);
+
+// ── ANÁLISIS IA COMPARAR ──────────────────────────
+async function generarAnalisisComparar(labelA, labelB, totalA, totalB, catsA, catsB) {
+  const contenedor = document.getElementById('comparar-analisis');
+  contenedor.innerHTML = `
+    <div class="analisis-loading">
+      <span class="spinner"></span> Analizando tus gastos…
+    </div>`;
+  contenedor.classList.remove('hidden');
+
+  const diffPct = totalA > 0 ? (((totalB - totalA) / totalA) * 100).toFixed(1) : 0;
+  const todasCats = [...new Set([...Object.keys(catsA), ...Object.keys(catsB)])];
+  const resumenCats = todasCats.map(cat => {
+    const vA = catsA[cat] || 0;
+    const vB = catsB[cat] || 0;
+    const d = vB - vA;
+    return `- ${cat}: ${labelA} $${vA.toLocaleString()} → ${labelB} $${vB.toLocaleString()} (${d >= 0 ? '+' : ''}$${d.toLocaleString()})`;
+  }).join('\n');
+
+  const prompt = `Eres un asesor financiero personal que analiza gastos mensuales de un usuario colombiano. 
+Compara estos dos meses y da un análisis breve, cálido y útil en español:
+
+Mes A: ${labelA} — Total: $${totalA.toLocaleString()} COP
+Mes B: ${labelB} — Total: $${totalB.toLocaleString()} COP
+Diferencia: ${diffPct}% ${totalB > totalA ? 'más' : 'menos'} en ${labelB}
+
+Desglose por categoría:
+${resumenCats}
+
+Escribe 3 párrafos cortos:
+1. Resumen general de la diferencia entre meses (positivo o negativo según corresponda)
+2. Qué categoría tuvo el cambio más significativo y qué podría significar
+3. Una recomendación concreta y práctica
+
+Usa un tono amigable pero profesional. No uses markdown, asteriscos ni bullets. Solo texto plano en párrafos. Máximo 120 palabras en total.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const texto = data.content?.[0]?.text || 'No se pudo generar el análisis.';
+
+    const parrafos = texto.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+    contenedor.innerHTML = `
+      <div class="analisis-header">
+        <span class="analisis-icon">✦</span>
+        <span class="analisis-titulo">Análisis de IA</span>
+      </div>
+      <div class="analisis-texto">${parrafos}</div>`;
+  } catch(e) {
+    contenedor.innerHTML = `<p style="color:var(--text3);font-size:13px;">No se pudo generar el análisis.</p>`;
+  }
+}
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {
