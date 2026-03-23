@@ -1804,6 +1804,117 @@ document.getElementById('btn-perfil-guardar').addEventListener('click', async ()
   }
 });
 
+// ── COMPARAR MESES ────────────────────────────────
+async function iniciarComparar() {
+  document.getElementById('lista-meses').classList.add('hidden');
+  document.getElementById('mes-detalle').classList.add('hidden');
+  document.getElementById('comparar-view').classList.remove('hidden');
+  document.getElementById('comparar-resultado').classList.add('hidden');
+
+  // Poblar selects con periodos disponibles
+  try {
+    const periodos = await api('/gastos/periodos');
+    const opts = periodos
+      .sort((a, b) => b.anio - a.anio || b.mes - a.mes)
+      .map(p => `<option value="${p.anio}-${p.mes}">${MESES[p.mes]} ${p.anio}</option>`)
+      .join('');
+    document.getElementById('comparar-mes-a').innerHTML = opts;
+    document.getElementById('comparar-mes-b').innerHTML = opts;
+    // Seleccionar segundo por defecto para mes B
+    if (document.getElementById('comparar-mes-b').options.length > 1)
+      document.getElementById('comparar-mes-b').selectedIndex = 1;
+  } catch(e) { console.error(e); }
+}
+
+async function ejecutarComparar() {
+  const [anioA, mesA] = document.getElementById('comparar-mes-a').value.split('-');
+  const [anioB, mesB] = document.getElementById('comparar-mes-b').value.split('-');
+
+  if (anioA === anioB && mesA === mesB) {
+    alert('Selecciona dos meses diferentes');
+    return;
+  }
+
+  try {
+    document.getElementById('btn-comparar-cargar').textContent = 'Cargando…';
+    const [gastosA, gastosB] = await Promise.all([
+      api(`/gastos?anio=${anioA}&mes=${mesA}`),
+      api(`/gastos?anio=${anioB}&mes=${mesB}`)
+    ]);
+
+    const totalA = gastosA.reduce((s, g) => s + Number(g.monto), 0);
+    const totalB = gastosB.reduce((s, g) => s + Number(g.monto), 0);
+    const diffAbs = totalB - totalA;
+    const diffPct = totalA > 0 ? ((diffAbs / totalA) * 100).toFixed(1) : '—';
+
+    // Totales
+    const labelA = `${MESES[Number(mesA)]} ${anioA}`;
+    const labelB = `${MESES[Number(mesB)]} ${anioB}`;
+
+    document.getElementById('comp-total-a').innerHTML = `
+      <div class="comp-mes-label">Mes A</div>
+      <div class="comp-mes-nombre">${labelA}</div>
+      <div class="comp-total-valor">${fmt(totalA)}</div>`;
+
+    document.getElementById('comp-total-b').innerHTML = `
+      <div class="comp-mes-label">Mes B</div>
+      <div class="comp-mes-nombre">${labelB}</div>
+      <div class="comp-total-valor">${fmt(totalB)}</div>`;
+
+    const diffClass = diffAbs > 0 ? 'diff-sube' : diffAbs < 0 ? 'diff-baja' : 'diff-igual';
+    const diffSign = diffAbs > 0 ? '▲' : diffAbs < 0 ? '▼' : '=';
+    document.getElementById('comp-diff').innerHTML = `
+      <div class="diff-valor ${diffClass}">${diffSign} ${diffPct}%</div>
+      <div class="diff-label">${diffAbs >= 0 ? '+' : ''}${fmt(diffAbs)}</div>`;
+
+    // Categorías
+    const catsA = {};
+    const catsB = {};
+    gastosA.forEach(g => catsA[g.categoria] = (catsA[g.categoria] || 0) + Number(g.monto));
+    gastosB.forEach(g => catsB[g.categoria] = (catsB[g.categoria] || 0) + Number(g.monto));
+    const todasCats = [...new Set([...Object.keys(catsA), ...Object.keys(catsB)])];
+    todasCats.sort((a, b) => (catsB[b] || 0) - (catsA[a] || 0));
+
+    const tabla = document.getElementById('comparar-tabla-cats');
+    tabla.innerHTML = `
+      <div class="comparar-cat-tabla">
+        <div class="comparar-cat-header">
+          <span>Categoría</span>
+          <span>${labelA}</span>
+          <span>${labelB}</span>
+          <span style="text-align:right">Dif.</span>
+        </div>
+        ${todasCats.map(cat => {
+          const vA = catsA[cat] || 0;
+          const vB = catsB[cat] || 0;
+          const d = vB - vA;
+          const dClass = d > 0 ? 'sube' : d < 0 ? 'baja' : 'igual';
+          const dSign = d > 0 ? '▲' : d < 0 ? '▼' : '=';
+          return `
+            <div class="comparar-cat-row">
+              <span class="comp-cat-nombre">${getCategoriaBadge(cat)}</span>
+              <span class="comp-cat-val ${vA > 0 ? 'activo' : ''}">${vA > 0 ? fmt(vA) : '—'}</span>
+              <span class="comp-cat-val ${vB > 0 ? 'activo' : ''}">${vB > 0 ? fmt(vB) : '—'}</span>
+              <span class="comp-cat-diff ${dClass}">${dSign} ${fmt(Math.abs(d))}</span>
+            </div>`;
+        }).join('')}
+      </div>`;
+
+    document.getElementById('comparar-resultado').classList.remove('hidden');
+  } catch(e) {
+    console.error(e);
+  } finally {
+    document.getElementById('btn-comparar-cargar').textContent = 'Comparar';
+  }
+}
+
+document.getElementById('btn-ir-comparar').addEventListener('click', iniciarComparar);
+document.getElementById('btn-back-comparar').addEventListener('click', () => {
+  document.getElementById('comparar-view').classList.add('hidden');
+  document.getElementById('lista-meses').classList.remove('hidden');
+});
+document.getElementById('btn-comparar-cargar').addEventListener('click', ejecutarComparar);
+
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {
   initApp();

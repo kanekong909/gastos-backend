@@ -251,9 +251,13 @@
     <!-- ── SECCIÓN 3: MESES ANTERIORES ───────────────── -->
     <section id="section-anteriores" class="section">
       <div class="section-header">
-        <h1>Meses anteriores</h1>
-        <p>Historial de todos tus gastos</p>
+        <div>
+          <h1>Meses anteriores</h1>
+          <p>Historial de todos tus gastos</p>
+        </div>
+        <button class="btn-ghost btn-sm" id="btn-ir-comparar">⇄ Comparar meses</button>
       </div>
+      
       <div id="lista-meses" class="meses-grid">
         <div class="empty-state">
           <span class="empty-icon">◎</span>
@@ -268,6 +272,38 @@
           <h2 id="detalle-titulo">Mes</h2>
         </div>
         <div id="tabla-detalle" class="gastos-list"></div>
+      </div>
+
+      <!-- COMPARAR MESES -->
+      <div id="comparar-view" class="hidden">
+        <div class="detalle-header">
+          <button class="btn-back" id="btn-back-comparar">← Volver</button>
+          <h2>Comparar meses</h2>
+        </div>
+
+        <div class="comparar-selects">
+          <div class="field-group">
+            <label>Mes A</label>
+            <select id="comparar-mes-a"></select>
+          </div>
+          <div class="comparar-vs">VS</div>
+          <div class="field-group">
+            <label>Mes B</label>
+            <select id="comparar-mes-b"></select>
+          </div>
+          <button class="btn-primary btn-sm" id="btn-comparar-cargar">Comparar</button>
+        </div>
+
+        <div id="comparar-resultado" class="hidden">
+          <!-- Totales -->
+          <div class="comparar-totales">
+            <div class="comparar-total-card" id="comp-total-a"></div>
+            <div class="comparar-diff-card" id="comp-diff"></div>
+            <div class="comparar-total-card" id="comp-total-b"></div>
+          </div>
+          <!-- Tabla categorías -->
+          <div id="comparar-tabla-cats"></div>
+        </div>
       </div>
     </section>
 
