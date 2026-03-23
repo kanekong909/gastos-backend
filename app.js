@@ -757,53 +757,6 @@ function generarPDF(gastos, anio, mes, password) {
   doc.setFont('helvetica', 'normal');
   doc.text(`${gastos.length} registro${gastos.length !== 1 ? 's' : ''}`, 22, 78);
 
-  // Categorías en la tarjeta — todas, en dos filas si es necesario
-  const catEntries = Object.entries(porCat);
-  const maxPerFila = 4;
-  const fila1 = catEntries.slice(0, maxPerFila);
-  const fila2 = catEntries.slice(maxPerFila, maxPerFila * 2);
-  const alturaExtra = fila2.length > 0 ? 14 : 0;
-
-  // Redibujar tarjeta con altura ajustada
-  doc.setFillColor(28, 28, 33);
-  doc.roundedRect(14, 50, W - 28, 32 + alturaExtra, 4, 4, 'F');
-  doc.setDrawColor(...amber);
-  doc.setLineWidth(0.5);
-  doc.roundedRect(14, 50, W - 28, 32 + alturaExtra, 4, 4, 'S');
-
-  const anchoUtil = W - 28 - 70;
-  const colW1 = Math.floor(anchoUtil / fila1.length);
-  let cx = 98;
-  fila1.forEach(([cat, val]) => {
-    const catCorta = cat.length > 9 ? cat.slice(0, 8) + '.' : cat;
-    doc.setFontSize(6.5);
-    doc.setTextColor(...gray);
-    doc.text(catCorta.toUpperCase(), cx, 60);
-    doc.setFontSize(9);
-    doc.setTextColor(...white);
-    doc.setFont('helvetica', 'bold');
-    doc.text(fmt(val), cx, 68);
-    doc.setFont('helvetica', 'normal');
-    cx += colW1;
-  });
-
-  if (fila2.length > 0) {
-    const colW2 = Math.floor(anchoUtil / fila2.length);
-    let cx2 = 98;
-    fila2.forEach(([cat, val]) => {
-      const catCorta = cat.length > 9 ? cat.slice(0, 8) + '.' : cat;
-      doc.setFontSize(6.5);
-      doc.setTextColor(...gray);
-      doc.text(catCorta.toUpperCase(), cx2, 74);
-      doc.setFontSize(9);
-      doc.setTextColor(...white);
-      doc.setFont('helvetica', 'bold');
-      doc.text(fmt(val), cx2, 81);
-      doc.setFont('helvetica', 'normal');
-      cx2 += colW2;
-    });
-  }
-
   // ── Tabla de registros ────────────────────────────
     const CAT_COLORS_PDF = {
     'Comida':          [62, 207, 142],
@@ -826,7 +779,7 @@ function generarPDF(gastos, anio, mes, password) {
   }
 
   // Encabezado tabla
-  let y = 92 + alturaExtra;
+  let y = 92;
   doc.setFillColor(36, 36, 41);
   doc.rect(14, y, W - 28, 8, 'F');
 
@@ -884,6 +837,52 @@ function generarPDF(gastos, anio, mes, password) {
     doc.line(14, y + 9, W - 14, y + 9);
 
     y += 9;
+  });
+
+  // ── Recuadro resumen por categoría ───────────────
+  const catEntries = Object.entries(porCat);
+  const altCat = catEntries.length * 10 + 14;
+
+  // Si no cabe en la página, nueva página
+  if (y + altCat > H - 20) {
+    doc.addPage();
+    doc.setFillColor(...dark);
+    doc.rect(0, 0, W, H, 'F');
+    y = 14;
+  }
+
+  y += 6;
+
+  doc.setFillColor(28, 28, 33);
+  doc.roundedRect(14, y, W - 28, altCat, 4, 4, 'F');
+  doc.setDrawColor(...amber);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(14, y, W - 28, altCat, 4, 4, 'S');
+
+  doc.setFontSize(7);
+  doc.setTextColor(...amber);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RESUMEN POR CATEGORÍA', 22, y + 8);
+
+  let yCat = y + 14;
+  catEntries.forEach(([cat, val]) => {
+    const pct = ((val / total) * 100).toFixed(1);
+
+    doc.setFontSize(8);
+    doc.setTextColor(...white);
+    doc.setFont('helvetica', 'normal');
+    doc.text(cat, 22, yCat);
+
+    doc.setTextColor(...amber);
+    doc.setFont('helvetica', 'bold');
+    doc.text(fmt(val), W - 40, yCat, { align: 'right' });
+
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text(`${pct}%`, W - 18, yCat, { align: 'right' });
+
+    yCat += 10;
   });
 
   // ── Footer ────────────────────────────────────────
