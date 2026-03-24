@@ -1629,26 +1629,24 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 .pres-item:hover { border-color: var(--accent); }
 
 .pres-item-top {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  margin-bottom: .75rem;
+  /* display: flex; */
+  flex-wrap: wrap;
+  gap: .5rem;
 }
 .pres-montos {
   margin-left: auto;
-  display: flex;
-  align-items: baseline;
-  gap: .3rem;
-  font-family: var(--font-head);
+  /* display: flex; */
+  flex-shrink: 0;
+  font-size: .9rem;
+  /* font-family: var(--font-head); */
 }
-.pres-gastado { font-size: 1rem; font-weight: 800; }
+.pres-gastado { font-size: .9rem; font-weight: 800; }
 .pres-sep     { color: var(--text3); font-size: .85rem; }
 .pres-limite  { color: var(--text3); font-size: .85rem; }
 
 .pres-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
+  flex-wrap: wrap;
+  gap: .4rem;
 }
 .pres-bar-track {
   flex: 1;
@@ -1663,10 +1661,9 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   transition: width .6s ease;
 }
 .pres-pct {
-  font-size: 12px;
-  font-weight: 700;
-  min-width: 80px;
-  text-align: right;
+  min-width: unset;
+  width: 100%;
+  text-align: left;
 }
 .pres-btn-del {
   background: none;
@@ -1679,3 +1676,11 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   transition: color .2s;
 }
 .pres-btn-del:hover { color: var(--red); }
+
+/* evitar que el badge se corte */
+.cat-badge {
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
