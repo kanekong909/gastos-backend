@@ -3,7 +3,7 @@ let adminToken = localStorage.getItem('kash_admin_token') || null;
 let todosLogs = [];
 let logsFiltrados = [];
 let paginaActual = 1;
-const POR_PAGINA = 50;
+const POR_PAGINA = 15;
 
 const fmtFecha = ts => {
     const d = new Date(ts);
@@ -165,8 +165,14 @@ function aplicarFiltros() {
         if (usuario && l.usuario_email !== usuario) return false;
         if (accion && l.accion !== accion) return false;
         if (entidad && l.entidad !== entidad) return false;
-        if (desde && new Date(l.created_at) < new Date(desde)) return false;
-        if (hasta && new Date(l.created_at) > new Date(hasta + 'T23:59:59')) return false;
+        if (desde) {
+            const fechaLog = new Date(l.created_at).toISOString().slice(0, 10);
+            if (fechaLog < desde) return false;
+        }
+        if (hasta) {
+            const fechaLog = new Date(l.created_at).toISOString().slice(0, 10);
+            if (fechaLog > hasta) return false;
+        }
         return true;
     });
 
