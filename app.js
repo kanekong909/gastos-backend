@@ -34,6 +34,30 @@ const fmtHora = h => {
   return `${h12}:${mm} ${ampm}`;
 };
 
+// ── FORMATO MILES ─────────────────────────────────
+function fmtInput(val) {
+  const num = val.replace(/\./g, '').replace(/\D/g, '');
+  if (!num) return '';
+  return Number(num).toLocaleString('es-CO');
+}
+
+function getNumericValue(inputId) {
+  const raw = document.getElementById(inputId).value;
+  return Number(raw.replace(/\./g, '').replace(/,/g, '').replace(/\D/g, '')) || 0;
+}
+
+function bindMontoInput(inputId) {
+  const input = document.getElementById(inputId);
+  input.addEventListener('input', function() {
+    const pos = this.selectionStart;
+    const prevLen = this.value.length;
+    this.value = fmtInput(this.value);
+    // Ajustar posición del cursor
+    const diff = this.value.length - prevLen;
+    this.setSelectionRange(pos + diff, pos + diff);
+  });
+}
+
 async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -173,7 +197,7 @@ function setDefaultDateTime() {
 document.getElementById('btn-guardar').addEventListener('click', async () => {
   const fecha = document.getElementById('f-fecha').value;
   const hora = document.getElementById('f-hora').value;
-  const monto = document.getElementById('f-monto').value;
+  const monto = getNumericValue('f-monto');
   const catSelect = document.getElementById('f-categoria').value;
   const catCustom = document.getElementById('f-categoria-custom').value.trim();
   const cat = catSelect === 'Otros' && catCustom ? catCustom : catSelect;
@@ -219,7 +243,7 @@ function openEdit(gasto) {
   editId = gasto.id;
   document.getElementById('e-fecha').value = gasto.fecha.slice(0, 10);
   document.getElementById('e-hora').value = gasto.hora.slice(0, 5);
-  document.getElementById('e-monto').value = gasto.monto;
+  document.getElementById('e-monto').value = Number(gasto.monto).toLocaleString('es-CO');
   document.getElementById('e-descripcion').value = gasto.descripcion || '';
 
   // Categoría — detectar si es fija o personalizada
@@ -345,7 +369,7 @@ document.getElementById('detail-modal').addEventListener('click', e => {
 document.getElementById('btn-update').addEventListener('click', async () => {
   const fecha = document.getElementById('e-fecha').value;
   const hora = document.getElementById('e-hora').value;
-  const monto = document.getElementById('e-monto').value;
+  const monto = getNumericValue('e-monto');
   const catSelect = document.getElementById('e-categoria').value;
   const catCustom = document.getElementById('e-categoria-custom').value.trim();
   const cat = catSelect === 'Otros' && catCustom ? catCustom : catSelect;
@@ -1161,6 +1185,8 @@ function initApp() {
 
   cargarBilleteras();
   renderNavAvatar();
+  bindMontoInput('f-monto');
+  bindMontoInput('e-monto');
 }
 
 // ── Toggle contraseña ─────────────────────────────
