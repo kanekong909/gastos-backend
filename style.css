@@ -1616,24 +1616,3 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   font-size: 11px;
   color: var(--text3);
 }
-
-/* ── SCAN RECIBO ────────────────────── */
-.scan-recibo-wrap {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.btn-scan-recibo {
-  display: flex;
-  align-items: center;
-  gap: .4rem;
-  font-size: 14px;
-}
-
-.scan-status {
-  font-size: 13px;
-  font-weight: 500;
-}
