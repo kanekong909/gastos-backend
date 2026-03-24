@@ -178,13 +178,17 @@ function renderTabla() {
     const inicio = (paginaActual - 1) * POR_PAGINA;
     const pagina = logsFiltrados.slice(inicio, inicio + POR_PAGINA);
     const totalPags = Math.ceil(logsFiltrados.length / POR_PAGINA);
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
 
     if (!pagina.length) {
         document.getElementById('tabla-logs').innerHTML =
             '<div class="empty-state">No hay registros con esos filtros</div>';
         document.getElementById('pag-info').textContent = '0 resultados';
-        document.getElementById('btn-prev').disabled = true;
-        document.getElementById('btn-next').disabled = true;
+        btnPrev.disabled = true;
+        btnNext.disabled = true;
+        btnPrev.style.opacity = '.3';
+        btnNext.style.opacity = '.3';
         return;
     }
 
@@ -209,13 +213,29 @@ function renderTabla() {
 
     document.getElementById('pag-info').textContent =
         `${inicio + 1}–${Math.min(inicio + POR_PAGINA, logsFiltrados.length)} de ${logsFiltrados.length}`;
-    document.getElementById('btn-prev').disabled = paginaActual === 1;
-    document.getElementById('btn-next').disabled = paginaActual === totalPags;
+
+    btnPrev.disabled = paginaActual <= 1;
+    btnNext.disabled = paginaActual >= totalPags;
+    btnPrev.style.opacity = paginaActual <= 1 ? '.3' : '1';
+    btnNext.style.opacity = paginaActual >= totalPags ? '.3' : '1';
+    btnPrev.style.cursor = paginaActual <= 1 ? 'default' : 'pointer';
+    btnNext.style.cursor = paginaActual >= totalPags ? 'default' : 'pointer';
 }
 
+document.getElementById('btn-prev').addEventListener('click', () => {
+    if (paginaActual <= 1) return;
+    paginaActual--;
+    renderTabla();
+});
+
+document.getElementById('btn-next').addEventListener('click', () => {
+    const totalPags = Math.ceil(logsFiltrados.length / POR_PAGINA);
+    if (paginaActual >= totalPags) return;
+    paginaActual++;
+    renderTabla();
+});
+
 document.getElementById('btn-filtrar').addEventListener('click', aplicarFiltros);
-document.getElementById('btn-prev').addEventListener('click', () => { paginaActual--; renderTabla(); });
-document.getElementById('btn-next').addEventListener('click', () => { paginaActual++; renderTabla(); });
 
 document.getElementById('btn-limpiar-filtros').addEventListener('click', () => {
     document.getElementById('filtro-usuario').value = '';
