@@ -157,6 +157,21 @@ router.post('/', async (req, res) => {
   }
 });
 
+// GET categorías únicas del usuario
+router.get('/categorias', auth, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT DISTINCT categoria FROM gastos 
+       WHERE usuario_id = ? 
+       ORDER BY categoria ASC`,
+      [req.usuario.id]
+    );
+    res.json(rows.map(r => r.categoria));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── PUT /api/gastos/:id ────────────────────────────────────
 router.put('/:id', async (req, res) => {
   const { id } = req.params;

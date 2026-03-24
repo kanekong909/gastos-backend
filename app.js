@@ -2149,16 +2149,46 @@ async function initPresupuestos() {
   const anioSel = document.getElementById('pres-anio');
   const mesSel  = document.getElementById('pres-mes');
 
-  // Poblar año/mes
-  anioSel.innerHTML = '';
-  for (let a = now.getFullYear(); a >= now.getFullYear() - 2; a--) {
-    anioSel.appendChild(new Option(a, a));
-  }
-  mesSel.innerHTML = '';
-  MESES.slice(1).forEach((m, i) => mesSel.appendChild(new Option(m, i + 1)));
-  mesSel.value = now.getMonth() + 1;
+  try {
+    const periodos = await api('/gastos/periodos');
 
-  await cargarPresupuestos();
+    // Años únicos de periodos con datos
+    const anios = [...new Set(periodos.map(p => p.anio))].sort((a, b) => b - a);
+
+    anioSel.innerHTML = '';
+    anios.forEach(a => anioSel.appendChild(new Option(a, a)));
+
+    // Seleccionar año actual si existe, si no el más reciente
+    if (anios.includes(now.getFullYear())) {
+      anioSel.value = now.getFullYear();
+    }
+
+    // Al cambiar año, actualizar meses
+    anioSel.addEventListener('change', () => actualizarMesesPres(periodos));
+    actualizarMesesPres(periodos);
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function actualizarMesesPres(periodos) {
+  const anio  = document.getElementById('pres-anio').value;
+  const mesSel = document.getElementById('pres-mes');
+  const now   = new Date();
+
+  mesSel.innerHTML = '';
+  periodos
+    .filter(p => String(p.anio) === String(anio))
+    .sort((a, b) => a.mes - b.mes)
+    .forEach(p => mesSel.appendChild(new Option(MESES[p.mes], p.mes)));
+
+  // Seleccionar mes actual si existe en la lista
+  const mesActual = now.getMonth() + 1;
+  const opcionesMes = [...mesSel.options].map(o => Number(o.value));
+  if (opcionesMes.includes(mesActual)) mesSel.value = mesActual;
+
+  cargarPresupuestos();
 }
 
 async function cargarPresupuestos() {
@@ -2218,6 +2248,43 @@ async function cargarPresupuestos() {
     });
   } catch (e) {
     lista.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
+  }
+}
+
+async function cargarCategoriasPres() {
+  const sel = document.getElementById('pres-cat');
+  const categoriasFijas = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
+
+  try {
+    const cats = await api('/gastos/categorias');
+
+    sel.innerHTML = '<option value="">Seleccionar…</option>';
+
+    // Primero las fijas que existan en los datos
+    categoriasFijas.forEach(c => {
+      if (cats.includes(c)) {
+        sel.appendChild(new Option(c, c));
+      }
+    });
+
+    // Luego las personalizadas (las que no son fijas)
+    cats
+      .filter(c => !categoriasFijas.includes(c))
+      .forEach(c => {
+        const o = new Option(c, c);
+        o.style.fontStyle = 'italic'; // visual para distinguirlas
+        sel.appendChild(o);
+      });
+
+    // Si no hay ninguna categoría aún, mostrar todas las fijas
+    if (!cats.length) {
+      categoriasFijas.forEach(c => sel.appendChild(new Option(c, c)));
+    }
+
+  } catch (e) {
+    // Fallback a categorías fijas
+    sel.innerHTML = '<option value="">Seleccionar…</option>';
+    categoriasFijas.forEach(c => sel.appendChild(new Option(c, c)));
   }
 }
 
