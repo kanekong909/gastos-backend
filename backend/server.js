@@ -6,6 +6,7 @@ const gastosRoutes    = require('./routes/gastos');
 const billterasRoutes = require('./routes/billeteras');
 const recurrentesRoutes = require('./routes/recurrentes');
 const { router: actividadRoutes } = require('./routes/actividad');
+const presupuestosRoutes = require('./routes/presupuestos');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,8 @@ app.use('/api/gastos',      gastosRoutes);
 app.use('/api/billeteras',  billterasRoutes);
 app.use('/api/recurrentes', recurrentesRoutes);
 app.use('/api/actividad',   actividadRoutes);
+app.use('/api/actividad',   actividadRoutes);
+app.use('/api/presupuestos', presupuestosRoutes);
 
 // ── IA: Análisis comparar meses ───────────────────────────
 app.post('/api/ai/analisis', async (req, res) => {

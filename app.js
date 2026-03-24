@@ -176,6 +176,7 @@ function showSection(name) {
 
   if (name === 'resumen') cargarResumen();
   if (name === 'anteriores') cargarMeses();
+  if (name === 'presupuestos') initPresupuestos();
   if (name === 'reporte') initReporte();
   if (name === 'graficos') initGraficos();
 }
@@ -1185,6 +1186,7 @@ function initApp() {
 
   cargarBilleteras();
   renderNavAvatar();
+  bindMontoInput('pres-monto'); 
   bindMontoInput('f-monto');
   bindMontoInput('e-monto');
 }
@@ -2140,6 +2142,115 @@ document.getElementById('btn-transferir-confirmar').addEventListener('click', as
     document.getElementById('btn-transferir-confirmar').textContent = 'Transferir';
   }
 });
+
+// ── PRESUPUESTOS ──────────────────────────────────
+async function initPresupuestos() {
+  const now = new Date();
+  const anioSel = document.getElementById('pres-anio');
+  const mesSel  = document.getElementById('pres-mes');
+
+  // Poblar año/mes
+  anioSel.innerHTML = '';
+  for (let a = now.getFullYear(); a >= now.getFullYear() - 2; a--) {
+    anioSel.appendChild(new Option(a, a));
+  }
+  mesSel.innerHTML = '';
+  MESES.slice(1).forEach((m, i) => mesSel.appendChild(new Option(m, i + 1)));
+  mesSel.value = now.getMonth() + 1;
+
+  await cargarPresupuestos();
+}
+
+async function cargarPresupuestos() {
+  const anio = document.getElementById('pres-anio').value;
+  const mes  = document.getElementById('pres-mes').value;
+  const lista = document.getElementById('pres-lista');
+  lista.innerHTML = '<div class="loading-row"><span class="spinner"></span> Cargando…</div>';
+
+  try {
+    const presupuestos = await api(`/presupuestos?mes=${mes}&anio=${anio}`);
+    lista.innerHTML = '';
+
+    if (!presupuestos.length) {
+      lista.innerHTML = `<div class="empty-state">
+        <span class="empty-icon">◎</span>
+        <p>No hay presupuestos para este mes.<br>Crea uno abajo.</p>
+      </div>`;
+      return;
+    }
+
+    presupuestos.forEach(p => {
+      const gastado  = Number(p.gastado);
+      const limite   = Number(p.monto);
+      const pct      = Math.min((gastado / limite) * 100, 100).toFixed(0);
+      const excedido = gastado > limite;
+      const color    = pct >= 100 ? 'var(--red)' : pct >= 80 ? 'var(--accent)' : 'var(--green)';
+
+      const div = document.createElement('div');
+      div.className = 'pres-item';
+      div.innerHTML = `
+        <div class="pres-item-top">
+          ${getCategoriaBadge(p.categoria)}
+          <div class="pres-montos">
+            <span class="pres-gastado" style="color:${color}">${fmt(gastado)}</span>
+            <span class="pres-sep">/</span>
+            <span class="pres-limite">${fmt(limite)}</span>
+          </div>
+          <button class="btn-del pres-btn-del" data-id="${p.id}">✕</button>
+        </div>
+        <div class="pres-bar-wrap">
+          <div class="pres-bar-track">
+            <div class="pres-bar-fill" style="width:${pct}%;background:${color};"></div>
+          </div>
+          <span class="pres-pct" style="color:${color}">
+            ${excedido ? '⚠ Excedido ' + fmt(gastado - limite) : pct + '%'}
+          </span>
+        </div>`;
+
+      div.querySelector('.pres-btn-del').addEventListener('click', () => {
+        confirmDelete(async () => {
+          await api(`/presupuestos/${p.id}`, { method: 'DELETE' });
+          cargarPresupuestos();
+        }, `¿Eliminar presupuesto de ${p.categoria}?`);
+      });
+
+      lista.appendChild(div);
+    });
+  } catch (e) {
+    lista.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
+  }
+}
+
+document.getElementById('btn-pres-cargar').addEventListener('click', cargarPresupuestos);
+
+document.getElementById('btn-pres-guardar').addEventListener('click', async () => {
+  const cat   = document.getElementById('pres-cat').value;
+  const monto = getNumericValue('pres-monto');
+  const mes   = document.getElementById('pres-mes').value;
+  const anio  = document.getElementById('pres-anio').value;
+
+  if (!cat || !monto)
+    return showError('pres-error', 'Selecciona una categoría e ingresa un límite');
+
+  try {
+    document.getElementById('btn-pres-guardar').textContent = 'Guardando…';
+    await api('/presupuestos', {
+      method: 'POST',
+      body: JSON.stringify({ categoria: cat, monto, mes, anio })
+    });
+    document.getElementById('pres-cat').value   = '';
+    document.getElementById('pres-monto').value = '';
+    await cargarPresupuestos();
+  } catch (e) {
+    showError('pres-error', e.message);
+  } finally {
+    document.getElementById('btn-pres-guardar').textContent = 'Guardar presupuesto';
+  }
+});
+
+// Registrar en showSection
+const _showSectionOrig = showSection;
+// (ya manejado abajo en el override de showSection)
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {

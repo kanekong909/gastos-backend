@@ -1616,3 +1616,66 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   font-size: 11px;
   color: var(--text3);
 }
+
+/* ── PRESUPUESTOS ───────────────────── */
+.pres-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: .75rem;
+  transition: border-color .2s;
+}
+.pres-item:hover { border-color: var(--accent); }
+
+.pres-item-top {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+.pres-montos {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: .3rem;
+  font-family: var(--font-head);
+}
+.pres-gastado { font-size: 1rem; font-weight: 800; }
+.pres-sep     { color: var(--text3); font-size: .85rem; }
+.pres-limite  { color: var(--text3); font-size: .85rem; }
+
+.pres-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+.pres-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.pres-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .6s ease;
+}
+.pres-pct {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 80px;
+  text-align: right;
+}
+.pres-btn-del {
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 12px;
+  padding: .2rem .4rem;
+  border-radius: 4px;
+  transition: color .2s;
+}
+.pres-btn-del:hover { color: var(--red); }

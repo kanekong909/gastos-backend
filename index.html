@@ -87,6 +87,7 @@
       <a href="#" class="nav-link active" data-section="nuevo">Nuevo gasto</a>
       <a href="#" class="nav-link" data-section="resumen">Resumen</a>
       <a href="#" class="nav-link" data-section="anteriores">Meses anteriores</a>
+      <a href="#" class="nav-link" data-section="presupuestos">Presupuestos</a>
       <a href="#" class="nav-link" data-section="reporte">Reporte</a>
       <a href="#" class="nav-link" data-section="graficos">Gráficos</a>
     </div>
@@ -110,6 +111,10 @@
     <a href="#" class="bottom-nav-item" data-section="anteriores">
       <span class="bnav-icon">◷</span>
       <span class="bnav-label">Historial</span>
+    </a>
+    <a href="#" class="bottom-nav-item" data-section="presupuestos">
+      <span class="bnav-icon">◎</span>
+      <span class="bnav-label">Presupuesto</span>
     </a>
     <a href="#" class="bottom-nav-item" data-section="reporte">
       <span class="bnav-icon">⬇</span>
@@ -362,6 +367,56 @@
         <div class="chart-card chart-full">
           <h3>Evolución mensual</h3>
           <div class="chart-wrap chart-wide"><canvas id="chart-line"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECCIÓN 6: PRESUPUESTOS ────────────────────── -->
+    <section id="section-presupuestos" class="section">
+      <div class="section-header">
+        <h1>Presupuestos</h1>
+        <p>Controla cuánto gastas por categoría cada mes</p>
+      </div>
+
+      <!-- Selector de mes -->
+      <div class="graf-controls" style="margin-bottom:1.5rem;">
+        <select id="pres-anio"></select>
+        <select id="pres-mes"></select>
+        <button class="btn-primary btn-sm" id="btn-pres-cargar">Ver</button>
+      </div>
+
+      <!-- Lista de presupuestos activos -->
+      <div id="pres-lista"></div>
+
+      <!-- Formulario nuevo presupuesto -->
+      <div class="form-card" style="margin-top:1.5rem;">
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:.06em;color:var(--text3);margin-bottom:1rem;">
+          + Nuevo presupuesto
+        </div>
+        <div class="form-grid">
+          <div class="field-group">
+            <label>Categoría</label>
+            <select id="pres-cat">
+              <option value="">Seleccionar…</option>
+              <option value="Comida">Comida</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Entretenimiento">Entretenimiento</option>
+              <option value="Ropa">Ropa</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Límite mensual (COP)</label>
+            <div class="input-prefix">
+              <span>$</span>
+              <input type="text" id="pres-monto" placeholder="0" inputmode="numeric"/>
+            </div>
+          </div>
+        </div>
+        <div id="pres-error" class="auth-error hidden"></div>
+        <div class="form-actions">
+          <button class="btn-primary" id="btn-pres-guardar">Guardar presupuesto</button>
         </div>
       </div>
     </section>
