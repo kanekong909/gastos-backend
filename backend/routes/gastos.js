@@ -105,6 +105,21 @@ router.get('/periodos', async (req, res) => {
   }
 });
 
+// GET categorías únicas del usuario
+router.get('/categorias', auth, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT DISTINCT categoria FROM gastos 
+       WHERE usuario_id = ? 
+       ORDER BY categoria ASC`,
+      [req.usuario.id]
+    );
+    res.json(rows.map(r => r.categoria));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── POST /api/gastos ───────────────────────────────────────
 router.post('/', async (req, res) => {
   const { fecha, hora, monto, categoria, descripcion, billtera_id } = req.body;
@@ -154,21 +169,6 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Error al crear gasto' });
   } finally {
     conn.release();
-  }
-});
-
-// GET categorías únicas del usuario
-router.get('/categorias', auth, async (req, res) => {
-  try {
-    const [rows] = await db.query(
-      `SELECT DISTINCT categoria FROM gastos 
-       WHERE usuario_id = ? 
-       ORDER BY categoria ASC`,
-      [req.usuario.id]
-    );
-    res.json(rows.map(r => r.categoria));
-  } catch (e) {
-    res.status(500).json({ error: e.message });
   }
 });
 
