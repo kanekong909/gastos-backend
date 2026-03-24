@@ -139,6 +139,14 @@
       </div>
 
       <div class="form-card">
+        <!-- SCANNER DE RECIBO -->
+        <div class="scan-recibo-wrap">
+          <button class="btn-ghost btn-scan-recibo" id="btn-scan-recibo">
+            📷 Escanear recibo
+          </button>
+          <input type="file" id="scan-recibo-input" accept="image/*" capture="environment" style="display:none"/>
+          <span id="scan-recibo-status" class="scan-status hidden"></span>
+        </div>
         <div class="form-grid">
           <div class="field-group">
             <label>Fecha</label>
