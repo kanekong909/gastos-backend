@@ -1326,7 +1326,10 @@ document.querySelectorAll('.btn-recarga').forEach(btn => {
       abrirBillteraModal(updated);
       renderFabBilleteras();
       actualizarSelectBilltera();
-    } catch(e) { alert('Error: ' + e.message); }
+    } catch(e) { 
+        document.getElementById('billtera-modal').classList.remove('hidden');
+        showError('nueva-billtera-error', e.message); 
+    }
   });
 });
 
@@ -1347,7 +1350,10 @@ document.getElementById('btn-recarga-manual').addEventListener('click', async ()
     abrirBillteraModal(updated);
     renderFabBilleteras();
     actualizarSelectBilltera();
-  } catch(e) { alert('Error: ' + e.message); }
+  } catch(e) { 
+      document.getElementById('billtera-modal').classList.remove('hidden');
+      showError('nueva-billtera-error', e.message);
+  }
 });
 
 // Eliminar billtera
@@ -1360,7 +1366,10 @@ document.getElementById('btn-billtera-eliminar').addEventListener('click', () =>
       billeteras = billeteras.filter(b => b.id !== billteraActiva.id);
       renderFabBilleteras();
       actualizarSelectBilltera();
-    } catch(e) { alert('Error: ' + e.message); }
+    } catch(e) { 
+        document.getElementById('billtera-modal').classList.remove('hidden');
+        showError('nueva-billtera-error', e.message);
+    }
   }, `¿Eliminar ${billteraActiva.nombre}?`);
 });
 
