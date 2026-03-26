@@ -61,12 +61,14 @@ function bindMontoInput(inputId) {
 async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
-  console.log('TOKEN:', token);
   const res = await fetch(API_URL + path, { ...opts, headers });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
   return data;
 }
+
+  console.log('TOKEN:', token);
+
 
 function showError(elId, msg) {
   const el = document.getElementById(elId);
