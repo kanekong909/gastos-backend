@@ -175,5 +175,6 @@ router.put('/perfil', async (req, res) => {
 });
 
 console.log('LOGIN SECRET:', process.env.JWT_SECRET);
+console.log('HEADER:', req.headers.authorization);
 
 module.exports = router;
