@@ -62,7 +62,6 @@ router.post('/login', async (req, res) => {
 
     // Detectar sesión activa en otro dispositivo
     const userAgent = req.headers['user-agent'] || '';
-    console.log('HEADER:', req.headers.authorization);
 
     const esMobile = /mobile|android|iphone|ipad/i.test(userAgent);
     const dispositivoActual = esMobile ? 'móvil' : 'computador';
@@ -112,7 +111,6 @@ router.post('/login', async (req, res) => {
 router.put('/perfil', async (req, res) => {
   // Verificar token manualmente
   const authHeader = req.headers['authorization'];
-console.log('HEADER:', req.headers.authorization);
 
   if (!authHeader) return res.status(401).json({ error: 'Token requerido' });
   const token = authHeader.split(' ')[1];
