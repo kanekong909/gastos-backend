@@ -6,7 +6,6 @@
 const API_URL = 'https://gastos-backend-production-fa36.up.railway.app/api'; // ← cambia esto
 
 // ── Estado global ─────────────────────────────────
-let token = localStorage.getItem('gd_token') || null;
 let usuario = JSON.parse(localStorage.getItem('gd_usuario') || 'null');
 let editId = null;
 let chartDonut = null, chartBar = null, chartLine = null;
@@ -60,6 +59,7 @@ function bindMontoInput(inputId) {
 
 async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('gd_token') || null; 
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetch(API_URL + path, { ...opts, headers });
   const data = await res.json().catch(() => ({}));
