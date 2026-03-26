@@ -6,6 +6,7 @@
 const API_URL = 'https://gastos-backend-production-fa36.up.railway.app/api'; // ← cambia esto
 
 // ── Estado global ─────────────────────────────────
+const token = localStorage.getItem('gd_token');
 let usuario = JSON.parse(localStorage.getItem('gd_usuario') || 'null');
 let editId = null;
 let chartDonut = null, chartBar = null, chartLine = null;
