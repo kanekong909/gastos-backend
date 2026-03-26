@@ -59,12 +59,26 @@ function bindMontoInput(inputId) {
 }
 
 async function api(path, opts = {}) {
-  const headers = { 'Content-Type': 'application/json' };
-  const token = localStorage.getItem('gd_token') || null; 
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-  const res = await fetch(API_URL + path, { ...opts, headers });
+  const token = localStorage.getItem('gd_token');
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(opts.headers || {}) // 🔥 NO sobrescribir
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(API_URL + path, {
+    ...opts,
+    headers
+  });
+
   const data = await res.json().catch(() => ({}));
+
   if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+
   return data;
 }
 
