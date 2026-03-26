@@ -11,38 +11,26 @@ const presupuestosRoutes = require('./routes/presupuestos');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-const ALLOWED_ORIGINS = [
-  'https://kanekong909.github.io',
-  'http://localhost:3000',
-  'http://localhost:5500',
-  'http://127.0.0.1:5500',
-]; 
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Permitir requests sin origin (Postman, mobile apps, etc.)
-    if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin) || process.env.FRONTEND_URL === '*') {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS bloqueado para: ${origin}`));
-    }
-  },
+app.use(cors({
+  origin: [
+    'https://kanekong909.github.io',
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+}));
+app.options('*', cors());
 app.use(express.json({ limit: '2mb' }));
 
 // ── Rutas ──────────────────────────────────────────────────
-app.use('/api/auth',        authRoutes);
-app.use('/api/gastos',      gastosRoutes);
-app.use('/api/billeteras',  billterasRoutes);
-app.use('/api/recurrentes', recurrentesRoutes);
-app.use('/api/actividad',   actividadRoutes);
+app.use('/api/auth',         authRoutes);
+app.use('/api/gastos',       gastosRoutes);
+app.use('/api/billeteras',   billterasRoutes);
+app.use('/api/recurrentes',  recurrentesRoutes);
+app.use('/api/actividad',    actividadRoutes);
 app.use('/api/presupuestos', presupuestosRoutes);
 
 // ── IA: Análisis comparar meses ───────────────────────────
