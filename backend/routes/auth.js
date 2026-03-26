@@ -5,6 +5,7 @@ const pool    = require('../db');
 const { logActividad } = require('./actividad');
 
 // ── POST /api/auth/register ────────────────────────────────
+
 router.post('/register', async (req, res) => {
   const { nombre, email, password } = req.body;
   if (!nombre || !email || !password)
@@ -172,5 +173,7 @@ router.put('/perfil', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+console.log('LOGIN SECRET:', process.env.JWT_SECRET);
 
 module.exports = router;
