@@ -7,7 +7,7 @@ module.exports = function authMiddleware(req, res, next) {
   const token = header.startsWith('Bearer ') ? header.slice(7) : header;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.RET);
     req.usuario = decoded;          // { id, email, nombre }
     next();
   } catch {
