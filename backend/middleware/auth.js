@@ -10,7 +10,7 @@ module.exports = function authMiddleware(req, res, next) {
   // console.log('VERIFY SECRET:', process.env.JWT_SECRET);
 
   try {
-    const decoded = jwt.verify(token, process.env.RET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.usuario = decoded;          // { id, email, nombre }
     next();
   } catch {
