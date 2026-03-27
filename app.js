@@ -1207,6 +1207,8 @@ function initApp() {
   bindMontoInput('pres-monto'); 
   bindMontoInput('f-monto');
   bindMontoInput('e-monto');
+  bindMontoInput('nueva-billtera-saldo'); 
+  bindMontoInput('transferir-monto');     
 }
 
 // ── Toggle contraseña ─────────────────────────────
@@ -2166,7 +2168,7 @@ document.getElementById('transferir-modal').addEventListener('click', e => {
 
 document.getElementById('btn-transferir-confirmar').addEventListener('click', async () => {
   const destino_id = document.getElementById('transferir-destino').value;
-  const monto = Number(document.getElementById('transferir-monto').value);
+  const monto = getNumericValue('transferir-monto');
 
   if (!destino_id) return showError('transferir-error', 'Selecciona una billtera de destino');
   if (!monto || monto <= 0) return showError('transferir-error', 'Ingresa un monto válido');
