@@ -1262,9 +1262,24 @@ function actualizarSelectBilltera() {
     const sel = document.getElementById(id);
     if (!sel) return;
     const val = sel.value;
+    
+    // Obtener monto actual del formulario correspondiente
+    const montoInputId = id === 'f-billtera' ? 'f-monto' : 'e-monto';
+    const montoActual = getNumericValue(montoInputId);
+
     sel.innerHTML = '<option value="">Sin especificar</option>';
     billeteras.forEach(b => {
-      sel.appendChild(new Option(`${b.emoji} ${b.nombre} — ${fmt(b.saldo)}`, b.id));
+      const saldo = Number(b.saldo);
+      const insuficiente = montoActual > 0 && saldo < montoActual;
+      const label = insuficiente
+        ? `${b.emoji} ${b.nombre} — ${fmt(saldo)} ⚠ Saldo insuficiente`
+        : `${b.emoji} ${b.nombre} — ${fmt(saldo)}`;
+      const o = new Option(label, b.id);
+      if (insuficiente) {
+        o.disabled = true;
+        o.style.color = 'var(--red)';
+      }
+      sel.appendChild(o);
     });
     if (val) sel.value = val;
   });
@@ -1280,6 +1295,36 @@ function abrirBillteraModal(b) {
   document.getElementById('recarga-manual-input').value = '';
   document.getElementById('billtera-error').classList.add('hidden');
   document.getElementById('billtera-modal').classList.remove('hidden');
+}
+
+function validarSaldoBilltera(montoInputId, billteraSelectId, errorElId) {
+  const monto = getNumericValue(montoInputId);
+  const sel   = document.getElementById(billteraSelectId);
+  const billteraId = sel.value;
+
+  // Quitar aviso previo
+  const prevAviso = document.getElementById(errorElId + '-saldo');
+  if (prevAviso) prevAviso.remove();
+
+  if (!billteraId || !monto) return;
+
+  const billtera = billeteras.find(b => String(b.id) === String(billteraId));
+  if (!billtera) return;
+
+  if (Number(billtera.saldo) < monto) {
+    const aviso = document.createElement('div');
+    aviso.id = errorElId + '-saldo';
+    aviso.style.cssText = `
+      font-size: 12px;
+      color: var(--red);
+      margin-top: .35rem;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    `;
+    aviso.innerHTML = `⚠ Saldo insuficiente — tienes ${fmt(billtera.saldo)} y el gasto es ${fmt(monto)}`;
+    sel.parentNode.insertAdjacentElement('afterend', aviso);
+  }
 }
 
 // ── WALLET DRAWER ─────────────────────────────────
@@ -2336,6 +2381,24 @@ document.getElementById('btn-pres-guardar').addEventListener('click', async () =
 // Registrar en showSection
 const _showSectionOrig = showSection;
 // (ya manejado abajo en el override de showSection)
+
+// Validación saldo billetera — formulario nuevo gasto
+document.getElementById('f-monto').addEventListener('input', () => {
+  actualizarSelectBilltera();
+  validarSaldoBilltera('f-monto', 'f-billtera', 'form-error');
+});
+document.getElementById('f-billtera').addEventListener('change', () => {
+  validarSaldoBilltera('f-monto', 'f-billtera', 'form-error');
+});
+
+// Validación saldo billetera — modal editar
+document.getElementById('e-monto').addEventListener('input', () => {
+  actualizarSelectBilltera();
+  validarSaldoBilltera('e-monto', 'e-billtera', 'edit-error');
+});
+document.getElementById('e-billtera').addEventListener('change', () => {
+  validarSaldoBilltera('e-monto', 'e-billtera', 'edit-error');
+});
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {
