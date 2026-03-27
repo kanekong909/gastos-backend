@@ -1469,7 +1469,7 @@ document.querySelectorAll('.emoji-opt').forEach(btn => {
 
 document.getElementById('btn-crear-billtera').addEventListener('click', async () => {
   const nombre = document.getElementById('nueva-billtera-nombre').value.trim();
-  const saldo  = document.getElementById('nueva-billtera-saldo').value;
+  const saldo = getNumericValue('nueva-billtera-saldo');
   if (!nombre) {
     showError('nueva-billtera-error', 'El nombre es requerido');
     return;
@@ -1478,7 +1478,7 @@ document.getElementById('btn-crear-billtera').addEventListener('click', async ()
     document.getElementById('btn-crear-billtera').textContent = 'Creando…';
     const nueva = await api('/billeteras', {
       method: 'POST',
-      body: JSON.stringify({ nombre, saldo: Number(saldo) || 0, emoji: emojiSeleccionado })
+      body: JSON.stringify({ nombre, saldo: saldo, emoji: emojiSeleccionado })
     });
     billeteras.push(nueva);
     document.getElementById('nueva-billtera-modal').classList.add('hidden');
