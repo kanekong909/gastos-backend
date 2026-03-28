@@ -2,7 +2,7 @@ name: Backup diario KASH → Google Drive
 
 on:
   schedule:
-    - cron: '0 7 * * *'      # Todos los días a las 7:00 AM (hora del servidor)
+    - cron: '0 7 * * *'
   workflow_dispatch:
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'        # Mejor usar 20 o 22 en lugar de 18
+          node-version: '20'
 
       - name: Instalar googleapis
         run: npm install googleapis
@@ -32,7 +32,7 @@ jobs:
           echo "Backup descargado: $(wc -c < backup.json) bytes"
           ls -lh backup.json
 
-      # ==================== VERIFICAR BACKUP (CORREGIDO) ====================
+      # ==================== VERIFICAR BACKUP ====================
       - name: Verificar backup
         run: |
           if [ ! -s backup.json ]; then
@@ -42,8 +42,10 @@ jobs:
 
           echo "✅ Archivo generado ($(wc -c < backup.json) bytes)"
 
-          python3 -c '
-import sys, json
+          python3 - << 'EOF'
+import sys
+import json
+
 with open("backup.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
@@ -53,17 +55,19 @@ if isinstance(data, dict):
     print("Claves encontradas:", list(data.keys()))
     
     if "datos" in data:
-        total = sum(len(v) for v in data["datos"].values() if isinstance(v, list))
-        print(f"✅ OK - {total} registros en \"datos\"")
+        total = sum(len(v) for v in data["datos"].values() if isinstance(v, (list, tuple)))
+        print(f"✅ OK - {total} registros en la clave 'datos'")
     elif "data" in data:
-        print("⚠️  Se encontró clave \"data\" en lugar de \"datos\"")
-        total = len(data["data"]) if isinstance(data["data"], (list, dict)) else "?"
-        print(f"Registros aproximados: {total}")
+        print("⚠️ Se encontró clave 'data' en lugar de 'datos'")
+        if isinstance(data["data"], list):
+            print(f"Total registros: {len(data['data'])}")
+        else:
+            print("La clave 'data' no es una lista")
     else:
-        print("⚠️  Estructura diferente a la esperada")
+        print("⚠️ Estructura diferente. Claves disponibles:", list(data.keys()))
 else:
-    print("✅ Es una lista con", len(data), "elementos")
-'
+    print(f"✅ Es una lista con {len(data)} elementos")
+EOF
 
       # ==================== SUBIR A GOOGLE DRIVE ====================
       - name: Subir a Google Drive
