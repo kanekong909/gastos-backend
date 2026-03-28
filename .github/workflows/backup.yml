@@ -1,0 +1,74 @@
+name: Backup diario KASH → Google Drive
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Instalar googleapis
+        run: npm install googleapis
+
+      - name: Descargar backup de Railway
+        run: |
+          curl -s \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_TOKEN }}" \
+            https://gastos-backend-production-fa36.up.railway.app/api/actividad/admin/backup \
+            -o backup.json
+          echo "Backup descargado: $(wc -c < backup.json) bytes"
+
+      - name: Verificar backup
+        run: |
+          if [ ! -s backup.json ]; then
+            echo "Backup vacío, abortando"
+            exit 1
+          fi
+          cat backup.json | python3 -c "import sys,json; d=json.load(sys.stdin); print('OK -', sum(len(v) for v in d['datos'].values()), 'registros')"
+
+      - name: Subir a Google Drive
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: |
+          node << 'EOF'
+          const { google } = require('googleapis');
+          const fs = require('fs');
+
+          const credentials = JSON.parse(process.env.GDRIVE_CREDENTIALS);
+          const auth = new google.auth.GoogleAuth({
+            credentials,
+            scopes: ['https://www.googleapis.com/auth/drive.file']
+          });
+
+          const drive = google.drive({ version: 'v3', auth });
+          const fecha = new Date().toISOString().slice(0, 10);
+          const nombre = `kash-backup-${fecha}.json`;
+
+          drive.files.create({
+            requestBody: {
+              name: nombre,
+              parents: [process.env.GDRIVE_FOLDER_ID]
+            },
+            media: {
+              mimeType: 'application/json',
+              body: fs.createReadStream('backup.json')
+            }
+          }).then(r => {
+            console.log(`Backup subido: ${nombre} (ID: ${r.data.id})`);
+          }).catch(e => {
+            console.error('Error:', e.message);
+            process.exit(1);
+          });
+          EOF
