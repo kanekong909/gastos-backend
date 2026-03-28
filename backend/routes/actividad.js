@@ -87,11 +87,11 @@ router.get('/admin/resumen', auth, async (req, res) => {
 // GET /api/actividad/admin/backup
 router.get('/admin/backup', auth, async (req, res) => {
   try {
-    const [usuarios]     = await pool.query('SELECT id, nombre, email, created_at FROM usuarios');
-    const [gastos]       = await pool.query('SELECT * FROM gastos');
-    const [billeteras]   = await pool.query('SELECT * FROM billeteras');
-    const [recurrentes]  = await pool.query('SELECT * FROM recurrentes');
-    const [presupuestos] = await pool.query('SELECT * FROM presupuestos');
+    const [usuarios]     = await db.query('SELECT id, nombre, email, created_at FROM usuarios');
+    const [gastos]       = await db.query('SELECT * FROM gastos');
+    const [billeteras]   = await db.query('SELECT * FROM billeteras');
+    const [recurrentes]  = await db.query('SELECT * FROM recurrentes');
+    const [presupuestos] = await db.query('SELECT * FROM presupuestos');
 
     res.json({
       version: '1.0',
