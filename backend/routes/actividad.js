@@ -84,4 +84,23 @@ router.get('/admin/resumen', auth, async (req, res) => {
   }
 });
 
+// GET /api/actividad/admin/backup
+router.get('/admin/backup', auth, async (req, res) => {
+  try {
+    const [usuarios]     = await pool.query('SELECT id, nombre, email, created_at FROM usuarios');
+    const [gastos]       = await pool.query('SELECT * FROM gastos');
+    const [billeteras]   = await pool.query('SELECT * FROM billeteras');
+    const [recurrentes]  = await pool.query('SELECT * FROM recurrentes');
+    const [presupuestos] = await pool.query('SELECT * FROM presupuestos');
+
+    res.json({
+      version: '1.0',
+      exportado_en: new Date().toISOString(),
+      datos: { usuarios, gastos, billeteras, recurrentes, presupuestos }
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 module.exports = { router, logActividad };
