@@ -2292,8 +2292,10 @@ async function cargarPresupuestos() {
               <span class="pres-sep">/</span>
               <span class="pres-limite">${fmt(limite)}</span>
             </div>
-            <button class="btn-edit pres-btn-edit" data-id="${p.id}">Editar</button>
-            <button class="btn-del pres-btn-del" data-id="${p.id}">✕</button>
+            <div class="pres-item-actions">
+              <button class="btn-edit pres-btn-edit" data-id="${p.id}">Editar</button>
+              <button class="btn-del pres-btn-del" data-id="${p.id}">✕</button>
+            </div>
           </div>
           <div class="pres-bar-wrap">
             <div class="pres-bar-track">

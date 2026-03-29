@@ -1628,14 +1628,28 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 }
 .pres-item:hover { border-color: var(--accent); }
 
+.pres-item-actions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pres-item button {
+  margin: 10px 0;
+  /* float: right; */
+  justify-items: end;
+}
+
 .pres-item-top {
   /* display: flex; */
   flex-wrap: wrap;
   gap: .5rem;
 }
 .pres-montos {
-  margin-left: auto;
-  /* display: flex; */
+  /* margin-left: auto; */
+  margin: 5px 0;
+  display: flex;
+  /* justify-content: space-between; */
   flex-shrink: 0;
   font-size: .9rem;
   /* font-family: var(--font-head); */
