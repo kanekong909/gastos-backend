@@ -1431,6 +1431,34 @@ document.getElementById('btn-recarga-manual').addEventListener('click', async ()
   }
 });
 
+// Establecer saldo manualmente
+document.getElementById('btn-establecer-saldo').addEventListener('click', async () => {
+  if (!billteraActiva) return;
+  const nuevoSaldo = Number(document.getElementById('recarga-manual-input').value);
+  if (nuevoSaldo < 0 || isNaN(nuevoSaldo)) return;
+
+  const saldoActual = Number(billteraActiva.saldo);
+  const diferencia  = nuevoSaldo - saldoActual;
+
+  if (diferencia === 0) return; // nada que cambiar
+
+  try {
+    const updated = await api(`/billeteras/${billteraActiva.id}/recargar`, {
+      method: 'PUT',
+      body: JSON.stringify({ monto: diferencia })
+    });
+    billteraActiva = updated;
+    const idx = billeteras.findIndex(b => b.id === updated.id);
+    if (idx !== -1) billeteras[idx] = updated;
+    abrirBillteraModal(updated);
+    renderFabBilleteras();
+    actualizarSelectBilltera();
+    document.getElementById('recarga-manual-input').value = '';
+  } catch(e) {
+    showError('billtera-error', e.message || 'No se pudo establecer el saldo');
+  }
+});
+
 // Eliminar billtera
 document.getElementById('btn-billtera-eliminar').addEventListener('click', () => {
   if (!billteraActiva) return;

@@ -859,7 +859,8 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 .recarga-manual {
   display: flex;
   gap: .5rem;
-  align-items: center;
+  flex-direction: column;
+  /* align-items: center; */
 }
 .recarga-manual .input-prefix { flex: 1; }
 
