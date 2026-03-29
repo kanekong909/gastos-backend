@@ -855,6 +855,29 @@
     </div>
   </div>
 
+  <!-- MODAL EDITAR PRESUPUESTO -->
+  <div id="edit-pres-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:360px;">
+      <div class="modal-header">
+        <h3>Editar presupuesto</h3>
+        <button class="btn-close" id="edit-pres-modal-close">✕</button>
+      </div>
+      <div id="edit-pres-cat-badge" style="margin-bottom:1rem;"></div>
+      <div class="field-group">
+        <label>Nuevo límite mensual (COP)</label>
+        <div class="input-prefix">
+          <span>$</span>
+          <input type="text" id="edit-pres-monto" placeholder="0" inputmode="numeric"/>
+        </div>
+      </div>
+      <div id="edit-pres-error" class="auth-error hidden"></div>
+      <div class="form-actions">
+        <button class="btn-primary" id="btn-edit-pres-guardar">Guardar</button>
+        <button class="btn-ghost" id="btn-edit-pres-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /app -->
 
 <script src="app.js"></script>

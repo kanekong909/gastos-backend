@@ -58,6 +58,37 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
+// PUT editar presupuesto
+router.put('/:id', auth, async (req, res) => {
+  const { monto } = req.body;
+  if (!monto) return res.status(400).json({ error: 'Faltan campos' });
+  try {
+    const [[pres]] = await db.query(
+      'SELECT * FROM presupuestos WHERE id = ? AND usuario_id = ?',
+      [req.params.id, req.usuario.id]
+    );
+    if (!pres) return res.status(404).json({ error: 'No encontrado' });
+
+    await db.query(
+      'UPDATE presupuestos SET monto = ? WHERE id = ? AND usuario_id = ?',
+      [monto, req.params.id, req.usuario.id]
+    );
+
+    await db.query(
+      `INSERT INTO actividad_log (usuario_id, accion, entidad, detalle, ip)
+       VALUES (?, 'EDITAR', 'presupuesto', ?, ?)`,
+      [
+        req.usuario.id,
+        `Presupuesto ${pres.categoria}: $${Number(monto).toLocaleString('es-CO')} — ${pres.mes}/${pres.anio}`,
+        getIp(req)
+      ]
+    );
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // DELETE eliminar presupuesto
 router.delete('/:id', auth, async (req, res) => {
   try {

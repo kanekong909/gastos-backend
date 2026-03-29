@@ -1208,7 +1208,8 @@ function initApp() {
   bindMontoInput('f-monto');
   bindMontoInput('e-monto');
   bindMontoInput('nueva-billtera-saldo'); 
-  bindMontoInput('transferir-monto');     
+  bindMontoInput('transferir-monto');
+  bindMontoInput('edit-pres-monto');    
 }
 
 // ── Toggle contraseña ─────────────────────────────
@@ -2284,24 +2285,26 @@ async function cargarPresupuestos() {
       const div = document.createElement('div');
       div.className = 'pres-item';
       div.innerHTML = `
-        <div class="pres-item-top">
-          ${getCategoriaBadge(p.categoria)}
-          <div class="pres-montos">
-            <span class="pres-gastado" style="color:${color}">${fmt(gastado)}</span>
-            <span class="pres-sep">/</span>
-            <span class="pres-limite">${fmt(limite)}</span>
+          <div class="pres-item-top">
+            ${getCategoriaBadge(p.categoria)}
+            <div class="pres-montos">
+              <span class="pres-gastado" style="color:${color}">${fmt(gastado)}</span>
+              <span class="pres-sep">/</span>
+              <span class="pres-limite">${fmt(limite)}</span>
+            </div>
+            <button class="btn-edit pres-btn-edit" data-id="${p.id}">Editar</button>
+            <button class="btn-del pres-btn-del" data-id="${p.id}">✕</button>
           </div>
-          <button class="btn-del pres-btn-del" data-id="${p.id}">✕</button>
-        </div>
-        <div class="pres-bar-wrap">
-          <div class="pres-bar-track">
-            <div class="pres-bar-fill" style="width:${pct}%;background:${color};"></div>
-          </div>
-          <span class="pres-pct" style="color:${color}">
-            ${excedido ? '⚠ Excedido ' + fmt(gastado - limite) : pct + '%'}
-          </span>
+          <div class="pres-bar-wrap">
+            <div class="pres-bar-track">
+              <div class="pres-bar-fill" style="width:${pct}%;background:${color};"></div>
+            </div>
+            <span class="pres-pct" style="color:${color}">
+              ${excedido ? '⚠ Excedido ' + fmt(gastado - limite) : pct + '%'}
+            </span>
         </div>`;
 
+      div.querySelector('.pres-btn-edit').addEventListener('click', () => abrirEditPres(p));
       div.querySelector('.pres-btn-del').addEventListener('click', () => {
         confirmDelete(async () => {
           await api(`/presupuestos/${p.id}`, { method: 'DELETE' });
@@ -2400,6 +2403,47 @@ document.getElementById('e-monto').addEventListener('input', () => {
 });
 document.getElementById('e-billtera').addEventListener('change', () => {
   validarSaldoBilltera('e-monto', 'e-billtera', 'edit-error');
+});
+
+// ── EDITAR PRESUPUESTO ────────────────────────────
+let editPresId = null;
+
+function abrirEditPres(p) {
+  editPresId = p.id;
+  document.getElementById('edit-pres-cat-badge').innerHTML = getCategoriaBadge(p.categoria);
+  document.getElementById('edit-pres-monto').value = Number(p.monto).toLocaleString('es-CO');
+  document.getElementById('edit-pres-error').classList.add('hidden');
+  document.getElementById('edit-pres-modal').classList.remove('hidden');
+}
+
+document.getElementById('edit-pres-modal-close').addEventListener('click', () => {
+  document.getElementById('edit-pres-modal').classList.add('hidden');
+});
+document.getElementById('btn-edit-pres-cancelar').addEventListener('click', () => {
+  document.getElementById('edit-pres-modal').classList.add('hidden');
+});
+document.getElementById('edit-pres-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('edit-pres-modal'))
+    document.getElementById('edit-pres-modal').classList.add('hidden');
+});
+
+document.getElementById('btn-edit-pres-guardar').addEventListener('click', async () => {
+  const monto = getNumericValue('edit-pres-monto');
+  if (!monto) return showError('edit-pres-error', 'Ingresa un límite válido');
+
+  try {
+    document.getElementById('btn-edit-pres-guardar').textContent = 'Guardando…';
+    await api(`/presupuestos/${editPresId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ monto })
+    });
+    document.getElementById('edit-pres-modal').classList.add('hidden');
+    await cargarPresupuestos();
+  } catch (e) {
+    showError('edit-pres-error', e.message);
+  } finally {
+    document.getElementById('btn-edit-pres-guardar').textContent = 'Guardar';
+  }
 });
 
 // ── Arrancar ──────────────────────────────────────
