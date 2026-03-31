@@ -1409,6 +1409,21 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   border-color: var(--accent);
 }
 
+.wallet-total {
+  margin-top: 1rem;
+  padding: .75rem .5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text2);
+}
+
+.wallet-total strong {
+  font-size: 16px;
+  color: var(--text1);
+}
+
 /* ── COMPARAR MESES ───────────────────────────────── */
 .comparar-selects {
   display: flex;

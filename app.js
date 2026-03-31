@@ -1242,27 +1242,44 @@ async function cargarBilleteras() {
 
 function renderFabBilleteras() {
   const lista = document.getElementById('wallet-drawer-lista');
+  const totalEl = document.getElementById('wallet-total-monto');
+
   lista.innerHTML = '';
 
   if (!billeteras.length) {
     lista.innerHTML = '<div class="empty-state" style="padding:2rem 0;"><span class="empty-icon">💳</span><p>No tienes billeteras</p></div>';
+    
+    if (totalEl) totalEl.textContent = '$0';
     return;
   }
 
+  let total = 0; // 👈 ACUMULADOR
+
   billeteras.forEach(b => {
+    const saldo = Number(b.saldo);
+    total += saldo; // 👈 SUMA
+
     const item = document.createElement('div');
     item.className = 'wallet-drawer-item';
     item.innerHTML = `
       <span class="wallet-drawer-item-emoji">${b.emoji}</span>
       <div class="wallet-drawer-item-info">
         <div class="wallet-drawer-item-nombre">${b.nombre}</div>
-        <div class="wallet-drawer-item-saldo ${Number(b.saldo) < 0 ? 'negativo' : ''}">${fmt(b.saldo)}</div>
+        <div class="wallet-drawer-item-saldo ${saldo < 0 ? 'negativo' : ''}">${fmt(saldo)}</div>
       </div>`;
+    
     item.addEventListener('click', () => {
       abrirBillteraModal(b);
     });
+
     lista.appendChild(item);
   });
+
+  // 👇 ACTUALIZAR TOTAL
+  if (totalEl) {
+    totalEl.textContent = fmt(total);
+    totalEl.className = total < 0 ? 'negativo' : '';
+  }
 }
 
 function actualizarSelectBilltera() {
