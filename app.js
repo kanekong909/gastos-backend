@@ -1213,6 +1213,8 @@ function initApp() {
   bindMontoInput('nueva-billtera-saldo'); 
   bindMontoInput('transferir-monto');
   bindMontoInput('edit-pres-monto');    
+  bindMontoInput('rec-monto');
+  bindMontoInput('rr-monto');
 }
 
 // ── Toggle contraseña ─────────────────────────────
