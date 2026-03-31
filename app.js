@@ -255,6 +255,7 @@ document.getElementById('btn-limpiar').addEventListener('click', () => {
   document.getElementById('f-billtera').value = '';  // ← agrega esta línea
   hideError('form-error');
   setDefaultDateTime();
+  validarFechaBilltera('f-fecha', 'f-billtera');
 });
 
 // ── Editar modal ──────────────────────────────────
@@ -288,6 +289,8 @@ function openEdit(gasto) {
   });
   if (gasto.billtera_id) eSel.value = gasto.billtera_id;
 
+  // Al final de openEdit(), antes de classList.remove('hidden')
+  validarFechaBilltera('e-fecha', 'e-billtera');
   document.getElementById('edit-modal').classList.remove('hidden');
 }
 
@@ -2474,6 +2477,56 @@ document.getElementById('btn-edit-pres-guardar').addEventListener('click', async
   } finally {
     document.getElementById('btn-edit-pres-guardar').textContent = 'Guardar';
   }
+});
+
+// VALIDAR FECHA BILLTERA
+function validarFechaBilltera(fechaInputId, billteraSelectId) {
+  const fechaVal = document.getElementById(fechaInputId).value;
+  const sel = document.getElementById(billteraSelectId);
+  if (!fechaVal) return;
+
+  const fechaGasto = new Date(fechaVal);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const mismoMes =
+  fechaGasto.getMonth() === hoy.getMonth() &&
+  fechaGasto.getFullYear() === hoy.getFullYear();
+
+  const esMesAnterior = !mismoMes;
+
+  sel.disabled = esMesAnterior;
+
+  // Aviso visual
+  const avisoId = billteraSelectId + '-fecha-aviso';
+  const prevAviso = document.getElementById(avisoId);
+  if (prevAviso) prevAviso.remove();
+
+  if (esMesAnterior) {
+    sel.value = ''; // limpiar selección
+    const aviso = document.createElement('div');
+    aviso.id = avisoId;
+    aviso.style.cssText = `
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: .35rem;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    `;
+    aviso.innerHTML = `❗ No disponible para fechas anteriores`;
+    sel.parentNode.insertAdjacentElement('afterend', aviso);
+  }
+}
+
+// Validar fecha → billetera en formulario nuevo
+document.getElementById('f-fecha').addEventListener('change', () => {
+  validarFechaBilltera('f-fecha', 'f-billtera');
+});
+
+// Validar fecha → billetera en modal editar
+document.getElementById('e-fecha').addEventListener('change', () => {
+  validarFechaBilltera('e-fecha', 'e-billtera');
 });
 
 // ── Arrancar ──────────────────────────────────────
