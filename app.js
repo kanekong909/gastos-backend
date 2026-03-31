@@ -1542,7 +1542,6 @@ async function verificarPendientes() {
   try {
     const pendientes = await api('/recurrentes/pendientes');
 
-    // Ocultar banner y lista si no hay pendientes reales
     const banner = document.getElementById('banner-recurrentes');
     const wrap = document.getElementById('recurrentes-pendientes-wrap');
 
@@ -1552,18 +1551,31 @@ async function verificarPendientes() {
       return;
     }
 
-    // Mostrar banner con conteo correcto
-    document.getElementById('banner-texto').textContent = 
-      `Tienes ${pendientes.length} gasto${pendientes.length > 1 ? 's' : ''} recurrente${pendientes.length > 1 ? 's' : ''} pendiente${pendientes.length > 1 ? 's' : ''} este mes`;
+    // 👇 AQUÍ ESTÁ LA CLAVE
+    const hoy = new Date().getDate();
+
+    const vencidos = pendientes.filter(p => p.dia_mes < hoy);
+    const pendientesHoy = pendientes.filter(p => p.dia_mes === hoy);
+
+    // 🧠 Texto inteligente
+    let texto = '';
+
+    if (vencidos.length && pendientesHoy.length) {
+      texto = `Tienes ${vencidos.length} gasto${vencidos.length>1?'s':''} vencido${vencidos.length>1?'s':''} y ${pendientesHoy.length} pendiente${pendientesHoy.length>1?'s':''}`;
+    } else if (vencidos.length) {
+      texto = `Tienes ${vencidos.length} gasto${vencidos.length>1?'s':''} vencido${vencidos.length>1?'s':''}`;
+    } else {
+      texto = `Tienes ${pendientesHoy.length} gasto${pendientesHoy.length>1?'s':''} pendiente${pendientesHoy.length>1?'s':''}`;
+    }
+
+    document.getElementById('banner-texto').textContent = texto;
 
     banner.classList.remove('hidden');
 
-    // Auto-ocultar después de 25 segundos (más elegante)
     setTimeout(() => {
       banner.classList.add('hidden');
     }, 25000);
 
-    // Renderizar lista en la sección Resumen
     renderPendientes(pendientes);
 
   } catch (e) {
