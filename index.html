@@ -808,6 +808,24 @@
       <div id="perfil-success" class="hidden" style="background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);color:#3ecf8e;border-radius:8px;padding:.5rem .9rem;font-size:12px;margin-top:.75rem;">
         ✓ Perfil actualizado
       </div>
+      <!-- Cambiar Idioma -->
+      <div class="field-group" style="margin-bottom:0;margin-top:.75rem;">
+        <label id="label-idioma">Idioma</label>
+        <select id="idioma-select" style="width:100%;">
+          <option value="es">🇨🇴 Español</option>
+          <option value="en">🇺🇸 English</option>
+        </select>
+      </div>
+      <!-- Cambiar moneda -->
+      <div class="field-group" style="margin-bottom:0;margin-top:.5rem;">
+        <label id="label-moneda">Moneda</label>
+        <select id="moneda-select" style="width:100%;">
+          <option value="COP">🇨🇴 Peso colombiano</option>
+          <option value="USD">🇺🇸 US Dollar</option>
+          <option value="EUR">🇪🇺 Euro</option>
+          <option value="GBP">🇬🇧 British Pound</option>
+        </select>
+      </div>
       <div class="form-actions" style="margin-top:.9rem;gap:.65rem;">
         <button class="btn-primary btn-sm" id="btn-perfil-guardar">Guardar</button>
         <button class="btn-ghost btn-sm" id="btn-perfil-cancelar">Cancelar</button>
@@ -885,6 +903,7 @@
 
 </div><!-- /app -->
 
+<script src="i18n.js"></script>
 <script src="app.js"></script>
 <script>
   if (window.location.hash === '#register') {

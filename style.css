@@ -674,6 +674,11 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   padding: 2rem;
   width: 100%;
   max-width: 520px;
+  /* overflow-y: auto; */
+  
+  max-height: 90vh;
+  overflow-y: auto;
+  
   box-shadow: var(--shadow-lg);
   animation: slideUp .25s ease;
 }

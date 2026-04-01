@@ -16,9 +16,7 @@ const MESES = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 // ── Helpers ───────────────────────────────────────
-const fmt = n => new Intl.NumberFormat('es-CO', {
-  style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0
-}).format(n);
+const fmt = n => fmtMoneda(n);
 
 const fmtFecha = d => {
   const [y, m, day] = d.split('-');
@@ -766,7 +764,7 @@ function generarPDF(gastos, anio, mes, password) {
   doc.setFontSize(9);
   doc.setTextColor(...gray);
   doc.setFont('helvetica', 'normal');
-  doc.text('REPORTE MENSUAL DE GASTOS', 14, 28);
+  doc.text(t('pdf_reporte'), 14, 28);
 
   doc.setFontSize(18);
   doc.setTextColor(...white);
@@ -794,7 +792,7 @@ function generarPDF(gastos, anio, mes, password) {
 
   doc.setFontSize(8);
   doc.setTextColor(...gray);
-  doc.text('TOTAL DEL MES', 22, 60);
+  doc.text(t('pdf_total_mes'), 22, 60);
 
   doc.setFontSize(20);
   doc.setTextColor(...amber);
@@ -840,7 +838,8 @@ function generarPDF(gastos, anio, mes, password) {
   doc.text('CATEGORÍA', 63, y + 5.5);
   doc.text('DESCRIPCIÓN', 101, y + 5.5);
   doc.text('MÉTODO', 148, y + 5.5);
-  doc.text('MONTO', W - 18, y + 5.5, { align: 'right' });
+  const labelMonto = idiomaActual === 'en' ? 'AMOUNT' : 'MONTO';
+  doc.text(`${labelMonto} (${monedaActual})`, W - 18, y + 5.5, { align: 'right' });
 
   y += 8;
 
@@ -910,7 +909,7 @@ function generarPDF(gastos, anio, mes, password) {
   doc.setFontSize(7);
   doc.setTextColor(...amber);
   doc.setFont('helvetica', 'bold');
-  doc.text('RESUMEN POR CATEGORÍA', 22, y + 8);
+  doc.text(t('pdf_resumen_cat'), 22, y + 8);
 
   let yCat = y + 14;
   catEntries.forEach(([cat, val]) => {
@@ -944,8 +943,9 @@ function generarPDF(gastos, anio, mes, password) {
     doc.setFontSize(7);
     doc.setTextColor(...gray);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Generado el ${new Date().toLocaleDateString('es-CO')} · Gastos Diarios`, 14, H - 5);
-    doc.text(`Página ${i} de ${pageCount}`, W - 14, H - 5, { align: 'right' });
+    const locale = idiomaActual === 'en' ? 'en-US' : 'es-CO';
+    doc.text(`${t('pdf_generado')} ${new Date().toLocaleDateString(locale)} · KASH`, 14, H - 5);
+    doc.text(`${t('pdf_pagina')} ${i} ${t('pdf_de')} ${pageCount}`, W - 14, H - 5, { align: 'right' });
   }
 
   // ── Encriptar y guardar ───────────────────────────
@@ -1215,6 +1215,9 @@ function initApp() {
   bindMontoInput('edit-pres-monto');    
   bindMontoInput('rec-monto');
   bindMontoInput('rr-monto');
+
+  aplicarIdioma(idiomaActual);
+  aplicarMoneda(monedaActual);
 }
 
 // ── Toggle contraseña ─────────────────────────────
@@ -2558,6 +2561,27 @@ document.getElementById('f-fecha').addEventListener('change', () => {
 // Validar fecha → billetera en modal editar
 document.getElementById('e-fecha').addEventListener('change', () => {
   validarFechaBilltera('e-fecha', 'e-billtera');
+});
+
+// ── SELECTOR DE IDIOMA ────────────────────────────
+document.getElementById('idioma-select')?.addEventListener('change', function() {
+  aplicarIdioma(this.value);
+});
+
+// ── SELECTOR DE MONEDA ────────────────────────────
+document.getElementById('moneda-select')?.addEventListener('change', function() {
+  aplicarMoneda(this.value);
+  // Recargar la vista actual para reflejar el nuevo formato
+  const seccionActiva = document.querySelector('.section.active')?.id?.replace('section-', '');
+  if (seccionActiva === 'resumen')      cargarResumen();
+  if (seccionActiva === 'anteriores')   cargarMeses();
+  if (seccionActiva === 'presupuestos') cargarPresupuestos();
+  if (seccionActiva === 'graficos')     {
+    const anio = document.getElementById('graf-anio').value;
+    const mes  = document.getElementById('graf-mes').value;
+    cargarGraficos(anio, mes);
+  }
+  cargarBilleteras();
 });
 
 // ── Arrancar ──────────────────────────────────────
