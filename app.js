@@ -2581,8 +2581,6 @@ document.getElementById('moneda-select')?.addEventListener('change', function() 
     const mes  = document.getElementById('graf-mes').value;
     cargarGraficos(anio, mes);
   }
-  if (seccionActiva === 'reporte') initReporte();
-
   cargarBilleteras();
 });
 
