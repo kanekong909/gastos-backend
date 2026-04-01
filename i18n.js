@@ -764,10 +764,34 @@ function actualizarOpcionesCategorias(selectId, incluirTodas = false) {
 // ═══════════════════════════════════════════════════
 
 const MONEDAS = {
-  COP: { codigo: 'COP', simbolo: '$',  locale: 'es-CO', nombre: '🇨🇴 Peso colombiano' },
-  USD: { codigo: 'USD', simbolo: '$',  locale: 'en-US', nombre: '🇺🇸 US Dollar' },
-  EUR: { codigo: 'EUR', simbolo: '€',  locale: 'de-DE', nombre: '🇪🇺 Euro' },
-  GBP: { codigo: 'GBP', simbolo: '£',  locale: 'en-GB', nombre: '🇬🇧 British Pound' },
+  COP: { 
+    codigo: 'COP', 
+    simbolo: '$',  
+    locale: 'es-CO', 
+    nombre: '🇨🇴 Peso colombiano',
+    tasa: 1          // base
+  },
+  USD: { 
+    codigo: 'USD', 
+    simbolo: '$',  
+    locale: 'en-US', 
+    nombre: '🇺🇸 US Dollar',
+    tasa: 3670       // 1 USD ≈ 3670 COP (usa el valor que prefieras)
+  },
+  EUR: { 
+    codigo: 'EUR', 
+    simbolo: '€',  
+    locale: 'de-DE', 
+    nombre: '🇪🇺 Euro',
+    tasa: 4250       // 1 EUR ≈ 4250 COP
+  },
+  GBP: { 
+    codigo: 'GBP', 
+    simbolo: '£',  
+    locale: 'en-GB', 
+    nombre: '🇬🇧 British Pound',
+    tasa: 4850       // 1 GBP ≈ 4850 COP
+  },
 };
 
 let monedaActual = localStorage.getItem('gd_moneda') || 'COP';
@@ -780,11 +804,27 @@ function aplicarMoneda(codigo) {
 }
 
 function fmtMoneda(n) {
+  if (typeof n !== 'number' || isNaN(n)) n = 0;
+
   const m = MONEDAS[monedaActual] || MONEDAS.COP;
+
+  // Si es COP → mostrar directamente
+  if (monedaActual === 'COP') {
+    return new Intl.NumberFormat(m.locale, {
+      style: 'currency',
+      currency: m.codigo,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(n);
+  }
+
+  // Para otras monedas → convertir de COP a la moneda seleccionada
+  const montoConvertido = n / m.tasa;
+
   return new Intl.NumberFormat(m.locale, {
     style: 'currency',
     currency: m.codigo,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: monedaActual === 'COP' ? 0 : 2,
-  }).format(n);
+    minimumFractionDigits: monedaActual === 'USD' || monedaActual === 'EUR' || monedaActual === 'GBP' ? 2 : 0,
+    maximumFractionDigits: 2,
+  }).format(montoConvertido);
 }
