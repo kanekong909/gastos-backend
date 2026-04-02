@@ -1724,3 +1724,46 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+@media (max-width: 480px) {
+
+  .gasto-item {
+    padding: .9rem;
+  }
+
+  .gasto-item-top {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .gasto-info {
+    width: 100%;
+  }
+
+  .gasto-monto {
+    width: 100%;
+    text-align: right;
+    font-size: 1.3rem;
+    margin-top: .3rem;
+  }
+
+  .gasto-item-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .5rem;
+  }
+
+  .gasto-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Botones Editar y  Eliminar Gasto */
+@media (max-width: 480px) {
+  .btn-edit, .btn-del {
+    flex: 1;
+    text-align: center;
+    padding: .5rem;
+  }
+}
