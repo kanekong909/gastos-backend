@@ -265,6 +265,11 @@ const TRADUCCIONES = {
     notif_otra_sesion_movil: 'Tu cuenta también está abierta en otro móvil.',
     notif_otra_sesion_pc:    'Tu cuenta también está abierta en otro computador.',
     notif_transferencia:     '✓ Transferencia exitosa de',
+
+    // MONEDA
+    moneda_cargando:   'Cargando tasa de cambio…',
+    moneda_error:      'No se pudo obtener la tasa de cambio. Usando tasa aproximada.',
+    moneda_tasa:       'Tasa:',
   },
 
   en: {
@@ -529,6 +534,11 @@ const TRADUCCIONES = {
     notif_otra_sesion_movil: 'Your account is also open on another mobile.',
     notif_otra_sesion_pc:    'Your account is also open on another computer.',
     notif_transferencia:     '✓ Successful transfer of',
+
+    // MONEDA
+    moneda_cargando:   'Loading exchange rate…',
+    moneda_error:      'Could not fetch exchange rate. Using approximate rate.',
+    moneda_tasa:       'Rate:',
   }
 };
 
@@ -760,7 +770,7 @@ function actualizarOpcionesCategorias(selectId, incluirTodas = false) {
 }
 
 // ═══════════════════════════════════════════════════
-//  MONEDAS
+//  MONEDAS — con conversión real desde API
 // ═══════════════════════════════════════════════════
 
 const MONEDAS = {
@@ -770,21 +780,204 @@ const MONEDAS = {
   GBP: { codigo: 'GBP', simbolo: '£',  locale: 'en-GB', nombre: '🇬🇧 British Pound' },
 };
 
-let monedaActual = localStorage.getItem('gd_moneda') || 'COP';
+// Tasas de emergencia (fallback) — COP a cada moneda
+// Se actualizan con valores reales al llamar fetchTasaCambio()
+const TASAS_FALLBACK = {
+  COP: 1,
+  USD: 1 / 4100,
+  EUR: 1 / 4450,
+  GBP: 1 / 5200,
+};
 
-function aplicarMoneda(codigo) {
-  monedaActual = codigo;
-  localStorage.setItem('gd_moneda', codigo);
-  const sel = document.getElementById('moneda-select');
-  if (sel) sel.value = codigo;
+let monedaActual   = localStorage.getItem('gd_moneda') || 'COP';
+let tasaActual     = parseFloat(localStorage.getItem('gd_tasa') || '1');   // COP → monedaActual
+let tasaCacheTime  = parseInt(localStorage.getItem('gd_tasa_time') || '0'); // timestamp ms
+let tasaCargando   = false;
+
+const CACHE_TTL = 60 * 60 * 1000; // 1 hora en ms
+
+/**
+ * Obtiene la tasa de cambio COP → targetCurrency desde la API pública
+ * open.er-api.com (sin key, 1500 req/mes gratuitas).
+ * Cachea en localStorage por 1 hora.
+ */
+async function fetchTasaCambio(targetCurrency) {
+  if (targetCurrency === 'COP') {
+    tasaActual = 1;
+    localStorage.setItem('gd_tasa', '1');
+    localStorage.setItem('gd_tasa_time', Date.now().toString());
+    localStorage.setItem('gd_tasa_moneda', 'COP');
+    actualizarBadgeTasa();
+    return 1;
+  }
+
+  // ¿Tenemos caché válido para esta moneda?
+  const cachedMoneda = localStorage.getItem('gd_tasa_moneda');
+  const ahora = Date.now();
+  if (
+    cachedMoneda === targetCurrency &&
+    tasaActual > 0 &&
+    (ahora - tasaCacheTime) < CACHE_TTL
+  ) {
+    actualizarBadgeTasa();
+    return tasaActual;
+  }
+
+  // Mostrar indicador de carga
+  tasaCargando = true;
+  mostrarBadgeTasa(t('moneda_cargando'), 'loading');
+
+  try {
+    // API gratuita: base siempre COP, obtenemos tasa hacia targetCurrency
+    const res = await fetch(
+      `https://open.er-api.com/v6/latest/COP`
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (data.result !== 'success') throw new Error('API error');
+
+    const tasa = data.rates[targetCurrency];
+    if (!tasa) throw new Error('Moneda no encontrada');
+
+    tasaActual    = tasa;
+    tasaCacheTime = Date.now();
+    localStorage.setItem('gd_tasa',       tasa.toString());
+    localStorage.setItem('gd_tasa_time',  tasaCacheTime.toString());
+    localStorage.setItem('gd_tasa_moneda', targetCurrency);
+
+    actualizarBadgeTasa();
+    return tasa;
+
+  } catch (err) {
+    console.warn('fetchTasaCambio falló, usando fallback:', err);
+    // Usar tasa de fallback
+    const tasa = TASAS_FALLBACK[targetCurrency] || 1;
+    tasaActual = tasa;
+    mostrarBadgeTasa(t('moneda_error'), 'error');
+    setTimeout(() => actualizarBadgeTasa(), 4000);
+    return tasa;
+
+  } finally {
+    tasaCargando = false;
+  }
 }
 
+/**
+ * Convierte un valor desde COP a la moneda activa
+ */
+function convertirDesdeCOP(valorCOP) {
+  if (monedaActual === 'COP') return valorCOP;
+  return valorCOP * tasaActual;
+}
+
+/**
+ * Formatea un número YA en la moneda destino
+ */
 function fmtMoneda(n) {
   const m = MONEDAS[monedaActual] || MONEDAS.COP;
+  const convertido = convertirDesdeCOP(Number(n));
   return new Intl.NumberFormat(m.locale, {
     style: 'currency',
     currency: m.codigo,
     minimumFractionDigits: 0,
     maximumFractionDigits: monedaActual === 'COP' ? 0 : 2,
-  }).format(n);
+  }).format(convertido);
 }
+
+/**
+ * Muestra u oculta el badge con la tasa activa debajo del selector de moneda
+ */
+function actualizarBadgeTasa() {
+  if (monedaActual === 'COP') {
+    ocultarBadgeTasa();
+    return;
+  }
+  const tasa = tasaActual;
+  const m = MONEDAS[monedaActual];
+  const texto = `${t('moneda_tasa')} 1 COP = ${tasa.toFixed(6)} ${m.codigo}`;
+  mostrarBadgeTasa(texto, 'ok');
+}
+
+function mostrarBadgeTasa(texto, tipo = 'ok') {
+  let badge = document.getElementById('tasa-badge');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'tasa-badge';
+    badge.style.cssText = `
+      font-size: 11px;
+      margin-top: .35rem;
+      padding: .3rem .6rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      transition: all .3s ease;
+    `;
+    const monedaSel = document.getElementById('moneda-select');
+    if (monedaSel) monedaSel.parentNode.insertAdjacentElement('afterend', badge);
+  }
+
+  const estilos = {
+    ok:      { bg: 'rgba(62,207,142,.1)',  border: 'rgba(62,207,142,.25)',  color: '#3ecf8e', icon: '✓' },
+    loading: { bg: 'rgba(245,166,35,.1)',  border: 'rgba(245,166,35,.25)',  color: '#f5a623', icon: '⟳' },
+    error:   { bg: 'rgba(248,113,113,.1)', border: 'rgba(248,113,113,.25)', color: '#f87171', icon: '⚠' },
+  };
+  const s = estilos[tipo] || estilos.ok;
+  badge.style.background   = s.bg;
+  badge.style.border       = `1px solid ${s.border}`;
+  badge.style.color        = s.color;
+  badge.innerHTML          = `<span>${s.icon}</span><span>${texto}</span>`;
+}
+
+function ocultarBadgeTasa() {
+  const badge = document.getElementById('tasa-badge');
+  if (badge) badge.remove();
+}
+
+/**
+ * Cambia la moneda activa: actualiza estado, obtiene tasa y recarga vistas
+ */
+async function aplicarMoneda(codigo) {
+  monedaActual = codigo;
+  localStorage.setItem('gd_moneda', codigo);
+
+  const sel = document.getElementById('moneda-select');
+  if (sel) sel.value = codigo;
+
+  // Obtener tasa (asíncrono)
+  await fetchTasaCambio(codigo);
+
+  // Recargar vistas activas para reflejar nueva moneda
+  const seccionActiva = document.querySelector('.section.active')?.id?.replace('section-', '');
+  if (typeof cargarResumen     === 'function' && seccionActiva === 'resumen')      cargarResumen();
+  if (typeof cargarMeses       === 'function' && seccionActiva === 'anteriores')   cargarMeses();
+  if (typeof cargarPresupuestos=== 'function' && seccionActiva === 'presupuestos') cargarPresupuestos();
+  if (typeof cargarGraficos    === 'function' && seccionActiva === 'graficos') {
+    const anio = document.getElementById('graf-anio')?.value;
+    const mes  = document.getElementById('graf-mes')?.value;
+    if (anio) cargarGraficos(anio, mes);
+  }
+  if (typeof cargarBilleteras === 'function') cargarBilleteras();
+}
+
+// ── Inicialización: restaurar tasa cacheada al cargar ─
+(function inicializarTasaCache() {
+  const cachedMoneda = localStorage.getItem('gd_tasa_moneda');
+  const cachedTasa   = parseFloat(localStorage.getItem('gd_tasa') || '0');
+  const cachedTime   = parseInt(localStorage.getItem('gd_tasa_time') || '0');
+
+  if (
+    cachedMoneda === monedaActual &&
+    cachedTasa > 0 &&
+    (Date.now() - cachedTime) < CACHE_TTL
+  ) {
+    tasaActual    = cachedTasa;
+    tasaCacheTime = cachedTime;
+  } else if (monedaActual !== 'COP') {
+    // Usar fallback hasta que fetchTasaCambio() se llame
+    tasaActual = TASAS_FALLBACK[monedaActual] || 1;
+  } else {
+    tasaActual = 1;
+  }
+})();
