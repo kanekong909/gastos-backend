@@ -1767,3 +1767,18 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
     padding: .5rem;
   }
 }
+
+#session-expired-modal .modal-content {
+  text-align: center;
+  max-width: 300px;
+}
+
+#session-expired-modal h3 {
+  margin-bottom: .5rem;
+}
+
+#session-expired-modal p {
+  font-size: 14px;
+  opacity: .8;
+  margin-bottom: 1rem;
+}

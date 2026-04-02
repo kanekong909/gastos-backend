@@ -12,6 +12,33 @@ let editId = null;
 let chartDonut = null, chartBar = null, chartLine = null;
 let deleteCallback = null;
 
+// Inactividad ─────────────────────────────────
+let inactivityTimer;
+const INACTIVITY_TIME = 10 * 60 * 1000; // 10 minutos
+
+function showSessionExpiredModal() {
+  document.getElementById('session-expired-modal').classList.remove('hidden');
+}
+
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+
+  inactivityTimer = setTimeout(() => {
+    showSessionExpiredModal();
+  }, INACTIVITY_TIME);
+}
+
+// Detectar actividad
+['click', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(event => {
+  document.addEventListener(event, resetInactivityTimer, true);
+});
+
+// Botón del modal
+document.getElementById('btn-session-ok').addEventListener('click', () => {
+  document.getElementById('session-expired-modal').classList.add('hidden');
+  logout();
+});
+
 const MESES = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -1218,6 +1245,9 @@ function initApp() {
 
   aplicarIdioma(idiomaActual);
   aplicarMoneda(monedaActual);
+
+  // Inactividad
+  resetInactivityTimer();
 }
 
 // ── Toggle contraseña ─────────────────────────────
