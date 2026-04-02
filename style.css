@@ -3,6 +3,8 @@
    Estética: Editorial oscuro con acentos ámbar
 ════════════════════════════════════════════════════ */
 
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Sarina&family=UnifrakturMaguntia&display=swap');
+
 :root {
   --bg:         #0d0d0f;
   --bg2:        #141417;
@@ -20,6 +22,9 @@
   --red:        #f87171;
   --blue:       #60a5fa;
   --font-head:  'Syne', sans-serif;
+  --pacifico : 'Pacifico', cursive;
+  --sarina : 'Sarina', cursive;
+  --unifraktur : 'UnifrakturMaguntia', cursive;
   --font-body:  'DM Sans', sans-serif;
   --radius:     12px;
   --radius-sm:  8px;
@@ -398,7 +403,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   min-width: 180px;
 }
 .badge-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-weight: 600; display: block; }
-.badge-value { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--text); }
+.badge-value { font-family: var(--pacifico); font-size: 2.20rem; font-weight: 800; color: var(--text);  }
 
 /* ── FILTERS BAR ──────────────────────────────────── */
 .filters-bar {
@@ -472,8 +477,8 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 .gasto-fecha { font-size: 12px; color: var(--text3); margin-top: 2px; }
 
 .gasto-monto {
-  font-family: var(--font-head);
-  font-weight: 700; font-size: 1rem;
+  font-family: var(--pacifico);
+  font-weight: 700; font-size: 1.50rem;
   color: var(--accent);
   white-space: nowrap;
   margin-left: auto;
