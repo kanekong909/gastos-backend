@@ -1,170 +1,459 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gastos Diarios</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="shortcut icon" href="./assets/img/icon.svg" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <!-- ChartJs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <!-- JsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
+
 <body>
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      AUTH OVERLAY
 ════════════════════════════════════════════ -->
-<div id="auth-overlay" class="auth-overlay">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <span class="logo-icon">◈</span>
-      <span class="logo-text">KASH</span>
-    </div>
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">KASH</span>
+      </div>
 
-    <!-- Login -->
-    <div id="panel-login" class="auth-panel active">
-      <h2>Bienvenido de nuevo</h2>
-      <p class="auth-sub">Ingresa a tu cuenta para continuar</p>
-      <div class="field-group">
-        <label>Correo electrónico</label>
-        <input type="email" id="login-email" placeholder="tucorreo@ejemplo.com"/>
-      </div>
-      <div class="field-group">
-        <label>Contraseña</label>
-        <div class="input-pass">
-          <input type="password" id="login-pass" placeholder="••••••••"/>
-          <button type="button" class="btn-eye" data-target="login-pass">👁</button>
+      <!-- Login -->
+      <div id="panel-login" class="auth-panel active">
+        <h2>Bienvenido de nuevo</h2>
+        <p class="auth-sub">Ingresa a tu cuenta para continuar</p>
+        <div class="field-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="login-email" placeholder="tucorreo@ejemplo.com" />
         </div>
+        <div class="field-group">
+          <label>Contraseña</label>
+          <div class="input-pass">
+            <input type="password" id="login-pass" placeholder="••••••••" />
+            <button type="button" class="btn-eye" data-target="login-pass">👁</button>
+          </div>
+        </div>
+        <div id="login-error" class="auth-error hidden"></div>
+        <button class="btn-primary btn-full" id="btn-login">Iniciar sesión</button>
+        <p class="auth-switch">¿No tienes cuenta? <a href="#" id="go-register">Regístrate</a></p>
       </div>
-      <div id="login-error" class="auth-error hidden"></div>
-      <button class="btn-primary btn-full" id="btn-login">Iniciar sesión</button>
-      <p class="auth-switch">¿No tienes cuenta? <a href="#" id="go-register">Regístrate</a></p>
-    </div>
 
-    <!-- Register -->
-    <div id="panel-register" class="auth-panel">
-      <h2>Crear cuenta</h2>
-      <p class="auth-sub">Empieza a registrar tus gastos</p>
-      <div class="field-group">
-        <label>Nombre completo</label>
-        <input type="text" id="reg-nombre" placeholder="Tu nombre"/>
-      </div>
-      <div class="field-group">
-        <label>Correo electrónico</label>
-        <input type="email" id="reg-email" placeholder="tucorreo@ejemplo.com"/>
-      </div>
-      <div class="field-group">
-        <label>Contraseña</label>
-        <div class="input-pass">
-          <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
-          <button type="button" class="btn-eye" data-target="reg-pass">👁</button>
+      <!-- Register -->
+      <div id="panel-register" class="auth-panel">
+        <h2>Crear cuenta</h2>
+        <p class="auth-sub">Empieza a registrar tus gastos</p>
+        <div class="field-group">
+          <label>Nombre completo</label>
+          <input type="text" id="reg-nombre" placeholder="Tu nombre" />
         </div>
+        <div class="field-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="reg-email" placeholder="tucorreo@ejemplo.com" />
+        </div>
+        <div class="field-group">
+          <label>Contraseña</label>
+          <div class="input-pass">
+            <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" />
+            <button type="button" class="btn-eye" data-target="reg-pass">👁</button>
+          </div>
+        </div>
+        <div id="reg-error" class="auth-error hidden"></div>
+        <button class="btn-primary btn-full" id="btn-register">Crear cuenta</button>
+        <p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="go-login">Inicia sesión</a></p>
       </div>
-      <div id="reg-error" class="auth-error hidden"></div>
-      <button class="btn-primary btn-full" id="btn-register">Crear cuenta</button>
-      <p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="go-login">Inicia sesión</a></p>
     </div>
   </div>
-</div>
 
-<!-- ═══════════════════════════════════════════
+  <!-- ═══════════════════════════════════════════
      APP
 ════════════════════════════════════════════ -->
-<div id="app" class="hidden">
+  <div id="app" class="hidden">
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="nav-brand" style="cursor:pointer;" onclick="window.location.href='landing.html'">
-      <span class="logo-icon">◈</span>
-      <span class="logo-text">KASH</span>
-    </div>
-    <div class="nav-links">
-      <a href="#" class="nav-link active" data-section="nuevo">Nuevo gasto</a>
-      <a href="#" class="nav-link" data-section="resumen">Resumen</a>
-      <a href="#" class="nav-link" data-section="anteriores">Meses anteriores</a>
-      <a href="#" class="nav-link" data-section="presupuestos">Presupuestos</a>
-      <a href="#" class="nav-link" data-section="reporte">Reporte</a>
-      <a href="#" class="nav-link" data-section="graficos">Gráficos</a>
-    </div>
-    <div class="nav-user">
-      <button class="btn-theme" id="btn-theme" title="Cambiar tema">🌙</button>
-      <span id="nav-nombre" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;" title="Editar perfil">Usuario</span>
-      <button class="btn-logout" id="btn-logout">Salir</button>
-    </div>
-  </nav>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-brand" style="cursor:pointer;" onclick="window.location.href='landing.html'">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">KASH</span>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="nav-link active" data-section="nuevo">Nuevo gasto</a>
+        <a href="#" class="nav-link" data-section="resumen">Resumen</a>
+        <a href="#" class="nav-link" data-section="anteriores">Meses anteriores</a>
+        <a href="#" class="nav-link" data-section="presupuestos">Presupuestos</a>
+        <a href="#" class="nav-link" data-section="reporte">Reporte</a>
+        <a href="#" class="nav-link" data-section="graficos">Gráficos</a>
+      </div>
+      <div class="nav-user">
+        <button class="btn-theme" id="btn-theme" title="Cambiar tema">🌙</button>
+        <span id="nav-nombre" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;"
+          title="Editar perfil">Usuario</span>
+        <button class="btn-logout" id="btn-logout">Salir</button>
+      </div>
+    </nav>
 
-  <!-- BOTTOM NAV MOBILE -->
-  <nav class="bottom-nav" id="bottom-nav">
-    <a href="#" class="bottom-nav-item active" data-section="nuevo">
-      <span class="bnav-icon">＋</span>
-      <span class="bnav-label">Nuevo</span>
-    </a>
-    <a href="#" class="bottom-nav-item" data-section="resumen">
-      <span class="bnav-icon">◑</span>
-      <span class="bnav-label">Resumen</span>
-    </a>
-    <a href="#" class="bottom-nav-item" data-section="anteriores">
-      <span class="bnav-icon">◷</span>
-      <span class="bnav-label">Historial</span>
-    </a>
-    <a href="#" class="bottom-nav-item" data-section="presupuestos">
-      <span class="bnav-icon">◎</span>
-      <span class="bnav-label">Presupuesto</span>
-    </a>
-    <a href="#" class="bottom-nav-item" data-section="reporte">
-      <span class="bnav-icon">⬇</span>
-      <span class="bnav-label">Reporte</span>
-    </a>
-    <a href="#" class="bottom-nav-item" data-section="graficos">
-      <span class="bnav-icon">◈</span>
-      <span class="bnav-label">Gráficos</span>
-    </a>
-  </nav>
+    <!-- BOTTOM NAV MOBILE -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <a href="#" class="bottom-nav-item active" data-section="nuevo">
+        <span class="bnav-icon">＋</span>
+        <span class="bnav-label">Nuevo</span>
+      </a>
+      <a href="#" class="bottom-nav-item" data-section="resumen">
+        <span class="bnav-icon">◑</span>
+        <span class="bnav-label">Resumen</span>
+      </a>
+      <a href="#" class="bottom-nav-item" data-section="anteriores">
+        <span class="bnav-icon">◷</span>
+        <span class="bnav-label">Historial</span>
+      </a>
+      <a href="#" class="bottom-nav-item" data-section="presupuestos">
+        <span class="bnav-icon">◎</span>
+        <span class="bnav-label">Presupuesto</span>
+      </a>
+      <a href="#" class="bottom-nav-item" data-section="reporte">
+        <span class="bnav-icon">⬇</span>
+        <span class="bnav-label">Reporte</span>
+      </a>
+      <a href="#" class="bottom-nav-item" data-section="graficos">
+        <span class="bnav-icon">◈</span>
+        <span class="bnav-label">Gráficos</span>
+      </a>
+    </nav>
 
-  <main class="container">
+    <main class="container">
 
-    <!-- BANNER RECURRENTES PENDIENTES -->
-    <div id="banner-recurrentes" class="banner-recurrentes hidden">
-      <span class="banner-icon">🔔</span>
-      <span id="banner-texto">Tienes gastos recurrentes pendientes</span>
-      <button class="banner-btn" id="banner-btn-ver">Ver pendientes</button>
-      <button class="banner-close" id="banner-close">✕</button>
-    </div>
-
-    <!-- ── SECCIÓN 1: NUEVO GASTO ─────────────────────── -->
-    <section id="section-nuevo" class="section active">
-      <div class="section-header">
-        <h1>Registrar gasto</h1>
-        <p>Añade un nuevo movimiento a tu registro</p>
+      <!-- BANNER RECURRENTES PENDIENTES -->
+      <div id="banner-recurrentes" class="banner-recurrentes hidden">
+        <span class="banner-icon">🔔</span>
+        <span id="banner-texto">Tienes gastos recurrentes pendientes</span>
+        <button class="banner-btn" id="banner-btn-ver">Ver pendientes</button>
+        <button class="banner-close" id="banner-close">✕</button>
       </div>
 
-      <div class="form-card">
+      <!-- ── SECCIÓN 1: NUEVO GASTO ─────────────────────── -->
+      <section id="section-nuevo" class="section active">
+        <div class="section-header">
+          <h1>Registrar gasto</h1>
+          <p>Añade un nuevo movimiento a tu registro</p>
+        </div>
+
+        <div class="form-card">
+          <div class="form-grid">
+            <div class="field-group">
+              <label>Fecha</label>
+              <input type="date" id="f-fecha" />
+            </div>
+            <div class="field-group">
+              <label>Hora</label>
+              <input type="time" id="f-hora" />
+            </div>
+            <div class="field-group">
+              <label>Monto (COP)</label>
+              <div class="input-prefix">
+                <span>$</span>
+                <input type="text" id="f-monto" placeholder="0" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label>Categoría</label>
+              <select id="f-categoria">
+                <option value="">Seleccionar…</option>
+                <option value="Comida">Comida</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Entretenimiento">Entretenimiento</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+
+            <!-- Campo categoría personalizada -->
+            <div class="field-group hidden" id="f-categoria-custom-wrap">
+              <label>¿Cuál categoría? <span class="optional">(escríbela)</span></label>
+              <input type="text" id="f-categoria-custom" placeholder="Ej: Salud, Mascota, Hogar…" maxlength="50" />
+            </div>
+
+            <div class="field-group">
+              <label>¿Cómo pagaste? <span class="optional">(opcional)</span></label>
+              <select id="f-billtera">
+                <option value="">Sin especificar</option>
+              </select>
+            </div>
+
+            <div class="field-group full-width">
+              <label>Descripción <span class="optional">(opcional)</span></label>
+              <input type="text" id="f-descripcion" placeholder="¿En qué gastaste?" />
+            </div>
+
+          </div>
+          <div id="form-error" class="auth-error hidden"></div>
+          <div class="form-actions">
+            <button class="btn-primary" id="btn-guardar">Guardar gasto</button>
+            <button class="btn-ghost" id="btn-limpiar">Limpiar</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;">
+          <button class="btn-ghost" id="btn-gestionar-recurrentes">
+            🔁 Gestionar gastos recurrentes
+          </button>
+        </div>
+
+        <!-- Edit Modal removed from here, now global -->
+      </section>
+
+      <!-- ── SECCIÓN 2: RESUMEN DEL MES ─────────────────── -->
+      <section id="section-resumen" class="section">
+        <div class="section-header">
+          <div>
+            <h1 id="resumen-titulo">Enero 2025</h1>
+            <p>Resumen del mes actual</p>
+          </div>
+          <div class="resumen-total-badge">
+            <span class="badge-label">Total del mes</span>
+            <span class="badge-value" id="resumen-total">$0</span>
+          </div>
+        </div>
+
+        <!-- RECURRENTES PENDIENTES DEL MES -->
+        <div id="recurrentes-pendientes-wrap" class="hidden">
+          <div class="recurrentes-pendientes-header">
+            <span class="rp-titulo">🔔 Pendientes este mes</span>
+          </div>
+          <div id="recurrentes-pendientes-lista"></div>
+          <div style="margin-bottom:1.5rem;"></div>
+        </div>
+
+        <div class="filters-bar">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="buscar-input" placeholder="Buscar por descripción…" />
+          </div>
+          <select id="filtro-categoria">
+            <option value="">Todas las categorías</option>
+            <option value="Comida">Comida</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Entretenimiento">Entretenimiento</option>
+            <option value="Ropa">Ropa</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+
+        <div id="tabla-resumen" class="gastos-list">
+          <div class="empty-state">
+            <span class="empty-icon">◎</span>
+            <p>No hay registros este mes</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SECCIÓN 3: MESES ANTERIORES ───────────────── -->
+      <section id="section-anteriores" class="section">
+        <div class="section-header">
+          <div>
+            <h1>Meses anteriores</h1>
+            <p>Historial de todos tus gastos</p>
+          </div>
+          <button class="btn-ghost btn-sm" id="btn-ir-comparar">⇄ Comparar meses</button>
+        </div>
+
+        <div id="lista-meses" class="meses-grid">
+          <div class="empty-state">
+            <span class="empty-icon">◎</span>
+            <p>No hay registros anteriores</p>
+          </div>
+        </div>
+
+        <!-- Detail view -->
+        <div id="mes-detalle" class="hidden">
+          <div class="detalle-header">
+            <button class="btn-back" id="btn-back-mes">← Volver</button>
+            <h2 id="detalle-titulo">Mes</h2>
+          </div>
+          <div id="tabla-detalle" class="gastos-list"></div>
+        </div>
+
+        <!-- COMPARAR MESES -->
+        <div id="comparar-view" class="hidden">
+          <div class="detalle-header">
+            <button class="btn-back" id="btn-back-comparar">← Volver</button>
+            <h2>Comparar meses</h2>
+          </div>
+
+          <div class="comparar-selects">
+            <div class="field-group">
+              <label>Mes A</label>
+              <select id="comparar-mes-a"></select>
+            </div>
+            <div class="comparar-vs">VS</div>
+            <div class="field-group">
+              <label>Mes B</label>
+              <select id="comparar-mes-b"></select>
+            </div>
+            <button class="btn-primary btn-sm" id="btn-comparar-cargar">Comparar</button>
+          </div>
+
+          <div id="comparar-resultado" class="hidden">
+            <!-- Totales -->
+            <div class="comparar-totales">
+              <div class="comparar-total-card" id="comp-total-a"></div>
+              <div class="comparar-diff-card" id="comp-diff"></div>
+              <div class="comparar-total-card" id="comp-total-b"></div>
+            </div>
+            <!-- Tabla categorías -->
+            <div id="comparar-tabla-cats"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SECCIÓN 4: REPORTE ─────────────────────────── -->
+      <section id="section-reporte" class="section">
+        <div class="section-header">
+          <h1>Descargar reporte</h1>
+          <p>Exporta tus gastos en PDF o CSV</p>
+        </div>
+
+        <div class="form-card reporte-card">
+          <div class="form-grid">
+            <div class="field-group">
+              <label>Año</label>
+              <select id="rep-anio"></select>
+            </div>
+            <div class="field-group">
+              <label>Mes</label>
+              <select id="rep-mes"></select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" id="btn-descargar-pdf">
+              <span>⬇</span> Descargar PDF
+            </button>
+            <button class="btn-ghost" id="btn-descargar-csv">
+              <span>⬇</span> Descargar CSV
+            </button>
+          </div>
+          <div id="reporte-preview" class="reporte-preview hidden"></div>
+        </div>
+      </section>
+
+      <!-- ── SECCIÓN 5: GRÁFICOS ────────────────────────── -->
+      <section id="section-graficos" class="section">
+        <div class="section-header">
+          <h1>Distribución de gastos</h1>
+          <p>Visualiza tus hábitos de gasto</p>
+        </div>
+
+        <div class="graf-controls">
+          <select id="graf-anio"></select>
+          <select id="graf-mes"></select>
+          <button class="btn-primary btn-sm" id="btn-graf-cargar">Ver gráficos</button>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Por categoría</h3>
+            <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3>Gasto diario</h3>
+            <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+          </div>
+          <div class="chart-card chart-full">
+            <h3>Evolución mensual</h3>
+            <div class="chart-wrap chart-wide"><canvas id="chart-line"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SECCIÓN 6: PRESUPUESTOS ────────────────────── -->
+      <section id="section-presupuestos" class="section">
+        <div class="section-header">
+          <h1>Presupuestos</h1>
+          <p>Controla cuánto gastas por categoría cada mes</p>
+        </div>
+
+        <!-- Selector de mes -->
+        <div class="graf-controls" style="margin-bottom:1.5rem;">
+          <select id="pres-anio"></select>
+          <select id="pres-mes"></select>
+          <button class="btn-primary btn-sm" id="btn-pres-cargar">Ver</button>
+        </div>
+
+        <!-- Lista de presupuestos activos -->
+        <div id="pres-lista"></div>
+
+        <!-- Formulario nuevo presupuesto -->
+        <div class="form-card" style="margin-top:1.5rem;">
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase;
+                    letter-spacing:.06em;color:var(--text3);margin-bottom:1rem;">
+            + Nuevo presupuesto
+          </div>
+          <div class="form-grid">
+            <div class="field-group">
+              <label>Categoría</label>
+              <select id="pres-cat">
+                <option value="">Seleccionar…</option>
+                <option value="Comida">Comida</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Entretenimiento">Entretenimiento</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Límite mensual (COP)</label>
+              <div class="input-prefix">
+                <span>$</span>
+                <input type="text" id="pres-monto" placeholder="0" inputmode="numeric" />
+              </div>
+            </div>
+          </div>
+          <div id="pres-error" class="auth-error hidden"></div>
+          <div class="form-actions">
+            <button class="btn-primary" id="btn-pres-guardar">Guardar presupuesto</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL EDITAR — global, fuera de cualquier sección -->
+    <div id="edit-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Editar gasto</h3>
+          <button class="btn-close" id="modal-close">✕</button>
+        </div>
         <div class="form-grid">
           <div class="field-group">
             <label>Fecha</label>
-            <input type="date" id="f-fecha"/>
+            <input type="date" id="e-fecha" />
           </div>
           <div class="field-group">
             <label>Hora</label>
-            <input type="time" id="f-hora"/>
+            <input type="time" id="e-hora" />
           </div>
           <div class="field-group">
             <label>Monto (COP)</label>
             <div class="input-prefix">
               <span>$</span>
-              <input type="text" id="f-monto" placeholder="0" inputmode="numeric"/>
+              <input type="text" id="e-monto" placeholder="0" inputmode="numeric" />
             </div>
           </div>
-
           <div class="field-group">
             <label>Categoría</label>
-            <select id="f-categoria">
-              <option value="">Seleccionar…</option>
+            <select id="e-categoria">
               <option value="Comida">Comida</option>
               <option value="Transporte">Transporte</option>
               <option value="Entretenimiento">Entretenimiento</option>
@@ -172,232 +461,226 @@
               <option value="Otros">Otros</option>
             </select>
           </div>
-
-          <!-- Campo categoría personalizada -->
-          <div class="field-group hidden" id="f-categoria-custom-wrap">
-            <label>¿Cuál categoría? <span class="optional">(escríbela)</span></label>
-            <input type="text" id="f-categoria-custom" placeholder="Ej: Salud, Mascota, Hogar…" maxlength="50"/>
+          <!-- Campo categoría personalizada editar -->
+          <div class="field-group hidden" id="e-categoria-custom-wrap">
+            <label>¿Cuál categoría?</label>
+            <input type="text" id="e-categoria-custom" placeholder="Ej: Salud, Mascota, Hogar…" maxlength="50" />
           </div>
-
-          <div class="field-group">
+          <div class="field-group full-width">
             <label>¿Cómo pagaste? <span class="optional">(opcional)</span></label>
-            <select id="f-billtera">
+            <select id="e-billtera">
               <option value="">Sin especificar</option>
             </select>
           </div>
-
           <div class="field-group full-width">
-            <label>Descripción <span class="optional">(opcional)</span></label>
-            <input type="text" id="f-descripcion" placeholder="¿En qué gastaste?"/>
+            <label>Descripción</label>
+            <input type="text" id="e-descripcion" />
           </div>
-
         </div>
-        <div id="form-error" class="auth-error hidden"></div>
+        <div id="edit-error" class="auth-error hidden"></div>
         <div class="form-actions">
-          <button class="btn-primary" id="btn-guardar">Guardar gasto</button>
-          <button class="btn-ghost" id="btn-limpiar">Limpiar</button>
+          <button class="btn-primary" id="btn-update">Actualizar</button>
+          <button class="btn-ghost" id="btn-cancel-edit">Cancelar</button>
         </div>
       </div>
+    </div>
 
-      <div style="margin-top:1rem;">
-        <button class="btn-ghost" id="btn-gestionar-recurrentes">
-          🔁 Gestionar gastos recurrentes
-        </button>
-      </div>
-
-      <!-- Edit Modal removed from here, now global -->
-    </section>
-
-    <!-- ── SECCIÓN 2: RESUMEN DEL MES ─────────────────── -->
-    <section id="section-resumen" class="section">
-      <div class="section-header">
-        <div>
-          <h1 id="resumen-titulo">Enero 2025</h1>
-          <p>Resumen del mes actual</p>
-        </div>
-        <div class="resumen-total-badge">
-          <span class="badge-label">Total del mes</span>
-          <span class="badge-value" id="resumen-total">$0</span>
+    <!-- MODAL CONFIRMAR ELIMINAR -->
+    <div id="delete-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:380px; text-align:center;">
+        <div style="font-size:2rem; margin-bottom:1rem;">🗑</div>
+        <h3 id="delete-modal-titulo" style="font-family:var(--font-head); font-size:1.2rem; margin-bottom:.5rem;">
+          ¿Eliminar?</h3>
+        <p id="delete-modal-texto" style="color:var(--text2); font-size:14px; margin-bottom:1.5rem;">Esta acción no se
+          puede deshacer.</p>
+        <div class="form-actions" style="justify-content:center;">
+          <button class="btn-primary" id="btn-delete-confirm"
+            style="background:var(--red); color:#fff;">Eliminar</button>
+          <button class="btn-ghost" id="btn-delete-cancel">Cancelar</button>
         </div>
       </div>
+    </div>
 
-      <!-- RECURRENTES PENDIENTES DEL MES -->
-      <div id="recurrentes-pendientes-wrap" class="hidden">
-        <div class="recurrentes-pendientes-header">
-          <span class="rp-titulo">🔔 Pendientes este mes</span>
+    <!-- MODAL CONTRASEÑA PDF -->
+    <div id="pass-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:360px;">
+        <div class="modal-header">
+          <h3>Cifrar PDF</h3>
+          <button class="btn-close" id="pass-modal-close">✕</button>
         </div>
-        <div id="recurrentes-pendientes-lista"></div>
-        <div style="margin-bottom:1.5rem;"></div>
-      </div>
-
-      <div class="filters-bar">
-        <div class="search-wrap">
-          <span class="search-icon">⌕</span>
-          <input type="text" id="buscar-input" placeholder="Buscar por descripción…"/>
-        </div>
-        <select id="filtro-categoria">
-          <option value="">Todas las categorías</option>
-          <option value="Comida">Comida</option>
-          <option value="Transporte">Transporte</option>
-          <option value="Entretenimiento">Entretenimiento</option>
-          <option value="Ropa">Ropa</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-
-      <div id="tabla-resumen" class="gastos-list">
-        <div class="empty-state">
-          <span class="empty-icon">◎</span>
-          <p>No hay registros este mes</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── SECCIÓN 3: MESES ANTERIORES ───────────────── -->
-    <section id="section-anteriores" class="section">
-      <div class="section-header">
-        <div>
-          <h1>Meses anteriores</h1>
-          <p>Historial de todos tus gastos</p>
-        </div>
-        <button class="btn-ghost btn-sm" id="btn-ir-comparar">⇄ Comparar meses</button>
-      </div>
-      
-      <div id="lista-meses" class="meses-grid">
-        <div class="empty-state">
-          <span class="empty-icon">◎</span>
-          <p>No hay registros anteriores</p>
-        </div>
-      </div>
-
-      <!-- Detail view -->
-      <div id="mes-detalle" class="hidden">
-        <div class="detalle-header">
-          <button class="btn-back" id="btn-back-mes">← Volver</button>
-          <h2 id="detalle-titulo">Mes</h2>
-        </div>
-        <div id="tabla-detalle" class="gastos-list"></div>
-      </div>
-
-      <!-- COMPARAR MESES -->
-      <div id="comparar-view" class="hidden">
-        <div class="detalle-header">
-          <button class="btn-back" id="btn-back-comparar">← Volver</button>
-          <h2>Comparar meses</h2>
-        </div>
-
-        <div class="comparar-selects">
-          <div class="field-group">
-            <label>Mes A</label>
-            <select id="comparar-mes-a"></select>
-          </div>
-          <div class="comparar-vs">VS</div>
-          <div class="field-group">
-            <label>Mes B</label>
-            <select id="comparar-mes-b"></select>
-          </div>
-          <button class="btn-primary btn-sm" id="btn-comparar-cargar">Comparar</button>
-        </div>
-
-        <div id="comparar-resultado" class="hidden">
-          <!-- Totales -->
-          <div class="comparar-totales">
-            <div class="comparar-total-card" id="comp-total-a"></div>
-            <div class="comparar-diff-card" id="comp-diff"></div>
-            <div class="comparar-total-card" id="comp-total-b"></div>
-          </div>
-          <!-- Tabla categorías -->
-          <div id="comparar-tabla-cats"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── SECCIÓN 4: REPORTE ─────────────────────────── -->
-    <section id="section-reporte" class="section">
-      <div class="section-header">
-        <h1>Descargar reporte</h1>
-        <p>Exporta tus gastos en PDF o CSV</p>
-      </div>
-
-      <div class="form-card reporte-card">
-        <div class="form-grid">
-          <div class="field-group">
-            <label>Año</label>
-            <select id="rep-anio"></select>
-          </div>
-          <div class="field-group">
-            <label>Mes</label>
-            <select id="rep-mes"></select>
+        <p style="color:var(--text2); font-size:14px; margin-bottom:1.2rem;">
+          Ingresa tu contraseña para cifrar el PDF. La necesitarás para abrirlo.
+        </p>
+        <div class="field-group">
+          <label>Contraseña</label>
+          <div class="input-pass">
+            <input type="password" id="pdf-pass" placeholder="Tu contraseña" />
+            <button type="button" class="btn-eye" data-target="pdf-pass">👁</button>
           </div>
         </div>
+        <div id="pass-error" class="auth-error hidden">Ingresa una contraseña</div>
         <div class="form-actions">
-          <button class="btn-primary" id="btn-descargar-pdf">
-            <span>⬇</span> Descargar PDF
-          </button>
-          <button class="btn-ghost" id="btn-descargar-csv">
-            <span>⬇</span> Descargar CSV
-          </button>
-        </div>
-        <div id="reporte-preview" class="reporte-preview hidden"></div>
-      </div>
-    </section>
-
-    <!-- ── SECCIÓN 5: GRÁFICOS ────────────────────────── -->
-    <section id="section-graficos" class="section">
-      <div class="section-header">
-        <h1>Distribución de gastos</h1>
-        <p>Visualiza tus hábitos de gasto</p>
-      </div>
-
-      <div class="graf-controls">
-        <select id="graf-anio"></select>
-        <select id="graf-mes"></select>
-        <button class="btn-primary btn-sm" id="btn-graf-cargar">Ver gráficos</button>
-      </div>
-
-      <div class="charts-grid">
-        <div class="chart-card">
-          <h3>Por categoría</h3>
-          <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <h3>Gasto diario</h3>
-          <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
-        </div>
-        <div class="chart-card chart-full">
-          <h3>Evolución mensual</h3>
-          <div class="chart-wrap chart-wide"><canvas id="chart-line"></canvas></div>
+          <button class="btn-primary btn-full" id="btn-pass-confirm">Generar PDF</button>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- ── SECCIÓN 6: PRESUPUESTOS ────────────────────── -->
-    <section id="section-presupuestos" class="section">
-      <div class="section-header">
-        <h1>Presupuestos</h1>
-        <p>Controla cuánto gastas por categoría cada mes</p>
-      </div>
-
-      <!-- Selector de mes -->
-      <div class="graf-controls" style="margin-bottom:1.5rem;">
-        <select id="pres-anio"></select>
-        <select id="pres-mes"></select>
-        <button class="btn-primary btn-sm" id="btn-pres-cargar">Ver</button>
-      </div>
-
-      <!-- Lista de presupuestos activos -->
-      <div id="pres-lista"></div>
-
-      <!-- Formulario nuevo presupuesto -->
-      <div class="form-card" style="margin-top:1.5rem;">
-        <div style="font-size:13px;font-weight:700;text-transform:uppercase;
-                    letter-spacing:.06em;color:var(--text3);margin-bottom:1rem;">
-          + Nuevo presupuesto
+    <!-- MODAL DETALLE GASTO -->
+    <div id="detail-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:400px;">
+        <div class="modal-header">
+          <h3>Detalle del gasto</h3>
+          <button class="btn-close" id="detail-modal-close">✕</button>
         </div>
+        <div id="detail-content"></div>
+      </div>
+    </div>
+
+    <!-- FAB ÚNICO BILLETERAS -->
+    <div class="fab-wallet-wrap" id="fab-wallet-wrap">
+      <div class="fab-wallet-tooltip">Mis billeteras</div>
+      <button class="fab-wallet-btn" id="fab-wallet-btn" title="Mis billeteras">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <path d="M16 12h2" />
+          <path d="M2 10h20" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- DRAWER BILLETERAS -->
+    <div class="wallet-drawer-overlay" id="wallet-drawer-overlay"></div>
+    <div class="wallet-drawer" id="wallet-drawer">
+      <div class="wallet-drawer-header">
+        <div>
+          <h3 class="wallet-drawer-title">Mis billeteras</h3>
+          <p class="wallet-drawer-sub">Toca una para ver el saldo</p>
+        </div>
+        <button class="btn-close" id="wallet-drawer-close">✕</button>
+      </div>
+      <div id="wallet-drawer-lista"></div>
+      <div class="wallet-total" id="wallet-total">
+        <span>Total</span>
+        <strong id="wallet-total-monto">$0</strong>
+      </div>
+      <button class="wallet-drawer-add" id="fab-add-billtera">
+        <span>＋</span> Nueva billtera
+      </button>
+    </div>
+
+    <!-- MODAL BILLTERA DETALLE -->
+    <div id="billtera-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:380px;">
+        <div class="modal-header">
+          <h3 id="billtera-modal-titulo">Billtera</h3>
+          <button class="btn-close" id="billtera-modal-close">✕</button>
+        </div>
+        <div class="billtera-saldo-display">
+          <span class="detail-label">Saldo disponible</span>
+          <span class="billtera-saldo-grande" id="billtera-saldo-display">$0</span>
+        </div>
+        <div class="billtera-recargas">
+          <div class="recarga-toggle">
+            <button class="btn-toggle active" id="toggle-recargar">+ Recargar</button>
+            <button class="btn-toggle" id="toggle-restar">− Restar</button>
+          </div>
+          <div class="recarga-btns" id="recarga-btns">
+            <button class="btn-recarga" data-monto="1000">+$1K</button>
+            <button class="btn-recarga" data-monto="2000">+$2K</button>
+            <button class="btn-recarga" data-monto="5000">+$5K</button>
+            <button class="btn-recarga" data-monto="10000">+$10K</button>
+            <button class="btn-recarga" data-monto="20000">+$20K</button>
+            <button class="btn-recarga" data-monto="50000">+$50K</button>
+          </div>
+          <div class="recarga-manual">
+            <div class="input-prefix">
+              <span id="recarga-signo">$</span>
+              <input type="number" id="recarga-manual-input" placeholder="Otro valor" min="0" step="1000" />
+            </div>
+            <button class="btn-primary btn-sm" id="btn-recarga-manual">Agregar</button>
+            <button class="btn-ghost btn-sm" id="btn-establecer-saldo"
+              title="Reemplaza el saldo actual con este valor">Establecer</button>
+          </div>
+        </div>
+        <div class="billtera-modal-actions">
+          <button class="btn-ghost btn-sm" id="btn-billtera-transferir"
+            style="color:var(--blue);border-color:rgba(96,165,250,.3);">⇄ Transferir</button>
+          <button class="btn-ghost btn-sm" id="btn-billtera-eliminar"
+            style="color:var(--red); border-color:rgba(248,113,113,.3);">Eliminar billtera</button>
+        </div>
+        <div id="billtera-error" class="auth-error hidden" style="margin-bottom:.75rem;"></div>
+      </div>
+    </div>
+
+    <!-- MODAL NUEVA BILLTERA -->
+    <div id="nueva-billtera-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:360px;">
+        <div class="modal-header">
+          <h3>Nueva billtera</h3>
+          <button class="btn-close" id="nueva-billtera-close">✕</button>
+        </div>
+        <div class="field-group">
+          <label>Emoji</label>
+          <div class="emoji-picker">
+            <button class="emoji-opt active" data-emoji="💳">💳</button>
+            <button class="emoji-opt" data-emoji="💵">💵</button>
+            <button class="emoji-opt" data-emoji="🏦">🏦</button>
+            <button class="emoji-opt" data-emoji="📱">📱</button>
+            <button class="emoji-opt" data-emoji="💰">💰</button>
+            <button class="emoji-opt" data-emoji="🪙">🪙</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Nombre</label>
+          <input type="text" id="nueva-billtera-nombre" placeholder="Ej: Nequi, Bancolombia, Efectivo…" />
+        </div>
+        <div class="field-group">
+          <label>Saldo inicial</label>
+          <div class="input-prefix">
+            <span>$</span>
+            <input type="text" id="nueva-billtera-saldo" placeholder="0" inputmode="numeric" />
+          </div>
+        </div>
+        <div id="nueva-billtera-error" class="auth-error hidden"></div>
+        <div class="form-actions">
+          <button class="btn-primary btn-full" id="btn-crear-billtera">Crear billtera</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL GESTIONAR RECURRENTES -->
+    <div id="recurrentes-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:500px; max-height:85vh; overflow-y:auto;">
+        <div class="modal-header">
+          <h3>Gastos recurrentes</h3>
+          <button class="btn-close" id="recurrentes-modal-close">✕</button>
+        </div>
+
+        <!-- Lista -->
+        <div id="recurrentes-lista" style="margin-bottom:1.5rem;"></div>
+
+        <!-- Formulario nuevo -->
+        <div class="recurrente-form-titulo">+ Nuevo recurrente</div>
         <div class="form-grid">
+          <div class="field-group full-width">
+            <label>Nombre</label>
+            <input type="text" id="rec-nombre" placeholder="Ej: Arriendo, Netflix, Gym…" />
+          </div>
+          <div class="field-group">
+            <label>Monto (COP)</label>
+            <div class="input-prefix">
+              <span>$</span>
+              <input type="text" id="rec-monto" inputmode="numeric" placeholder="0">
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Día del mes</label>
+            <input type="number" id="rec-dia" placeholder="Ej: 5" min="1" max="31" />
+          </div>
           <div class="field-group">
             <label>Categoría</label>
-            <select id="pres-cat">
+            <select id="rec-categoria">
               <option value="">Seleccionar…</option>
               <option value="Comida">Comida</option>
               <option value="Transporte">Transporte</option>
@@ -407,518 +690,265 @@
             </select>
           </div>
           <div class="field-group">
-            <label>Límite mensual (COP)</label>
+            <label>¿Cómo pagas? <span class="optional">(opcional)</span></label>
+            <select id="rec-billtera">
+              <option value="">Sin especificar</option>
+            </select>
+          </div>
+          <div class="field-group full-width">
+            <label>Descripción <span class="optional">(opcional)</span></label>
+            <input type="text" id="rec-descripcion" placeholder="Detalles del gasto…" />
+          </div>
+        </div>
+        <div id="rec-error" class="auth-error hidden"></div>
+        <div class="form-actions">
+          <button class="btn-primary" id="btn-crear-recurrente">Guardar recurrente</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL REGISTRAR RECURRENTE (prellenado) -->
+    <div id="registrar-rec-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:480px;">
+        <div class="modal-header">
+          <h3 id="registrar-rec-titulo">Registrar gasto</h3>
+          <button class="btn-close" id="registrar-rec-close">✕</button>
+        </div>
+        <div class="form-grid">
+          <div class="field-group">
+            <label>Fecha</label>
+            <input type="date" id="rr-fecha" />
+          </div>
+          <div class="field-group">
+            <label>Hora</label>
+            <input type="time" id="rr-hora" />
+          </div>
+          <div class="field-group">
+            <label>Monto (COP)</label>
             <div class="input-prefix">
               <span>$</span>
-              <input type="text" id="pres-monto" placeholder="0" inputmode="numeric"/>
+              <input type="text" id="rr-monto" inputmode="numeric" placeholder="0">
             </div>
           </div>
+          <div class="field-group">
+            <label>Categoría</label>
+            <select id="rr-categoria">
+              <option value="Comida">Comida</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Entretenimiento">Entretenimiento</option>
+              <option value="Ropa">Ropa</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>¿Cómo pagas?</label>
+            <select id="rr-billtera">
+              <option value="">Sin especificar</option>
+            </select>
+          </div>
+          <div class="field-group full-width">
+            <label>Descripción</label>
+            <input type="text" id="rr-descripcion" />
+          </div>
         </div>
-        <div id="pres-error" class="auth-error hidden"></div>
+        <div id="rr-error" class="auth-error hidden"></div>
         <div class="form-actions">
-          <button class="btn-primary" id="btn-pres-guardar">Guardar presupuesto</button>
+          <button class="btn-primary" id="btn-rr-guardar">Guardar gasto</button>
+          <button class="btn-ghost" id="btn-rr-cancelar">Cancelar</button>
         </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- MODAL EDITAR — global, fuera de cualquier sección -->
-  <div id="edit-modal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Editar gasto</h3>
-        <button class="btn-close" id="modal-close">✕</button>
-      </div>
-      <div class="form-grid">
-        <div class="field-group">
-          <label>Fecha</label>
-          <input type="date" id="e-fecha"/>
-        </div>
-        <div class="field-group">
-          <label>Hora</label>
-          <input type="time" id="e-hora"/>
-        </div>
-        <div class="field-group">
-          <label>Monto (COP)</label>
-          <div class="input-prefix">
-            <span>$</span>
-            <input type="text" id="e-monto" placeholder="0" inputmode="numeric"/>
-          </div>
-        </div>
-        <div class="field-group">
-          <label>Categoría</label>
-          <select id="e-categoria">
-            <option value="Comida">Comida</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Entretenimiento">Entretenimiento</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Otros">Otros</option>
-          </select>
-        </div>
-        <!-- Campo categoría personalizada editar -->
-        <div class="field-group hidden" id="e-categoria-custom-wrap">
-          <label>¿Cuál categoría?</label>
-          <input type="text" id="e-categoria-custom" placeholder="Ej: Salud, Mascota, Hogar…" maxlength="50"/>
-        </div>
-        <div class="field-group full-width">
-          <label>¿Cómo pagaste? <span class="optional">(opcional)</span></label>
-          <select id="e-billtera">
-            <option value="">Sin especificar</option>
-          </select>
-        </div>
-        <div class="field-group full-width">
-          <label>Descripción</label>
-          <input type="text" id="e-descripcion"/>
-        </div>
-      </div>
-      <div id="edit-error" class="auth-error hidden"></div>
-      <div class="form-actions">
-        <button class="btn-primary" id="btn-update">Actualizar</button>
-        <button class="btn-ghost" id="btn-cancel-edit">Cancelar</button>
       </div>
     </div>
-  </div>
 
-  <!-- MODAL CONFIRMAR ELIMINAR -->
-  <div id="delete-modal" class="modal-overlay hidden">  
-    <div class="modal-card" style="max-width:380px; text-align:center;">
-      <div style="font-size:2rem; margin-bottom:1rem;">🗑</div>
-      <h3 id="delete-modal-titulo" style="font-family:var(--font-head); font-size:1.2rem; margin-bottom:.5rem;">¿Eliminar?</h3>
-      <p id="delete-modal-texto" style="color:var(--text2); font-size:14px; margin-bottom:1.5rem;">Esta acción no se puede deshacer.</p>
-      <div class="form-actions" style="justify-content:center;">
-        <button class="btn-primary" id="btn-delete-confirm" style="background:var(--red); color:#fff;">Eliminar</button>
-        <button class="btn-ghost" id="btn-delete-cancel">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL CONTRASEÑA PDF -->
-  <div id="pass-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:360px;">
-      <div class="modal-header">
-        <h3>Cifrar PDF</h3>
-        <button class="btn-close" id="pass-modal-close">✕</button>
-      </div>
-      <p style="color:var(--text2); font-size:14px; margin-bottom:1.2rem;">
-        Ingresa tu contraseña para cifrar el PDF. La necesitarás para abrirlo.
-      </p>
-      <div class="field-group">
-        <label>Contraseña</label>
-        <div class="input-pass">
-          <input type="password" id="pdf-pass" placeholder="Tu contraseña"/>
-          <button type="button" class="btn-eye" data-target="pdf-pass">👁</button>
-        </div>
-      </div>
-      <div id="pass-error" class="auth-error hidden">Ingresa una contraseña</div>
-      <div class="form-actions">
-        <button class="btn-primary btn-full" id="btn-pass-confirm">Generar PDF</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL DETALLE GASTO -->
-  <div id="detail-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:400px;">
-      <div class="modal-header">
-        <h3>Detalle del gasto</h3>
-        <button class="btn-close" id="detail-modal-close">✕</button>
-      </div>
-      <div id="detail-content"></div>
-    </div>
-  </div>
-
-  <!-- FAB ÚNICO BILLETERAS -->
-  <div class="fab-wallet-wrap" id="fab-wallet-wrap">
-    <div class="fab-wallet-tooltip">Mis billeteras</div>
-    <button class="fab-wallet-btn" id="fab-wallet-btn" title="Mis billeteras">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="5" width="20" height="14" rx="2"/>
-        <path d="M16 12h2"/>
-        <path d="M2 10h20"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- DRAWER BILLETERAS -->
-  <div class="wallet-drawer-overlay" id="wallet-drawer-overlay"></div>
-  <div class="wallet-drawer" id="wallet-drawer">
-    <div class="wallet-drawer-header">
-      <div>
-        <h3 class="wallet-drawer-title">Mis billeteras</h3>
-        <p class="wallet-drawer-sub">Toca una para ver el saldo</p>
-      </div>
-      <button class="btn-close" id="wallet-drawer-close">✕</button>
-    </div>
-    <div id="wallet-drawer-lista"></div>
-    <div class="wallet-total" id="wallet-total">
-      <span>Total</span>
-      <strong id="wallet-total-monto">$0</strong>
-    </div>
-    <button class="wallet-drawer-add" id="fab-add-billtera">
-      <span>＋</span> Nueva billtera
-    </button>
-  </div>
-
-  <!-- MODAL BILLTERA DETALLE -->
-  <div id="billtera-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:380px;">
-      <div class="modal-header">
-        <h3 id="billtera-modal-titulo">Billtera</h3>
-        <button class="btn-close" id="billtera-modal-close">✕</button>
-      </div>
-      <div class="billtera-saldo-display">
-        <span class="detail-label">Saldo disponible</span>
-        <span class="billtera-saldo-grande" id="billtera-saldo-display">$0</span>
-      </div>
-      <div class="billtera-recargas">
-        <div class="recarga-toggle">
-          <button class="btn-toggle active" id="toggle-recargar">+ Recargar</button>
-          <button class="btn-toggle" id="toggle-restar">− Restar</button>
-        </div>
-        <div class="recarga-btns" id="recarga-btns">
-          <button class="btn-recarga" data-monto="1000">+$1K</button>
-          <button class="btn-recarga" data-monto="2000">+$2K</button>
-          <button class="btn-recarga" data-monto="5000">+$5K</button>
-          <button class="btn-recarga" data-monto="10000">+$10K</button>
-          <button class="btn-recarga" data-monto="20000">+$20K</button>
-          <button class="btn-recarga" data-monto="50000">+$50K</button>
-        </div>
-        <div class="recarga-manual">
-          <div class="input-prefix">
-            <span id="recarga-signo">$</span>
-            <input type="number" id="recarga-manual-input" placeholder="Otro valor" min="0" step="1000"/>
-          </div>
-          <button class="btn-primary btn-sm" id="btn-recarga-manual">Agregar</button>
-          <button class="btn-ghost btn-sm" id="btn-establecer-saldo" title="Reemplaza el saldo actual con este valor">Establecer</button>
-        </div>
-      </div>
-      <div class="billtera-modal-actions">
-        <button class="btn-ghost btn-sm" id="btn-billtera-transferir" style="color:var(--blue);border-color:rgba(96,165,250,.3);">⇄ Transferir</button>
-        <button class="btn-ghost btn-sm" id="btn-billtera-eliminar" style="color:var(--red); border-color:rgba(248,113,113,.3);">Eliminar billtera</button>
-      </div>
-      <div id="billtera-error" class="auth-error hidden" style="margin-bottom:.75rem;"></div>
-    </div>
-  </div>
-
-  <!-- MODAL NUEVA BILLTERA -->
-  <div id="nueva-billtera-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:360px;">
-      <div class="modal-header">
-        <h3>Nueva billtera</h3>
-        <button class="btn-close" id="nueva-billtera-close">✕</button>
-      </div>
-      <div class="field-group">
-        <label>Emoji</label>
-        <div class="emoji-picker">
-          <button class="emoji-opt active" data-emoji="💳">💳</button>
-          <button class="emoji-opt" data-emoji="💵">💵</button>
-          <button class="emoji-opt" data-emoji="🏦">🏦</button>
-          <button class="emoji-opt" data-emoji="📱">📱</button>
-          <button class="emoji-opt" data-emoji="💰">💰</button>
-          <button class="emoji-opt" data-emoji="🪙">🪙</button>
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Nombre</label>
-        <input type="text" id="nueva-billtera-nombre" placeholder="Ej: Nequi, Bancolombia, Efectivo…"/>
-      </div>
-      <div class="field-group">
-        <label>Saldo inicial</label>
-        <div class="input-prefix">
-          <span>$</span>
-          <input type="text" id="nueva-billtera-saldo" placeholder="0" inputmode="numeric"/>
-        </div>
-      </div>
-      <div id="nueva-billtera-error" class="auth-error hidden"></div>
-      <div class="form-actions">
-        <button class="btn-primary btn-full" id="btn-crear-billtera">Crear billtera</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL GESTIONAR RECURRENTES -->
-  <div id="recurrentes-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:500px; max-height:85vh; overflow-y:auto;">
-      <div class="modal-header">
-        <h3>Gastos recurrentes</h3>
-        <button class="btn-close" id="recurrentes-modal-close">✕</button>
-      </div>
-
-      <!-- Lista -->
-      <div id="recurrentes-lista" style="margin-bottom:1.5rem;"></div>
-
-      <!-- Formulario nuevo -->
-      <div class="recurrente-form-titulo">+ Nuevo recurrente</div>
-      <div class="form-grid">
-        <div class="field-group full-width">
-          <label>Nombre</label>
-          <input type="text" id="rec-nombre" placeholder="Ej: Arriendo, Netflix, Gym…"/>
-        </div>
-        <div class="field-group">
-          <label>Monto (COP)</label>
-          <div class="input-prefix">
-            <span>$</span>
-            <input type="text" id="rec-monto" inputmode="numeric" placeholder="0">
-          </div>
-        </div>
-        <div class="field-group">
-          <label>Día del mes</label>
-          <input type="number" id="rec-dia" placeholder="Ej: 5" min="1" max="31"/>
-        </div>
-        <div class="field-group">
-          <label>Categoría</label>
-          <select id="rec-categoria">
-            <option value="">Seleccionar…</option>
-            <option value="Comida">Comida</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Entretenimiento">Entretenimiento</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Otros">Otros</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label>¿Cómo pagas? <span class="optional">(opcional)</span></label>
-          <select id="rec-billtera">
-            <option value="">Sin especificar</option>
-          </select>
-        </div>
-        <div class="field-group full-width">
-          <label>Descripción <span class="optional">(opcional)</span></label>
-          <input type="text" id="rec-descripcion" placeholder="Detalles del gasto…"/>
-        </div>
-      </div>
-      <div id="rec-error" class="auth-error hidden"></div>
-      <div class="form-actions">
-        <button class="btn-primary" id="btn-crear-recurrente">Guardar recurrente</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL REGISTRAR RECURRENTE (prellenado) -->
-  <div id="registrar-rec-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:480px;">
-      <div class="modal-header">
-        <h3 id="registrar-rec-titulo">Registrar gasto</h3>
-        <button class="btn-close" id="registrar-rec-close">✕</button>
-      </div>
-      <div class="form-grid">
-        <div class="field-group">
-          <label>Fecha</label>
-          <input type="date" id="rr-fecha"/>
-        </div>
-        <div class="field-group">
-          <label>Hora</label>
-          <input type="time" id="rr-hora"/>
-        </div>
-        <div class="field-group">
-          <label>Monto (COP)</label>
-          <div class="input-prefix">
-            <span>$</span>
-            <input type="text" id="rr-monto" inputmode="numeric" placeholder="0">
-          </div>
-        </div>
-        <div class="field-group">
-          <label>Categoría</label>
-          <select id="rr-categoria">
-            <option value="Comida">Comida</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Entretenimiento">Entretenimiento</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Otros">Otros</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label>¿Cómo pagas?</label>
-          <select id="rr-billtera">
-            <option value="">Sin especificar</option>
-          </select>
-        </div>
-        <div class="field-group full-width">
-          <label>Descripción</label>
-          <input type="text" id="rr-descripcion"/>
-        </div>
-      </div>
-      <div id="rr-error" class="auth-error hidden"></div>
-      <div class="form-actions">
-        <button class="btn-primary" id="btn-rr-guardar">Guardar gasto</button>
-        <button class="btn-ghost" id="btn-rr-cancelar">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL PERFIL -->
-  <div id="perfil-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:360px;">
-      <div class="modal-header" style="margin-bottom:1rem;">
-        <h3>Mi perfil</h3>
-        <button class="btn-close" id="perfil-modal-close">✕</button>
-      </div>
-
-      <!-- Info actual -->
-      <div style="display:flex;align-items:center;gap:.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;">
-        <div style="position:relative;flex-shrink:0;">
-          <div id="perfil-avatar-circle" style="width:44px;height:44px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;cursor:pointer;" title="Cambiar foto">
-            <img id="perfil-avatar-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;"/>
-            <span id="perfil-avatar-emoji">👤</span>
-          </div>
-          <div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;pointer-events:none;">✏️</div>
-        </div>
-        <div style="min-width:0;flex:1;">
-          <div id="perfil-info-nombre" style="font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-          <div id="perfil-info-email" style="font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-        </div>
-        <!-- Input oculto -->
-        <input type="file" id="perfil-avatar-input" accept="image/*" style="display:none;"/>
-      </div>
-
-      <!-- Campos -->
-      <div style="display:flex;flex-direction:column;gap:.65rem;">
-        <div class="field-group" style="margin-bottom:0;">
-          <label>Nombre</label>
-          <input type="text" id="perfil-nombre" placeholder="Tu nombre completo" maxlength="80"/>
-        </div>
-        <div class="field-group" style="margin-bottom:0;">
-          <label>Correo</label>
-          <input type="email" id="perfil-email" placeholder="tucorreo@ejemplo.com"/>
+    <!-- MODAL PERFIL -->
+    <div id="perfil-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:360px;">
+        <div class="modal-header" style="margin-bottom:1rem;">
+          <h3>Mi perfil</h3>
+          <button class="btn-close" id="perfil-modal-close">✕</button>
         </div>
 
-        <div style="border-top:1px solid var(--border);padding-top:.75rem;margin-top:.1rem;">
-          <p style="font-size:10px;color:var(--text3);margin-bottom:.65rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">Cambiar contraseña <span style="font-weight:400;opacity:.7;">(opcional)</span></p>
-          <div style="display:flex;flex-direction:column;gap:.65rem;">
-            <div class="field-group" style="margin-bottom:0;">
-              <label>Contraseña actual</label>
-              <div class="input-pass">
-                <input type="password" id="perfil-pass-actual" placeholder="Tu contraseña actual"/>
-                <button type="button" class="btn-eye" data-target="perfil-pass-actual">👁</button>
-              </div>
+        <!-- Info actual -->
+        <div
+          style="display:flex;align-items:center;gap:.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;">
+          <div style="position:relative;flex-shrink:0;">
+            <div id="perfil-avatar-circle"
+              style="width:44px;height:44px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;cursor:pointer;"
+              title="Cambiar foto">
+              <img id="perfil-avatar-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;" />
+              <span id="perfil-avatar-emoji">👤</span>
             </div>
-            <div class="field-group" style="margin-bottom:0;">
-              <label>Nueva contraseña</label>
-              <div class="input-pass">
-                <input type="password" id="perfil-pass-nueva" placeholder="Mínimo 6 caracteres"/>
-                <button type="button" class="btn-eye" data-target="perfil-pass-nueva">👁</button>
+            <div
+              style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;pointer-events:none;">
+              ✏️</div>
+          </div>
+          <div style="min-width:0;flex:1;">
+            <div id="perfil-info-nombre"
+              style="font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            </div>
+            <div id="perfil-info-email"
+              style="font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            </div>
+          </div>
+          <!-- Input oculto -->
+          <input type="file" id="perfil-avatar-input" accept="image/*" style="display:none;" />
+        </div>
+
+        <!-- Campos -->
+        <div style="display:flex;flex-direction:column;gap:.65rem;">
+          <div class="field-group" style="margin-bottom:0;">
+            <label>Nombre</label>
+            <input type="text" id="perfil-nombre" placeholder="Tu nombre completo" maxlength="80" />
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <label>Correo</label>
+            <input type="email" id="perfil-email" placeholder="tucorreo@ejemplo.com" />
+          </div>
+
+          <div style="border-top:1px solid var(--border);padding-top:.75rem;margin-top:.1rem;">
+            <p
+              style="font-size:10px;color:var(--text3);margin-bottom:.65rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">
+              Cambiar contraseña <span style="font-weight:400;opacity:.7;">(opcional)</span></p>
+            <div style="display:flex;flex-direction:column;gap:.65rem;">
+              <div class="field-group" style="margin-bottom:0;">
+                <label>Contraseña actual</label>
+                <div class="input-pass">
+                  <input type="password" id="perfil-pass-actual" placeholder="Tu contraseña actual" />
+                  <button type="button" class="btn-eye" data-target="perfil-pass-actual">👁</button>
+                </div>
+              </div>
+              <div class="field-group" style="margin-bottom:0;">
+                <label>Nueva contraseña</label>
+                <div class="input-pass">
+                  <input type="password" id="perfil-pass-nueva" placeholder="Mínimo 6 caracteres" />
+                  <button type="button" class="btn-eye" data-target="perfil-pass-nueva">👁</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div id="perfil-error" class="auth-error hidden" style="margin-top:.75rem;margin-bottom:0;"></div>
-      <div id="perfil-success" class="hidden" style="background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);color:#3ecf8e;border-radius:8px;padding:.5rem .9rem;font-size:12px;margin-top:.75rem;">
-        ✓ Perfil actualizado
+        <div id="perfil-error" class="auth-error hidden" style="margin-top:.75rem;margin-bottom:0;"></div>
+        <div id="perfil-success" class="hidden"
+          style="background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);color:#3ecf8e;border-radius:8px;padding:.5rem .9rem;font-size:12px;margin-top:.75rem;">
+          ✓ Perfil actualizado
+        </div>
+        <!-- Cambiar Idioma -->
+        <div class="field-group" style="margin-bottom:0;margin-top:.75rem;">
+          <label id="label-idioma">Idioma</label>
+          <select id="idioma-select" style="width:100%;">
+            <option value="es">🇨🇴 Español</option>
+            <option value="en">🇺🇸 English</option>
+          </select>
+        </div>
+        <!-- Cambiar moneda -->
+        <div class="field-group" style="margin-bottom:0;margin-top:.5rem;">
+          <label id="label-moneda">Moneda</label>
+          <select id="moneda-select" style="width:100%;">
+            <option value="COP">🇨🇴 Peso colombiano</option>
+            <option value="USD">🇺🇸 US Dollar</option>
+            <option value="EUR">🇪🇺 Euro</option>
+            <option value="GBP">🇬🇧 British Pound</option>
+          </select>
+        </div>
+        <div class="form-actions" style="margin-top:.9rem;gap:.65rem;">
+          <button class="btn-primary btn-sm" id="btn-perfil-guardar">Guardar</button>
+          <button class="btn-ghost btn-sm" id="btn-perfil-cancelar">Cancelar</button>
+        </div>
+        <button class="btn-ghost btn-sm" id="btn-ver-actividad"
+          style="width:100%;margin-top:.4rem;justify-content:center;gap:.5rem;">
+          🕐 Ver mi actividad
+        </button>
       </div>
-      <!-- Cambiar Idioma -->
-      <div class="field-group" style="margin-bottom:0;margin-top:.75rem;">
-        <label id="label-idioma">Idioma</label>
-        <select id="idioma-select" style="width:100%;">
-          <option value="es">🇨🇴 Español</option>
-          <option value="en">🇺🇸 English</option>
-        </select>
-      </div>
-      <!-- Cambiar moneda -->
-      <div class="field-group" style="margin-bottom:0;margin-top:.5rem;">
-        <label id="label-moneda">Moneda</label>
-        <select id="moneda-select" style="width:100%;">
-          <option value="COP">🇨🇴 Peso colombiano</option>
-          <option value="USD">🇺🇸 US Dollar</option>
-          <option value="EUR">🇪🇺 Euro</option>
-          <option value="GBP">🇬🇧 British Pound</option>
-        </select>
-      </div>
-      <div class="form-actions" style="margin-top:.9rem;gap:.65rem;">
-        <button class="btn-primary btn-sm" id="btn-perfil-guardar">Guardar</button>
-        <button class="btn-ghost btn-sm" id="btn-perfil-cancelar">Cancelar</button>
-      </div>
-      <button class="btn-ghost btn-sm" id="btn-ver-actividad" style="width:100%;margin-top:.4rem;justify-content:center;gap:.5rem;">
-        🕐 Ver mi actividad
-      </button>
     </div>
-  </div>
 
-  <!-- MODAL ACTIVIDAD -->
-  <div id="actividad-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:500px;max-height:85vh;display:flex;flex-direction:column;">
-      <div class="modal-header">
-        <h3>Mi actividad</h3>
-        <button class="btn-close" id="actividad-modal-close">✕</button>
+    <!-- MODAL ACTIVIDAD -->
+    <div id="actividad-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:500px;max-height:85vh;display:flex;flex-direction:column;">
+        <div class="modal-header">
+          <h3>Mi actividad</h3>
+          <button class="btn-close" id="actividad-modal-close">✕</button>
+        </div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:1rem;">Últimos 30 días</p>
+        <div id="actividad-lista" style="overflow-y:auto;flex:1;"></div>
       </div>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:1rem;">Últimos 30 días</p>
-      <div id="actividad-lista" style="overflow-y:auto;flex:1;"></div>
     </div>
-  </div>
 
-  <!-- MODAL TRANSFERIR BILLTERA -->
-  <div id="transferir-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:360px;">
-      <div class="modal-header">
-        <h3>Transferir saldo</h3>
-        <button class="btn-close" id="transferir-modal-close">✕</button>
-      </div>
-      <div id="transferir-origen-info" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1.25rem;">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;">Desde</div>
-        <div id="transferir-origen-nombre" style="font-weight:700;font-size:14px;"></div>
-        <div id="transferir-origen-saldo" style="font-family:var(--font-head);font-size:1.2rem;font-weight:800;color:var(--accent);"></div>
-      </div>
-      <div class="field-group">
-        <label>Transferir a</label>
-        <select id="transferir-destino"></select>
-      </div>
-      <div class="field-group">
-        <label>Monto (COP)</label>
-        <div class="input-prefix">
-          <span>$</span>
-          <input type="text" id="transferir-monto" placeholder="0" inputmode="numeric"/>
+    <!-- MODAL TRANSFERIR BILLTERA -->
+    <div id="transferir-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:360px;">
+        <div class="modal-header">
+          <h3>Transferir saldo</h3>
+          <button class="btn-close" id="transferir-modal-close">✕</button>
+        </div>
+        <div id="transferir-origen-info"
+          style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1.25rem;">
+          <div
+            style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;">
+            Desde</div>
+          <div id="transferir-origen-nombre" style="font-weight:700;font-size:14px;"></div>
+          <div id="transferir-origen-saldo"
+            style="font-family:var(--font-head);font-size:1.2rem;font-weight:800;color:var(--accent);"></div>
+        </div>
+        <div class="field-group">
+          <label>Transferir a</label>
+          <select id="transferir-destino"></select>
+        </div>
+        <div class="field-group">
+          <label>Monto (COP)</label>
+          <div class="input-prefix">
+            <span>$</span>
+            <input type="text" id="transferir-monto" placeholder="0" inputmode="numeric" />
+          </div>
+        </div>
+        <div id="transferir-error" class="auth-error hidden"></div>
+        <div class="form-actions">
+          <button class="btn-primary btn-full" id="btn-transferir-confirmar">Transferir</button>
         </div>
       </div>
-      <div id="transferir-error" class="auth-error hidden"></div>
-      <div class="form-actions">
-        <button class="btn-primary btn-full" id="btn-transferir-confirmar">Transferir</button>
-      </div>
     </div>
-  </div>
 
-  <!-- MODAL EDITAR PRESUPUESTO -->
-  <div id="edit-pres-modal" class="modal-overlay hidden">
-    <div class="modal-card" style="max-width:360px;">
-      <div class="modal-header">
-        <h3>Editar presupuesto</h3>
-        <button class="btn-close" id="edit-pres-modal-close">✕</button>
-      </div>
-      <div id="edit-pres-cat-badge" style="margin-bottom:1rem;"></div>
-      <div class="field-group">
-        <label>Nuevo límite mensual (COP)</label>
-        <div class="input-prefix">
-          <span>$</span>
-          <input type="text" id="edit-pres-monto" placeholder="0" inputmode="numeric"/>
+    <!-- MODAL EDITAR PRESUPUESTO -->
+    <div id="edit-pres-modal" class="modal-overlay hidden">
+      <div class="modal-card" style="max-width:360px;">
+        <div class="modal-header">
+          <h3>Editar presupuesto</h3>
+          <button class="btn-close" id="edit-pres-modal-close">✕</button>
+        </div>
+        <div id="edit-pres-cat-badge" style="margin-bottom:1rem;"></div>
+        <div class="field-group">
+          <label>Nuevo límite mensual (COP)</label>
+          <div class="input-prefix">
+            <span>$</span>
+            <input type="text" id="edit-pres-monto" placeholder="0" inputmode="numeric" />
+          </div>
+        </div>
+        <div id="edit-pres-error" class="auth-error hidden"></div>
+        <div class="form-actions">
+          <button class="btn-primary" id="btn-edit-pres-guardar">Guardar</button>
+          <button class="btn-ghost" id="btn-edit-pres-cancelar">Cancelar</button>
         </div>
       </div>
-      <div id="edit-pres-error" class="auth-error hidden"></div>
-      <div class="form-actions">
-        <button class="btn-primary" id="btn-edit-pres-guardar">Guardar</button>
-        <button class="btn-ghost" id="btn-edit-pres-cancelar">Cancelar</button>
-      </div>
     </div>
-  </div>
 
     <!-- MODAL SESION EXPIRADA  -->
-  <div id="session-expired-modal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Sesión expirada</h3>
-      <p>Por seguridad, tu sesión se cerró por inactividad.</p>
-      <button id="btn-session-ok" class="btn-primary">Ir al login</button>
+    <div id="session-expired-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Sesión expirada</h3>
+        <p>Por seguridad, tu sesión se cerró por inactividad.</p>
+        <button id="btn-session-ok" class="btn-primary">Ir al login</button>
+      </div>
     </div>
-  </div>
 
-</div><!-- /app -->
+  </div><!-- /app -->
 
-<script src="i18n.js"></script>
-<script src="app.js"></script>
-<script>
-  if (window.location.hash === '#register') {
-    document.getElementById('panel-login').classList.remove('active');
-    document.getElementById('panel-register').classList.add('active');
-  }
-</script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if (window.location.hash === '#register') {
+      document.getElementById('panel-login').classList.remove('active');
+      document.getElementById('panel-register').classList.add('active');
+    }
+  </script>
 </body>
+
 </html>

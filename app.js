@@ -217,7 +217,10 @@ function showSection(name) {
   document.getElementById(`section-${name}`).classList.add('active');
   document.querySelectorAll(`[data-section="${name}"]`).forEach(l => l.classList.add('active'));
 
-  if (name === 'resumen') cargarResumen();
+  if (name === 'resumen') {
+    cargarCategoriasResumen(); // 🔥 AÑADE ESTO
+    cargarResumen();
+  }
   if (name === 'anteriores') cargarMeses();
   if (name === 'presupuestos') initPresupuestos();
   if (name === 'reporte') initReporte();
@@ -571,11 +574,61 @@ async function cargarResumen() {
     gastos.forEach(g => tabla.appendChild(buildGastoItem(g, openEdit, async id => {
       confirmDelete(async () => {
         await api(`/gastos/${id}`, { method: 'DELETE' });
+        await cargarCategoriasResumen();
         cargarResumen();
       });
     })));
   } catch (e) {
     tabla.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
+  }
+}
+
+async function cargarCategoriasResumen() {
+  const sel = document.getElementById('filtro-categoria');
+  const categoriasFijas = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
+
+  try {
+    const now = new Date();
+    const anio = now.getFullYear();
+    const mes = now.getMonth() + 1;
+
+    // 🔥 traer gastos del mes
+    const gastos = await api(`/gastos?anio=${anio}&mes=${mes}`);
+
+    // 🔥 sacar categorías únicas
+    const cats = [...new Set(gastos.map(g => g.categoria))];
+
+    sel.innerHTML = '<option value="">Todas las categorías</option>';
+
+    // Fijas primero
+    categoriasFijas.forEach(c => {
+      if (cats.includes(c)) {
+        sel.appendChild(new Option(c, c));
+      }
+    });
+
+    // Si no hay fijas, mostrarlas igual
+    const fijasMostradas = categoriasFijas.filter(c => cats.includes(c));
+    if (!fijasMostradas.length) {
+      categoriasFijas.forEach(c => sel.appendChild(new Option(c, c)));
+    }
+
+    // Personalizadas del mes
+    const personalizadas = cats.filter(c => !categoriasFijas.includes(c));
+    if (personalizadas.length) {
+      const sep = document.createElement('option');
+      sep.disabled = true;
+      sep.textContent = '── Personalizadas ──';
+      sel.appendChild(sep);
+
+      personalizadas.forEach(c => {
+        sel.appendChild(new Option(c, c));
+      });
+    }
+
+  } catch (e) {
+    sel.innerHTML = '<option value="">Todas las categorías</option>';
+    categoriasFijas.forEach(c => sel.appendChild(new Option(c, c)));
   }
 }
 
