@@ -2331,6 +2331,9 @@ async function initPresupuestos() {
   } catch (e) {
     console.error(e);
   }
+
+    // Cargar categorías personalizadas en el select
+    await cargarCategoriasPres();
 }
 
 function actualizarMesesPres(periodos) {
@@ -2425,29 +2428,33 @@ async function cargarCategoriasPres() {
 
     sel.innerHTML = '<option value="">Seleccionar…</option>';
 
-    // Primero las fijas que existan en los datos
+    // Primero las fijas (en el orden estándar)
     categoriasFijas.forEach(c => {
       if (cats.includes(c)) {
         sel.appendChild(new Option(c, c));
       }
     });
 
-    // Luego las personalizadas (las que no son fijas)
-    cats
-      .filter(c => !categoriasFijas.includes(c))
-      .forEach(c => {
-        const o = new Option(c, c);
-        o.style.fontStyle = 'italic'; // visual para distinguirlas
-        sel.appendChild(o);
-      });
-
-    // Si no hay ninguna categoría aún, mostrar todas las fijas
-    if (!cats.length) {
+    // Si ninguna fija existe aún, mostrarlas igual
+    const fijasMostradas = categoriasFijas.filter(c => cats.includes(c));
+    if (!fijasMostradas.length) {
       categoriasFijas.forEach(c => sel.appendChild(new Option(c, c)));
     }
 
+    // Luego las personalizadas con separador visual
+    const personalizadas = cats.filter(c => !categoriasFijas.includes(c));
+    if (personalizadas.length) {
+      const sep = document.createElement('option');
+      sep.disabled = true;
+      sep.textContent = '── Personalizadas ──';
+      sel.appendChild(sep);
+
+      personalizadas.forEach(c => {
+        sel.appendChild(new Option(c, c));
+      });
+    }
+
   } catch (e) {
-    // Fallback a categorías fijas
     sel.innerHTML = '<option value="">Seleccionar…</option>';
     categoriasFijas.forEach(c => sel.appendChild(new Option(c, c)));
   }
