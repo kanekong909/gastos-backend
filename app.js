@@ -11,13 +11,14 @@ let usuario = JSON.parse(localStorage.getItem('gd_usuario') || 'null');
 let editId = null;
 let chartDonut = null, chartBar = null, chartLine = null;
 let deleteCallback = null;
+let isLoggingOut = false;
 
 // Inactividad ─────────────────────────────────
 let inactivityTimer;
 const INACTIVITY_TIME = 10 * 60 * 1000; // 10 minutos
 
 function showSessionExpiredModal() {
-  document.getElementById('session-expired-modal').classList.remove('hidden');
+  logout();
 }
 
 function resetInactivityTimer() {
@@ -100,6 +101,14 @@ async function api(path, opts = {}) {
     headers
   });
 
+  if (res.status === 401) {
+    if (!isLoggingOut) {
+      isLoggingOut = true;
+      logout();
+    }
+    throw new Error('Sesión expirada');
+  }
+
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
@@ -129,6 +138,7 @@ function saveSession(data) {
 }
 
 function logout() {
+  isLoggingOut = false;
   token = null; usuario = null;
   localStorage.removeItem('gd_token');
   localStorage.removeItem('gd_usuario');
@@ -1974,7 +1984,15 @@ function abrirPerfilModal() {
 
 // Click en el círculo abre el file input
 document.getElementById('perfil-avatar-circle').addEventListener('click', () => {
-  document.getElementById('perfil-avatar-input').click();
+  const avatarImg = document.getElementById('perfil-avatar-img');
+
+  if (!avatarImg.src || avatarImg.style.display === 'none') return;
+
+  const viewer = document.getElementById('foto-viewer');
+  const viewerImg = document.getElementById('foto-viewer-img');
+
+  viewerImg.src = avatarImg.src;
+  viewer.classList.remove('hidden');
 });
 
 // Al seleccionar imagen
@@ -2033,6 +2051,14 @@ document.getElementById('btn-perfil-cancelar').addEventListener('click', () => {
 document.getElementById('perfil-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('perfil-modal'))
     document.getElementById('perfil-modal').classList.add('hidden');
+});
+document.getElementById('btn-cambiar-foto').addEventListener('click', (e) => {
+  e.stopPropagation(); // 🔥 evita abrir el visor
+  document.getElementById('perfil-avatar-input').click();
+});
+// Cerrar visor de imagen
+document.getElementById('foto-viewer').addEventListener('click', () => {
+  document.getElementById('foto-viewer').classList.add('hidden');
 });
 
 document.getElementById('btn-perfil-guardar').addEventListener('click', async () => {
