@@ -245,10 +245,21 @@ document.querySelectorAll('.nav-link, .bottom-nav-item').forEach(l => {
 });
 
 // ── Formulario nuevo gasto ─────────────────────────
+// ── FECHA POR DEFECTO CORRECTA (hora local real) ─────────────────────
 function setDefaultDateTime() {
   const now = new Date();
-  document.getElementById('f-fecha').value = now.toISOString().slice(0, 10);
-  document.getElementById('f-hora').value = now.toTimeString().slice(0, 5);
+
+  // Obtener fecha en hora local de forma segura
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  document.getElementById('f-fecha').value = `${year}-${month}-${day}`;
+
+  // Hora local
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById('f-hora').value = `${hours}:${minutes}`;
 }
 
 document.getElementById('btn-guardar').addEventListener('click', async () => {
