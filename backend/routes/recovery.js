@@ -4,6 +4,8 @@
 //  npm install resend
 // ═══════════════════════════════════════════════════
 
+console.log('✅ recovery.js cargado correctamente');
+
 const router  = require('express').Router();
 const bcrypt  = require('bcryptjs');
 const crypto  = require('crypto');

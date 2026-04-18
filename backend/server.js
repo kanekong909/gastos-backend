@@ -8,7 +8,7 @@ const recurrentesRoutes = require('./routes/recurrentes');
 const { router: actividadRoutes } = require('./routes/actividad');
 const presupuestosRoutes = require('./routes/presupuestos');
 const recovery = require('./routes/recovery');
-
+console.log('✅ recovery importado:', typeof recovery);
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
