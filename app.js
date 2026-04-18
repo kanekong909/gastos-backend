@@ -220,6 +220,65 @@ document.getElementById('go-login').addEventListener('click', e => {
 
 document.getElementById('btn-logout').addEventListener('click', logout);
 
+// Navegación hacia el panel de recuperación
+document.getElementById('go-forgot').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('panel-login').classList.remove('active');
+  document.getElementById('panel-register').classList.remove('active');
+  document.getElementById('panel-forgot').classList.add('active');
+  document.getElementById('forgot-email').value = '';
+  document.getElementById('forgot-error').classList.add('hidden');
+  document.getElementById('forgot-success').classList.add('hidden');
+});
+
+document.getElementById('go-back-login').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('panel-forgot').classList.remove('active');
+  document.getElementById('panel-login').classList.add('active');
+});
+
+// Enviar solicitud de recuperación
+document.getElementById('btn-forgot').addEventListener('click', async () => {
+  const email  = document.getElementById('forgot-email').value.trim();
+  const errEl  = document.getElementById('forgot-error');
+  const okEl   = document.getElementById('forgot-success');
+  const btn    = document.getElementById('btn-forgot');
+
+  errEl.classList.add('hidden');
+  okEl.classList.add('hidden');
+
+  if (!email) {
+    errEl.textContent = 'Ingresa tu correo electrónico';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  try {
+    btn.textContent  = 'Enviando…';
+    btn.disabled     = true;
+
+    // La API siempre responde OK (no revela si el email existe)
+    await fetch(`${API_URL}/auth/forgot-password`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email }),
+    });
+
+    // Mostrar mensaje de éxito siempre
+    okEl.textContent = `Si existe una cuenta con ${email}, recibirás un email en los próximos minutos.`;
+    okEl.classList.remove('hidden');
+    document.getElementById('forgot-email').value = '';
+
+  } catch {
+    errEl.textContent = 'Error de conexión. Intenta de nuevo.';
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.textContent = 'Enviar link';
+    btn.disabled    = false;
+  }
+});
+
+
 // ── Navegación ────────────────────────────────────
 function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -244,7 +303,7 @@ document.querySelectorAll('.nav-link, .bottom-nav-item').forEach(l => {
   });
 });
 
-// ── Formulario nuevo gasto ─────────────────────────
+
 // ── FECHA POR DEFECTO CORRECTA (hora local real) ─────────────────────
 function setDefaultDateTime() {
   const now = new Date();

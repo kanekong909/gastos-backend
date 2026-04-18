@@ -1792,3 +1792,12 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   justify-content: center;
   cursor: zoom-out;
 }
+
+/* Busqueda meses anteriores */
+#resultados-busqueda {
+  margin-top: 1rem;
+}
+
+#resultados-busqueda .gasto-item {
+  margin-bottom: 12px;
+}
