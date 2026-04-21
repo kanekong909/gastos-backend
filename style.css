@@ -529,6 +529,11 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   animation: fadeIn .25s ease;
 }
 
+.gasto-item::before,
+.gasto-item::after {
+  pointer-events: none;
+}
+
 /* ✨ Glow con TU accent */
 .gasto-item::before {
   content: "";
