@@ -845,7 +845,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   position: fixed; inset: 0;
   background: rgba(0,0,0,.7);
   backdrop-filter: blur(8px);
-  z-index: 200;
+  z-index: 1999;
   display: flex; align-items: center; justify-content: center;
   padding: 1rem;
   animation: fadeIn .2s ease;
@@ -853,6 +853,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 
 .modal-card {
   background: var(--bg2);
+   z-index: 2000;
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 2rem;
