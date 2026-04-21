@@ -32,8 +32,6 @@
   --shadow:     0 4px 24px rgba(0,0,0,.4);
   --shadow-lg:  0 12px 48px rgba(0,0,0,.6);
   --transition: 0.2s cubic-bezier(.4,0,.2,1);
-  --playfair: 'Playfair Display', serif;
-  --baskerville: 'Libre Baskerville', serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -258,14 +256,23 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 
 /* ── NAVBAR ───────────────────────────────────────── */
 .navbar {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(13,13,15,.92);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 2rem;
-  height: 60px;
-  gap: 2rem;
+  position: sticky;
+  top: 12px; /* Flotante para un look más moderno */
+  margin: 0 1rem;
+  z-index: 1000;
+  
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Separa logo de links */
+  padding: 0 1.5rem;
+  
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 16px; /* Bordes redondeados */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: all 0.3s ease;
 }
 
 .logo-icon { font-size: 1.4rem; color: var(--accent); }
@@ -406,12 +413,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   min-width: 180px;
 }
 .badge-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-weight: 600; display: block; }
-.badge-value {  
-  font-family: var(--libre-baskerville);
-  font-size: 2.20rem; 
-  font-weight: bold; 
-  color: var(--text);  
-}
+.badge-value { font-family: var(--libre-baskerville); font-size: 2.20rem; font-weight: 800; color: var(--text);  }
 
 /* ── FILTERS BAR ──────────────────────────────────── */
 .filters-bar {
