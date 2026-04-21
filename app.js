@@ -74,7 +74,7 @@ function getNumericValue(inputId) {
 
 function bindMontoInput(inputId) {
   const input = document.getElementById(inputId);
-  input.addEventListener('input', function() {
+  input.addEventListener('input', function () {
     const pos = this.selectionStart;
     const prevLen = this.value.length;
     this.value = fmtInput(this.value);
@@ -116,7 +116,7 @@ async function api(path, opts = {}) {
   return data;
 }
 
-  // console.log('TOKEN:', token);
+// console.log('TOKEN:', token);
 
 
 function showError(elId, msg) {
@@ -239,10 +239,10 @@ document.getElementById('go-back-login').addEventListener('click', e => {
 
 // Enviar solicitud de recuperación
 document.getElementById('btn-forgot').addEventListener('click', async () => {
-  const email  = document.getElementById('forgot-email').value.trim();
-  const errEl  = document.getElementById('forgot-error');
-  const okEl   = document.getElementById('forgot-success');
-  const btn    = document.getElementById('btn-forgot');
+  const email = document.getElementById('forgot-email').value.trim();
+  const errEl = document.getElementById('forgot-error');
+  const okEl = document.getElementById('forgot-success');
+  const btn = document.getElementById('btn-forgot');
 
   errEl.classList.add('hidden');
   okEl.classList.add('hidden');
@@ -254,14 +254,14 @@ document.getElementById('btn-forgot').addEventListener('click', async () => {
   }
 
   try {
-    btn.textContent  = 'Enviando…';
-    btn.disabled     = true;
+    btn.textContent = 'Enviando…';
+    btn.disabled = true;
 
     // La API siempre responde OK (no revela si el email existe)
     await fetch(`${API_URL}/auth/forgot-password`, {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email }),
+      body: JSON.stringify({ email }),
     });
 
     // Mostrar mensaje de éxito siempre
@@ -274,7 +274,7 @@ document.getElementById('btn-forgot').addEventListener('click', async () => {
     errEl.classList.remove('hidden');
   } finally {
     btn.textContent = 'Enviar link';
-    btn.disabled    = false;
+    btn.disabled = false;
   }
 });
 
@@ -403,7 +403,7 @@ function openEdit(gasto) {
 }
 
 // ── CATEGORÍA PERSONALIZADA ───────────────────────
-document.getElementById('f-categoria').addEventListener('change', function() {
+document.getElementById('f-categoria').addEventListener('change', function () {
   const wrap = document.getElementById('f-categoria-custom-wrap');
   const input = document.getElementById('f-categoria-custom');
   if (this.value === 'Otros') {
@@ -415,7 +415,7 @@ document.getElementById('f-categoria').addEventListener('change', function() {
   }
 });
 
-document.getElementById('e-categoria').addEventListener('change', function() {
+document.getElementById('e-categoria').addEventListener('change', function () {
   const wrap = document.getElementById('e-categoria-custom-wrap');
   const input = document.getElementById('e-categoria-custom');
   if (this.value === 'Otros') {
@@ -547,7 +547,7 @@ function openDetail(g) {
       </div>
       <div class="detail-row">
         <span class="detail-label">Fecha</span>
-        <span class="detail-value">${fmtFecha(g.fecha.slice(0,10))}</span>
+        <span class="detail-value">${fmtFecha(g.fecha.slice(0, 10))}</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">Hora</span>
@@ -560,13 +560,13 @@ function openDetail(g) {
 // ── COLOR DINÁMICO PARA CATEGORÍAS PERSONALIZADAS ──
 const CATEGORIAS_FIJAS = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
 const COLORES_CUSTOM = [
-  { bg: 'rgba(251,191,36,.15)',  color: '#fbbf24' },  // amarillo
-  { bg: 'rgba(34,211,238,.15)',  color: '#22d3ee' },  // cyan
+  { bg: 'rgba(251,191,36,.15)', color: '#fbbf24' },  // amarillo
+  { bg: 'rgba(34,211,238,.15)', color: '#22d3ee' },  // cyan
   { bg: 'rgba(244,114,182,.15)', color: '#f472b6' },  // rosa
-  { bg: 'rgba(74,222,128,.15)',  color: '#4ade80' },  // verde claro
-  { bg: 'rgba(249,115,22,.15)',  color: '#f97316' },  // naranja
-  { bg: 'rgba(168,85,247,.15)',  color: '#a855f7' },  // púrpura
-  { bg: 'rgba(20,184,166,.15)',  color: '#14b8a6' },  // teal
+  { bg: 'rgba(74,222,128,.15)', color: '#4ade80' },  // verde claro
+  { bg: 'rgba(249,115,22,.15)', color: '#f97316' },  // naranja
+  { bg: 'rgba(168,85,247,.15)', color: '#a855f7' },  // púrpura
+  { bg: 'rgba(20,184,166,.15)', color: '#14b8a6' },  // teal
 ];
 
 function getCategoriaBadge(categoria) {
@@ -966,11 +966,11 @@ function generarPDF(gastos, anio, mes, password) {
 
   // ── Tabla de registros ────────────────────────────
   const CAT_COLORS_PDF = {
-    'Comida':          [62, 207, 142],
-    'Transporte':      [96, 165, 250],
+    'Comida': [62, 207, 142],
+    'Transporte': [96, 165, 250],
     'Entretenimiento': [167, 139, 250],
-    'Ropa':            [251, 146, 60],
-    'Otros':           [148, 163, 184],
+    'Ropa': [251, 146, 60],
+    'Otros': [148, 163, 184],
   };
   const COLORES_CUSTOM_PDF = [
     [251, 191, 36], [34, 211, 238], [244, 114, 182],
@@ -1367,12 +1367,12 @@ function initApp() {
 
   cargarBilleteras();
   renderNavAvatar();
-  bindMontoInput('pres-monto'); 
+  bindMontoInput('pres-monto');
   bindMontoInput('f-monto');
   bindMontoInput('e-monto');
-  bindMontoInput('nueva-billtera-saldo'); 
+  bindMontoInput('nueva-billtera-saldo');
   bindMontoInput('transferir-monto');
-  bindMontoInput('edit-pres-monto');    
+  bindMontoInput('edit-pres-monto');
   bindMontoInput('rec-monto');
   bindMontoInput('rr-monto');
 
@@ -1403,7 +1403,7 @@ async function cargarBilleteras() {
     billeteras = await api('/billeteras');
     renderFabBilleteras();
     actualizarSelectBilltera();
-  } catch(e) { console.error(e); }
+  } catch (e) { console.error(e); }
 }
 
 function renderFabBilleteras() {
@@ -1414,7 +1414,7 @@ function renderFabBilleteras() {
 
   if (!billeteras.length) {
     lista.innerHTML = '<div class="empty-state" style="padding:2rem 0;"><span class="empty-icon">💳</span><p>No tienes billeteras</p></div>';
-    
+
     if (totalEl) totalEl.textContent = '$0';
     return;
   }
@@ -1433,7 +1433,7 @@ function renderFabBilleteras() {
         <div class="wallet-drawer-item-nombre">${b.nombre}</div>
         <div class="wallet-drawer-item-saldo ${saldo < 0 ? 'negativo' : ''}">${fmt(saldo)}</div>
       </div>`;
-    
+
     item.addEventListener('click', () => {
       abrirBillteraModal(b);
     });
@@ -1453,7 +1453,7 @@ function actualizarSelectBilltera() {
     const sel = document.getElementById(id);
     if (!sel) return;
     const val = sel.value;
-    
+
     // Obtener monto actual del formulario correspondiente
     const montoInputId = id === 'f-billtera' ? 'f-monto' : 'e-monto';
     const montoActual = getNumericValue(montoInputId);
@@ -1490,7 +1490,7 @@ function abrirBillteraModal(b) {
 
 function validarSaldoBilltera(montoInputId, billteraSelectId, errorElId) {
   const monto = getNumericValue(montoInputId);
-  const sel   = document.getElementById(billteraSelectId);
+  const sel = document.getElementById(billteraSelectId);
   const billteraId = sel.value;
 
   // Quitar aviso previo
@@ -1543,7 +1543,7 @@ document.getElementById('toggle-recargar').addEventListener('click', () => {
   document.getElementById('toggle-recargar').classList.add('active');
   document.getElementById('toggle-restar').classList.remove('active');
   document.querySelectorAll('.btn-recarga').forEach(b => {
-    b.textContent = `+$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto)/1000)+'K' : b.dataset.monto}`;
+    b.textContent = `+$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto) / 1000) + 'K' : b.dataset.monto}`;
     b.classList.remove('btn-recarga-restar');
   });
 });
@@ -1553,7 +1553,7 @@ document.getElementById('toggle-restar').addEventListener('click', () => {
   document.getElementById('toggle-restar').classList.add('active');
   document.getElementById('toggle-recargar').classList.remove('active');
   document.querySelectorAll('.btn-recarga').forEach(b => {
-    b.textContent = `-$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto)/1000)+'K' : b.dataset.monto}`;
+    b.textContent = `-$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto) / 1000) + 'K' : b.dataset.monto}`;
     b.classList.add('btn-recarga-restar');
   });
 });
@@ -1588,8 +1588,8 @@ document.querySelectorAll('.btn-recarga').forEach(btn => {
       abrirBillteraModal(updated);
       renderFabBilleteras();
       actualizarSelectBilltera();
-    } catch(e) { 
-        showError('billtera-error', e.message || 'Saldo insuficiente');
+    } catch (e) {
+      showError('billtera-error', e.message || 'Saldo insuficiente');
     }
   });
 });
@@ -1614,8 +1614,8 @@ document.getElementById('btn-recarga-manual').addEventListener('click', async ()
 
     // limpiar input después de éxito
     document.getElementById('recarga-manual-input').value = '';
-  } catch(e) { 
-      showError('billtera-error', e.message || 'No se pudo realizar la operación');
+  } catch (e) {
+    showError('billtera-error', e.message || 'No se pudo realizar la operación');
   }
 });
 
@@ -1626,7 +1626,7 @@ document.getElementById('btn-establecer-saldo').addEventListener('click', async 
   if (nuevoSaldo < 0 || isNaN(nuevoSaldo)) return;
 
   const saldoActual = Number(billteraActiva.saldo);
-  const diferencia  = nuevoSaldo - saldoActual;
+  const diferencia = nuevoSaldo - saldoActual;
 
   if (diferencia === 0) return; // nada que cambiar
 
@@ -1642,7 +1642,7 @@ document.getElementById('btn-establecer-saldo').addEventListener('click', async 
     renderFabBilleteras();
     actualizarSelectBilltera();
     document.getElementById('recarga-manual-input').value = '';
-  } catch(e) {
+  } catch (e) {
     showError('billtera-error', e.message || 'No se pudo establecer el saldo');
   }
 });
@@ -1657,9 +1657,9 @@ document.getElementById('btn-billtera-eliminar').addEventListener('click', () =>
       billeteras = billeteras.filter(b => b.id !== billteraActiva.id);
       renderFabBilleteras();
       actualizarSelectBilltera();
-    } catch(e) { 
-        // document.getElementById('billtera-modal').classList.remove('hidden');
-        showError('nueva-billtera-error', e.message);
+    } catch (e) {
+      // document.getElementById('billtera-modal').classList.remove('hidden');
+      showError('nueva-billtera-error', e.message);
     }
   }, `¿Eliminar ${billteraActiva.nombre}?`);
 });
@@ -1701,7 +1701,7 @@ document.getElementById('btn-crear-billtera').addEventListener('click', async ()
     document.getElementById('nueva-billtera-modal').classList.add('hidden');
     renderFabBilleteras();
     actualizarSelectBilltera();
-  } catch(e) {
+  } catch (e) {
     showError('nueva-billtera-error', e.message);
   } finally {
     document.getElementById('btn-crear-billtera').textContent = 'Crear billtera';
@@ -1716,7 +1716,7 @@ async function cargarRecurrentes() {
     recurrentes = await api('/recurrentes');
     renderRecurrentesLista();
     actualizarSelectsRecurrentes();
-  } catch(e) { console.error(e); }
+  } catch (e) { console.error(e); }
 }
 
 // ── VERIFICAR PENDIENTES (CORREGIDO) ─────────────────────────────
@@ -1744,11 +1744,11 @@ async function verificarPendientes() {
     let texto = '';
 
     if (vencidos.length && pendientesHoy.length) {
-      texto = `Tienes ${vencidos.length} gasto${vencidos.length>1?'s':''} vencido${vencidos.length>1?'s':''} y ${pendientesHoy.length} pendiente${pendientesHoy.length>1?'s':''}`;
+      texto = `Tienes ${vencidos.length} gasto${vencidos.length > 1 ? 's' : ''} vencido${vencidos.length > 1 ? 's' : ''} y ${pendientesHoy.length} pendiente${pendientesHoy.length > 1 ? 's' : ''}`;
     } else if (vencidos.length) {
-      texto = `Tienes ${vencidos.length} gasto${vencidos.length>1?'s':''} vencido${vencidos.length>1?'s':''}`;
+      texto = `Tienes ${vencidos.length} gasto${vencidos.length > 1 ? 's' : ''} vencido${vencidos.length > 1 ? 's' : ''}`;
     } else {
-      texto = `Tienes ${pendientesHoy.length} gasto${pendientesHoy.length>1?'s':''} pendiente${pendientesHoy.length>1?'s':''}`;
+      texto = `Tienes ${pendientesHoy.length} gasto${pendientesHoy.length > 1 ? 's' : ''} pendiente${pendientesHoy.length > 1 ? 's' : ''}`;
     }
 
     document.getElementById('banner-texto').textContent = texto;
@@ -1783,8 +1783,8 @@ function renderPendientes(pendientes) {
     div.className = 'recurrente-pendiente-item';
 
     // Mejoramos el texto mostrado
-    const billteraInfo = r.billtera_nombre 
-      ? ` · ${r.billtera_emoji || ''} ${r.billtera_nombre}` 
+    const billteraInfo = r.billtera_nombre
+      ? ` · ${r.billtera_emoji || ''} ${r.billtera_nombre}`
       : '';
 
     div.innerHTML = `
@@ -1809,9 +1809,9 @@ let recurrenteEditId = null;
 
 function abrirEditarRecurrente(r) {
   recurrenteEditId = r.id;
-  document.getElementById('rec-nombre').value      = r.nombre;
-  document.getElementById('rec-monto').value       = r.monto;
-  document.getElementById('rec-dia').value         = r.dia_mes;
+  document.getElementById('rec-nombre').value = r.nombre;
+  document.getElementById('rec-monto').value = r.monto;
+  document.getElementById('rec-dia').value = r.dia_mes;
   const catsFijas = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
   if (catsFijas.includes(r.categoria)) {
     document.getElementById('rec-categoria').value = r.categoria;
@@ -1819,7 +1819,7 @@ function abrirEditarRecurrente(r) {
     document.getElementById('rec-categoria').value = 'Otros';
   }
   document.getElementById('rec-descripcion').value = r.descripcion || '';
-  document.getElementById('rec-billtera').value    = r.billtera_id || '';
+  document.getElementById('rec-billtera').value = r.billtera_id || '';
 
   const btn = document.getElementById('btn-crear-recurrente');
   btn.textContent = 'Actualizar recurrente';
@@ -1881,8 +1881,8 @@ function actualizarSelectsRecurrentes() {
 function abrirRegistrarRecurrente(r) {
   const now = new Date();
   document.getElementById('registrar-rec-titulo').textContent = `Registrar: ${r.nombre}`;
-  document.getElementById('rr-fecha').value = now.toISOString().slice(0,10);
-  document.getElementById('rr-hora').value  = now.toTimeString().slice(0,5);
+  document.getElementById('rr-fecha').value = now.toISOString().slice(0, 10);
+  document.getElementById('rr-hora').value = now.toTimeString().slice(0, 5);
   document.getElementById('rr-monto').value = r.monto;
   document.getElementById('rr-categoria').value = r.categoria;
   document.getElementById('rr-descripcion').value = r.descripcion || r.nombre;
@@ -1918,12 +1918,12 @@ document.getElementById('recurrentes-modal-close').addEventListener('click', () 
 // Crear recurrente
 document.getElementById('btn-crear-recurrente').addEventListener('click', async () => {
   const nombre = document.getElementById('rec-nombre').value.trim();
-  const monto  = document.getElementById('rec-monto').value;
-  const dia    = document.getElementById('rec-dia').value;
-  const cat    = document.getElementById('rec-categoria').value;
-  const desc   = document.getElementById('rec-descripcion').value.trim();
-  const bill   = document.getElementById('rec-billtera').value;
-  const btn    = document.getElementById('btn-crear-recurrente');
+  const monto = document.getElementById('rec-monto').value;
+  const dia = document.getElementById('rec-dia').value;
+  const cat = document.getElementById('rec-categoria').value;
+  const desc = document.getElementById('rec-descripcion').value.trim();
+  const bill = document.getElementById('rec-billtera').value;
+  const btn = document.getElementById('btn-crear-recurrente');
   const modoEditar = btn.dataset.modo === 'editar';
 
   if (!nombre || !monto || !dia || !cat)
@@ -1958,7 +1958,7 @@ document.getElementById('btn-crear-recurrente').addEventListener('click', async 
 
     await cargarRecurrentes();
     await verificarPendientes();
-  } catch(e) {
+  } catch (e) {
     showError('rec-error', e.message);
   } finally {
     btn.textContent = 'Guardar recurrente';
@@ -1976,11 +1976,11 @@ document.getElementById('btn-rr-cancelar').addEventListener('click', () => {
 
 document.getElementById('btn-rr-guardar').addEventListener('click', async () => {
   const fecha = document.getElementById('rr-fecha').value;
-  const hora  = document.getElementById('rr-hora').value;
+  const hora = document.getElementById('rr-hora').value;
   const monto = document.getElementById('rr-monto').value;
-  const cat   = document.getElementById('rr-categoria').value;
-  const desc  = document.getElementById('rr-descripcion').value.trim();
-  const bill  = document.getElementById('rr-billtera').value;
+  const cat = document.getElementById('rr-categoria').value;
+  const desc = document.getElementById('rr-descripcion').value.trim();
+  const bill = document.getElementById('rr-billtera').value;
 
   if (!fecha || !hora || !monto || !cat)
     return showError('rr-error', 'Completa todos los campos obligatorios');
@@ -1995,7 +1995,7 @@ document.getElementById('btn-rr-guardar').addEventListener('click', async () => 
     await verificarPendientes();
     cargarResumen();
     cargarBilleteras();
-  } catch(e) {
+  } catch (e) {
     showError('rr-error', e.message);
   } finally {
     document.getElementById('btn-rr-guardar').textContent = 'Guardar gasto';
@@ -2020,33 +2020,33 @@ document.getElementById('btn-theme').addEventListener('click', () => {
 
 // ── PERFIL ────────────────────────────────────────
 function abrirPerfilModal() {
-  document.getElementById('perfil-nombre').value      = usuario.nombre;
-  document.getElementById('perfil-email').value       = usuario.email;
+  document.getElementById('perfil-nombre').value = usuario.nombre;
+  document.getElementById('perfil-email').value = usuario.email;
   document.getElementById('perfil-pass-actual').value = '';
-  document.getElementById('perfil-pass-nueva').value  = '';
+  document.getElementById('perfil-pass-nueva').value = '';
   document.getElementById('perfil-info-nombre').textContent = usuario.nombre;
-  document.getElementById('perfil-info-email').textContent  = usuario.email;
+  document.getElementById('perfil-info-email').textContent = usuario.email;
   document.getElementById('perfil-error').classList.add('hidden');
   document.getElementById('perfil-success').classList.add('hidden');
 
   // Resetear ojos
   document.getElementById('perfil-pass-actual').type = 'password';
-  document.getElementById('perfil-pass-nueva').type  = 'password';
+  document.getElementById('perfil-pass-nueva').type = 'password';
 
   // Cargar avatar actual
-  const avatarImg   = document.getElementById('perfil-avatar-img');
+  const avatarImg = document.getElementById('perfil-avatar-img');
   const avatarEmoji = document.getElementById('perfil-avatar-emoji');
   if (usuario.avatar) {
     avatarImg.src = usuario.avatar;
-    avatarImg.style.display   = 'block';
+    avatarImg.style.display = 'block';
     avatarEmoji.style.display = 'none';
   } else {
-    avatarImg.style.display   = 'none';
+    avatarImg.style.display = 'none';
     avatarEmoji.style.display = 'block';
   }
 
   // Limpiar selección previa de imagen
-  document.getElementById('perfil-avatar-input').value      = '';
+  document.getElementById('perfil-avatar-input').value = '';
   document.getElementById('perfil-avatar-input').dataset.base64 = '';
 
   document.getElementById('perfil-modal').classList.remove('hidden');
@@ -2066,7 +2066,7 @@ document.getElementById('perfil-avatar-circle').addEventListener('click', () => 
 });
 
 // Al seleccionar imagen
-document.getElementById('perfil-avatar-input').addEventListener('change', function() {
+document.getElementById('perfil-avatar-input').addEventListener('change', function () {
   const file = this.files[0];
   if (!file) return;
 
@@ -2132,10 +2132,10 @@ document.getElementById('foto-viewer').addEventListener('click', () => {
 });
 
 document.getElementById('btn-perfil-guardar').addEventListener('click', async () => {
-  const nombre     = document.getElementById('perfil-nombre').value.trim();
-  const email      = document.getElementById('perfil-email').value.trim();
+  const nombre = document.getElementById('perfil-nombre').value.trim();
+  const email = document.getElementById('perfil-email').value.trim();
   const passActual = document.getElementById('perfil-pass-actual').value;
-  const passNueva  = document.getElementById('perfil-pass-nueva').value;
+  const passNueva = document.getElementById('perfil-pass-nueva').value;
 
   if (!nombre || !email)
     return showError('perfil-error', 'El nombre y el correo son obligatorios');
@@ -2154,7 +2154,7 @@ document.getElementById('btn-perfil-guardar').addEventListener('click', async ()
     const body = { nombre, email };
     if (passNueva) {
       body.password_actual = passActual;
-      body.password_nueva  = passNueva;
+      body.password_nueva = passNueva;
     }
     if (avatarBase64) body.avatar = avatarBase64;
 
@@ -2162,7 +2162,7 @@ document.getElementById('btn-perfil-guardar').addEventListener('click', async ()
 
     // Actualizar sesión local
     usuario.nombre = res.usuario.nombre;
-    usuario.email  = res.usuario.email;
+    usuario.email = res.usuario.email;
     if (res.usuario.avatar) usuario.avatar = res.usuario.avatar;
     localStorage.setItem('gd_usuario', JSON.stringify(usuario));
 
@@ -2172,13 +2172,13 @@ document.getElementById('btn-perfil-guardar').addEventListener('click', async ()
 
     // Limpiar contraseñas y archivo
     document.getElementById('perfil-pass-actual').value = '';
-    document.getElementById('perfil-pass-nueva').value  = '';
+    document.getElementById('perfil-pass-nueva').value = '';
     document.getElementById('perfil-avatar-input').value = '';
     document.getElementById('perfil-avatar-input').dataset.base64 = '';
 
     // Actualizar info visible
     document.getElementById('perfil-info-nombre').textContent = usuario.nombre;
-    document.getElementById('perfil-info-email').textContent  = usuario.email;
+    document.getElementById('perfil-info-email').textContent = usuario.email;
     document.getElementById('perfil-error').classList.add('hidden');
     document.getElementById('perfil-success').classList.remove('hidden');
     setTimeout(() => document.getElementById('perfil-success').classList.add('hidden'), 3000);
@@ -2209,7 +2209,7 @@ async function iniciarComparar() {
     // Seleccionar segundo por defecto para mes B
     if (document.getElementById('comparar-mes-b').options.length > 1)
       document.getElementById('comparar-mes-b').selectedIndex = 1;
-  } catch(e) { console.error(e); }
+  } catch (e) { console.error(e); }
 }
 
 async function ejecutarComparar() {
@@ -2271,23 +2271,23 @@ async function ejecutarComparar() {
           <span style="text-align:right">Dif.</span>
         </div>
         ${todasCats.map(cat => {
-          const vA = catsA[cat] || 0;
-          const vB = catsB[cat] || 0;
-          const d = vB - vA;
-          const dClass = d > 0 ? 'sube' : d < 0 ? 'baja' : 'igual';
-          const dSign = d > 0 ? '▲' : d < 0 ? '▼' : '=';
-          return `
+      const vA = catsA[cat] || 0;
+      const vB = catsB[cat] || 0;
+      const d = vB - vA;
+      const dClass = d > 0 ? 'sube' : d < 0 ? 'baja' : 'igual';
+      const dSign = d > 0 ? '▲' : d < 0 ? '▼' : '=';
+      return `
             <div class="comparar-cat-row">
               <span class="comp-cat-nombre">${getCategoriaBadge(cat)}</span>
               <span class="comp-cat-val ${vA > 0 ? 'activo' : ''}">${vA > 0 ? fmt(vA) : '—'}</span>
               <span class="comp-cat-val ${vB > 0 ? 'activo' : ''}">${vB > 0 ? fmt(vB) : '—'}</span>
               <span class="comp-cat-diff ${dClass}">${dSign} ${fmt(Math.abs(d))}</span>
             </div>`;
-        }).join('')}
+    }).join('')}
       </div>`;
 
     document.getElementById('comparar-resultado').classList.remove('hidden');
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   } finally {
     document.getElementById('btn-comparar-cargar').textContent = 'Comparar';
@@ -2303,13 +2303,13 @@ document.getElementById('btn-comparar-cargar').addEventListener('click', ejecuta
 
 // ── ACTIVIDAD LOG ─────────────────────────────────
 const ACCION_META = {
-  CREAR:    { icon: '＋', color: 'var(--green)' },
-  EDITAR:   { icon: '✎',  color: 'var(--blue)'  },
-  ELIMINAR: { icon: '✕',  color: 'var(--red)'   },
-  RECARGAR: { icon: '↑',  color: 'var(--accent)' },
-  RESTAR:   { icon: '↓',  color: 'var(--text3)'  },
-  LOGIN:    { icon: '→',  color: 'var(--text3)'  },
-  REGISTRO: { icon: '★',  color: 'var(--accent)' },
+  CREAR: { icon: '＋', color: 'var(--green)' },
+  EDITAR: { icon: '✎', color: 'var(--blue)' },
+  ELIMINAR: { icon: '✕', color: 'var(--red)' },
+  RECARGAR: { icon: '↑', color: 'var(--accent)' },
+  RESTAR: { icon: '↓', color: 'var(--text3)' },
+  LOGIN: { icon: '→', color: 'var(--text3)' },
+  REGISTRO: { icon: '★', color: 'var(--accent)' },
 };
 
 const ENTIDAD_LABEL = {
@@ -2334,7 +2334,7 @@ document.getElementById('btn-ver-actividad').addEventListener('click', async () 
     const grupos = {};
     logs.forEach(l => {
       const fecha = new Date(l.created_at);
-      const key = fecha.toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long' });
+      const key = fecha.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
       if (!grupos[key]) grupos[key] = [];
       grupos[key].push(l);
     });
@@ -2343,10 +2343,10 @@ document.getElementById('btn-ver-actividad').addEventListener('click', async () 
       <div class="actividad-grupo">
         <div class="actividad-grupo-fecha">${fecha}</div>
         ${items.map(l => {
-          const meta = ACCION_META[l.accion] || { icon: '·', color: 'var(--text3)' };
-          const entidad = ENTIDAD_LABEL[l.entidad] || l.entidad;
-          const hora = fmtHora(new Date(l.created_at).toTimeString());
-          return `
+      const meta = ACCION_META[l.accion] || { icon: '·', color: 'var(--text3)' };
+      const entidad = ENTIDAD_LABEL[l.entidad] || l.entidad;
+      const hora = fmtHora(new Date(l.created_at).toTimeString());
+      return `
             <div class="actividad-item">
               <div class="actividad-icon" style="color:${meta.color};border-color:${meta.color}20;">
                 ${meta.icon}
@@ -2360,10 +2360,10 @@ document.getElementById('btn-ver-actividad').addEventListener('click', async () 
                 <div class="actividad-fecha">${hora}</div>
               </div>
             </div>`;
-        }).join('')}
+    }).join('')}
       </div>`
     ).join('');
-  } catch(e) {
+  } catch (e) {
     lista.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
   }
 });
@@ -2446,7 +2446,7 @@ document.getElementById('btn-transferir-confirmar').addEventListener('click', as
 
     // Notificación breve
     sessionNotification(`✓ Transferencia exitosa de ${fmt(monto)}`);
-  } catch(e) {
+  } catch (e) {
     showError('transferir-error', e.message);
   } finally {
     document.getElementById('btn-transferir-confirmar').textContent = 'Transferir';
@@ -2457,7 +2457,7 @@ document.getElementById('btn-transferir-confirmar').addEventListener('click', as
 async function initPresupuestos() {
   const now = new Date();
   const anioSel = document.getElementById('pres-anio');
-  const mesSel  = document.getElementById('pres-mes');
+  const mesSel = document.getElementById('pres-mes');
 
   try {
     const periodos = await api('/gastos/periodos');
@@ -2481,14 +2481,14 @@ async function initPresupuestos() {
     console.error(e);
   }
 
-    // Cargar categorías personalizadas en el select
-    await cargarCategoriasPres();
+  // Cargar categorías personalizadas en el select
+  await cargarCategoriasPres();
 }
 
 function actualizarMesesPres(periodos) {
-  const anio  = document.getElementById('pres-anio').value;
+  const anio = document.getElementById('pres-anio').value;
   const mesSel = document.getElementById('pres-mes');
-  const now   = new Date();
+  const now = new Date();
 
   mesSel.innerHTML = '';
   periodos
@@ -2506,7 +2506,7 @@ function actualizarMesesPres(periodos) {
 
 async function cargarPresupuestos() {
   const anio = document.getElementById('pres-anio').value;
-  const mes  = document.getElementById('pres-mes').value;
+  const mes = document.getElementById('pres-mes').value;
   const lista = document.getElementById('pres-lista');
   lista.innerHTML = '<div class="loading-row"><span class="spinner"></span> Cargando…</div>';
 
@@ -2523,45 +2523,81 @@ async function cargarPresupuestos() {
     }
 
     presupuestos.forEach(p => {
-      const gastado  = Number(p.gastado);
-      const limite   = Number(p.monto);
-      const pct      = Math.min((gastado / limite) * 100, 100).toFixed(0);
+      const gastado = Number(p.gastado) || 0;
+      const limite = Number(p.monto) || 0;
+
+      // ⚠️ evitar división por 0
+      const rawPct = limite > 0 ? (gastado / limite) * 100 : 0;
+
+      const pct = Math.round(rawPct);
+      const pctSafe = Math.min(pct, 100); // 👈 evita overflow visual
       const excedido = gastado > limite;
-      const color    = pct >= 100 ? 'var(--red)' : pct >= 80 ? 'var(--accent)' : 'var(--green)';
+
+      const color =
+        pct >= 100 ? 'var(--red)' :
+          pct >= 80 ? 'var(--accent)' :
+            'var(--green)';
+
+      const barColor = excedido ? 'var(--red)' : color;
 
       const div = document.createElement('div');
-      div.className = 'pres-item';
+      div.className = `pres-item ${excedido ? 'is-over' : ''}`;
+
       div.innerHTML = `
-          <div class="pres-item-top">
-            ${getCategoriaBadge(p.categoria)}
-            <div class="pres-montos">
-              <span class="pres-gastado" style="color:${color}">${fmt(gastado)}</span>
-              <span class="pres-sep">/</span>
-              <span class="pres-limite">${fmt(limite)}</span>
-            </div>
-            <div class="pres-item-actions">
-              <button class="btn-edit pres-btn-edit" data-id="${p.id}">Editar</button>
-              <button class="btn-del pres-btn-del" data-id="${p.id}">✕</button>
+        <div class="pres-item-top">
+          ${getCategoriaBadge(p.categoria)}
+
+          <div class="pres-montos">
+            <span class="pres-gastado" style="color:${barColor}">
+              ${fmt(gastado)}
+            </span>
+            <span class="pres-sep">/</span>
+            <span class="pres-limite">
+              ${fmt(limite)}
+            </span>
+          </div>
+        </div>
+
+        <div class="pres-item-actions">
+          <button class="btn-edit pres-btn-edit" data-id="${p.id}">
+            ✏️ Editar
+          </button>
+          <button class="btn-del pres-btn-del" data-id="${p.id}">
+            ✕ Eliminar
+          </button>
+        </div>
+
+        <div class="pres-bar-wrap">
+          <div class="pres-bar-track">
+            <div class="pres-bar-fill"
+              style="background:${barColor};" background:${barColor};">
             </div>
           </div>
-          <div class="pres-bar-wrap">
-            <div class="pres-bar-track">
-              <div class="pres-bar-fill" style="width:${pct}%;background:${color};"></div>
-            </div>
-            <span class="pres-pct" style="color:${color}">
-              ${excedido ? '⚠ Excedido ' + fmt(gastado - limite) : pct + '%'}
-            </span>
-        </div>`;
 
-      div.querySelector('.pres-btn-edit').addEventListener('click', () => abrirEditPres(p));
-      div.querySelector('.pres-btn-del').addEventListener('click', () => {
-        confirmDelete(async () => {
-          await api(`/presupuestos/${p.id}`, { method: 'DELETE' });
-          cargarPresupuestos();
-        }, `¿Eliminar presupuesto de ${p.categoria}?`);
-      });
+          <span class="pres-pct" style="color:${barColor}">
+            ${excedido
+          ? `⚠ Excedido ${fmt(gastado - limite)}`
+          : `${pct}%`}
+          </span>
+        </div>
+      `;
+
+      div.querySelector('.pres-btn-edit')
+        .addEventListener('click', () => abrirEditPres(p));
+
+      div.querySelector('.pres-btn-del')
+        .addEventListener('click', () => {
+          confirmDelete(async () => {
+            await api(`/presupuestos/${p.id}`, { method: 'DELETE' });
+            cargarPresupuestos();
+          }, `¿Eliminar presupuesto de ${p.categoria}?`);
+        });
 
       lista.appendChild(div);
+
+      requestAnimationFrame(() => {
+        div.querySelector('.pres-bar-fill').style.width = pctSafe + '%';
+      });
     });
   } catch (e) {
     lista.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
@@ -2612,10 +2648,10 @@ async function cargarCategoriasPres() {
 document.getElementById('btn-pres-cargar').addEventListener('click', cargarPresupuestos);
 
 document.getElementById('btn-pres-guardar').addEventListener('click', async () => {
-  const cat   = document.getElementById('pres-cat').value;
+  const cat = document.getElementById('pres-cat').value;
   const monto = getNumericValue('pres-monto');
-  const mes   = document.getElementById('pres-mes').value;
-  const anio  = document.getElementById('pres-anio').value;
+  const mes = document.getElementById('pres-mes').value;
+  const anio = document.getElementById('pres-anio').value;
 
   if (!cat || !monto)
     return showError('pres-error', 'Selecciona una categoría e ingresa un límite');
@@ -2626,7 +2662,7 @@ document.getElementById('btn-pres-guardar').addEventListener('click', async () =
       method: 'POST',
       body: JSON.stringify({ categoria: cat, monto, mes, anio })
     });
-    document.getElementById('pres-cat').value   = '';
+    document.getElementById('pres-cat').value = '';
     document.getElementById('pres-monto').value = '';
     await cargarPresupuestos();
   } catch (e) {
@@ -2710,8 +2746,8 @@ function validarFechaBilltera(fechaInputId, billteraSelectId) {
   hoy.setHours(0, 0, 0, 0);
 
   const mismoMes =
-  fechaGasto.getMonth() === hoy.getMonth() &&
-  fechaGasto.getFullYear() === hoy.getFullYear();
+    fechaGasto.getMonth() === hoy.getMonth() &&
+    fechaGasto.getFullYear() === hoy.getFullYear();
 
   const esMesAnterior = !mismoMes;
 
@@ -2750,21 +2786,21 @@ document.getElementById('e-fecha').addEventListener('change', () => {
 });
 
 // ── SELECTOR DE IDIOMA ────────────────────────────
-document.getElementById('idioma-select')?.addEventListener('change', function() {
+document.getElementById('idioma-select')?.addEventListener('change', function () {
   aplicarIdioma(this.value);
 });
 
 // ── SELECTOR DE MONEDA ────────────────────────────
-document.getElementById('moneda-select')?.addEventListener('change', function() {
+document.getElementById('moneda-select')?.addEventListener('change', function () {
   aplicarMoneda(this.value);
   // Recargar la vista actual para reflejar el nuevo formato
   const seccionActiva = document.querySelector('.section.active')?.id?.replace('section-', '');
-  if (seccionActiva === 'resumen')      cargarResumen();
-  if (seccionActiva === 'anteriores')   cargarMeses();
+  if (seccionActiva === 'resumen') cargarResumen();
+  if (seccionActiva === 'anteriores') cargarMeses();
   if (seccionActiva === 'presupuestos') cargarPresupuestos();
-  if (seccionActiva === 'graficos')     {
+  if (seccionActiva === 'graficos') {
     const anio = document.getElementById('graf-anio').value;
-    const mes  = document.getElementById('graf-mes').value;
+    const mes = document.getElementById('graf-mes').value;
     cargarGraficos(anio, mes);
   }
   cargarBilleteras();

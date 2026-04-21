@@ -1838,6 +1838,8 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   width: 100%;
   display: flex;
   justify-content: flex-end;
+  gap: 15px;
+  margin-bottom: 10px;
 }
 
 .pres-item button {
@@ -1878,7 +1880,24 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 .pres-bar-fill {
   height: 100%;
   border-radius: 99px;
-  transition: width .6s ease;
+  /* transition: width .6s ease; */
+  width: 0;
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+
+.pres-item {
+  animation: presFadeUp .4s ease;
+}
+
+@keyframes presFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 .pres-pct {
   min-width: unset;
