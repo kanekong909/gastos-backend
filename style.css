@@ -138,15 +138,47 @@ input, select, textarea {
   font-family: var(--font-body);
   font-size: 14px;
   width: 100%;
-  transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
   -webkit-appearance: none;
+
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition),
+    transform .15s ease;
+
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.3);
 }
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-dim);
+  background: var(--bg2);
+
+  box-shadow:
+    0 0 0 3px var(--accent-dim),
+    0 4px 12px rgba(0,0,0,.25);
+
+  transform: translateY(-1px);
 }
-input::placeholder { color: var(--text3); }
+input:hover, select:hover, textarea:hover {
+  border-color: var(--border2);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text3);
+  opacity: .8;
+  transition: opacity .2s ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: .4;
+}
+input:active, textarea:active {
+  transform: scale(0.99);
+}
+select {
+  cursor: pointer;
+}
 
 select option { background: var(--bg3); }
 
@@ -439,6 +471,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 .gastos-list { display: flex; flex-direction: column; gap: .75rem; }
 
 .gasto-item {
+  position: relative;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -446,15 +479,73 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   display: flex;
   flex-direction: column;
   gap: .6rem;
-  transition: border-color var(--transition);
+  overflow: hidden;
+
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition),
+    background var(--transition);
+
   animation: fadeIn .25s ease;
 }
-.gasto-item:hover { border-color: var(--border2); }
+
+/* ✨ Glow con TU accent */
+.gasto-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, var(--accent-dim), transparent 60%);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+/* 🔥 línea lateral (detalle pro) */
+.gasto-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10%;
+  height: 80%;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  opacity: 0;
+  transform: scaleY(0);
+  transition: all .25s ease;
+}
+
+/* 🚀 hover */
+.gasto-item:hover {
+  border-color: var(--border2);
+  background: var(--bg3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0,0,0,.4);
+}
+
+.gasto-item:hover::before {
+  opacity: 1;
+}
+
+.gasto-item:hover::after {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* 👇 click feedback */
+.gasto-item:active {
+  transform: scale(0.98);
+}
 
 .gasto-item-top {
   display: flex;
   align-items: center;
   gap: .75rem;
+  transition: transform .2s ease;
+}
+
+.gasto-item:hover .gasto-item-top {
+  transform: translateX(2px);
 }
 
 .gasto-item-bottom {
@@ -462,6 +553,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   align-items: center;
   justify-content: space-between;
   gap: .5rem;
+  transition: opacity .2s ease;
 }
 
 .cat-badge {
@@ -533,32 +625,108 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 }
 
 .mes-card {
+  position: relative;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
   cursor: pointer;
-  transition: all var(--transition);
+  overflow: hidden;
+
+  transition: 
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition),
+    background var(--transition);
 }
+
+/* ✨ Glow usando TU accent */
+.mes-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, var(--accent-dim), transparent 60%);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+/* 🔥 Línea superior animada */
+.mes-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--accent);
+  transition: width .35s ease;
+}
+
+/* 🚀 Hover */
 .mes-card:hover {
   border-color: var(--accent);
   background: var(--bg3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 12px 32px rgba(0,0,0,.45);
 }
+
+.mes-card:hover::before {
+  opacity: 1;
+}
+
+.mes-card:hover::after {
+  width: 100%;
+}
+
+/* 👇 Click feel (muy pro) */
+.mes-card:active {
+  transform: scale(0.98);
+}
+
 .mes-card-titulo {
   font-family: var(--font-head);
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: .5rem;
+  transition: color .2s;
 }
+
+.mes-card:hover .mes-card-titulo {
+  color: var(--accent);
+}
+
 .mes-card-total {
-  font-size: 1.4rem;
+  font-size: 1.45rem;
   font-weight: 700;
   color: var(--accent);
   font-family: var(--font-head);
+  transition: transform .2s ease;
 }
-.mes-card-count { font-size: 12px; color: var(--text3); margin-top: .25rem; }
+
+.mes-card:hover .mes-card-total {
+  transform: scale(1.07);
+}
+
+.mes-card-count {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: .25rem;
+}
+
+.mes-card {
+  animation: fadeUp .4s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .detalle-header {
   display: flex; align-items: center; gap: 1rem;
@@ -1747,6 +1915,12 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
     align-items: flex-start;
   }
 
+  .gasto-item-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .5rem;
+  }
+
   .gasto-info {
     width: 100%;
   }
@@ -1756,12 +1930,6 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
     text-align: right;
     font-size: 1.3rem;
     margin-top: .3rem;
-  }
-
-  .gasto-item-bottom {
-    flex-direction: column;
-    align-items: stretch;
-    gap: .5rem;
   }
 
   .gasto-actions {
