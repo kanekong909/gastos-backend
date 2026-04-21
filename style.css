@@ -4,6 +4,7 @@
 ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Sarina&family=UnifrakturMaguntia&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 :root {
   --bg:         #0d0d0f;
@@ -31,6 +32,8 @@
   --shadow:     0 4px 24px rgba(0,0,0,.4);
   --shadow-lg:  0 12px 48px rgba(0,0,0,.6);
   --transition: 0.2s cubic-bezier(.4,0,.2,1);
+  --playfair: 'Playfair Display', serif;
+  --baskerville: 'Libre Baskerville', serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -403,7 +406,12 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   min-width: 180px;
 }
 .badge-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-weight: 600; display: block; }
-.badge-value { font-family: var(--pacifico); font-size: 2.20rem; font-weight: 800; color: var(--text);  }
+.badge-value {  
+  font-family: var(--libre-baskerville);
+  font-size: 2.20rem; 
+  font-weight: bold; 
+  color: var(--text);  
+}
 
 /* ── FILTERS BAR ──────────────────────────────────── */
 .filters-bar {
@@ -477,7 +485,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
 .gasto-fecha { font-size: 12px; color: var(--text3); margin-top: 2px; }
 
 .gasto-monto {
-  font-family: var(--pacifico);
+  font-family: var(--libre-baskerville);
   font-weight: 700; font-size: 1.50rem;
   color: var(--accent);
   white-space: nowrap;
