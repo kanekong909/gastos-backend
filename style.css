@@ -261,7 +261,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   margin: 0 1rem;
   z-index: 1000;
   
-  height: 64px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: space-between; /* Separa logo de links */
@@ -492,6 +492,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   color: var(--accent);
   white-space: nowrap;
   margin-left: auto;
+  /* text-align: center; */
 }
 
 .gasto-actions { display: flex; gap: .5rem; flex-shrink: 0; }
@@ -693,7 +694,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; transitio
   
   max-height: 90vh;
   overflow-y: auto;
-  
+
   box-shadow: var(--shadow-lg);
   animation: slideUp .25s ease;
 }
