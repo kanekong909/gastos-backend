@@ -9,6 +9,8 @@ const API_URL = 'https://gastos-backend-production-fa36.up.railway.app/api'; // 
 let token = localStorage.getItem('gd_token');
 let usuario = JSON.parse(localStorage.getItem('gd_usuario') || 'null');
 let editId = null;
+let filtroCategoriaActual = '';
+let terminoBusquedaActual = '';
 let chartDonut = null, chartBar = null, chartLine = null;
 let deleteCallback = null;
 let isLoggingOut = false;
@@ -780,24 +782,61 @@ async function verDetalleMes(anio, mes) {
   detalle.classList.remove('hidden');
   document.getElementById('detalle-titulo').textContent = `${MESES[mes]} ${anio}`;
 
-  const tabla = document.getElementById('tabla-detalle');
-  tabla.innerHTML = ''; tabla.appendChild(loadingRow());
+  // Cargar categorías dinámicas para el filtro del detalle
+  await cargarCategoriasParaDetalle(anio, mes);
+
+  cargarGastosDetalle(anio, mes);
+}
+
+// Nueva función auxiliar
+async function cargarCategoriasParaDetalle(anio, mes) {
+  const sel = document.getElementById('filtro-categoria-detalle');
+  sel.innerHTML = '<option value="">Todas las categorías</option>';
 
   try {
     const gastos = await api(`/gastos?anio=${anio}&mes=${mes}`);
-    tabla.innerHTML = '';
-    if (!gastos.length) { tabla.appendChild(emptyState()); return; }
-    gastos.forEach(g => tabla.appendChild(buildGastoItem(g, openEdit, async id => {
-      confirmDelete(async () => {
-        await api(`/gastos/${id}`, { method: 'DELETE' });
-        verDetalleMes(anio, mes);
-      });
-    })));
+    const cats = [...new Set(gastos.map(g => g.categoria))].sort();
+
+    cats.forEach(cat => {
+      sel.appendChild(new Option(cat, cat));
+    });
   } catch (e) {
-    tabla.innerHTML = `<div class="empty-state"><p>${e.message}</p></div>`;
+    console.error(e);
   }
 }
 
+function cargarGastosDetalle(anio, mes) {
+  const tabla = document.getElementById('tabla-detalle');
+  tabla.innerHTML = ''; 
+  tabla.appendChild(loadingRow());
+
+  const categoria = document.getElementById('filtro-categoria-detalle').value;
+  const buscar = document.getElementById('buscar-input-detalle').value.trim();
+
+  let url = `/gastos?anio=${anio}&mes=${mes}`;
+  if (categoria) url += `&categoria=${encodeURIComponent(categoria)}`;
+  if (buscar) url += `&buscar=${encodeURIComponent(buscar)}`;
+
+  api(url)
+    .then(gastos => {
+      tabla.innerHTML = '';
+      if (!gastos.length) {
+        tabla.appendChild(emptyState());
+        return;
+      }
+      gastos.forEach(g => {
+        tabla.appendChild(buildGastoItem(g, openEdit, async id => {
+          confirmDelete(async () => {
+            await api(`/gastos/${id}`, { method: 'DELETE' });
+            cargarGastosDetalle(anio, mes);
+          });
+        }));
+      });
+    })
+    .catch(e => {
+      tabla.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
+    });
+}
 document.getElementById('btn-back-mes').addEventListener('click', () => {
   document.getElementById('mes-detalle').classList.add('hidden');
   document.getElementById('lista-meses').classList.remove('hidden');
@@ -2804,6 +2843,33 @@ document.getElementById('moneda-select')?.addEventListener('change', function ()
     cargarGraficos(anio, mes);
   }
   cargarBilleteras();
+});
+
+// ── FILTROS EN MESES ANTERIORES (Detalle) ─────────────────
+document.getElementById('filtro-categoria-detalle').addEventListener('change', () => {
+  const anio = document.getElementById('detalle-titulo').textContent.split(' ').pop();
+  const mesNombre = document.getElementById('detalle-titulo').textContent.split(' ')[0];
+  const mes = MESES.indexOf(mesNombre);
+  if (mes > 0) cargarGastosDetalle(anio, mes);
+});
+
+let debounceDetalle;
+document.getElementById('buscar-input-detalle').addEventListener('input', () => {
+  clearTimeout(debounceDetalle);
+  debounceDetalle = setTimeout(() => {
+    const anio = document.getElementById('detalle-titulo').textContent.split(' ').pop();
+    const mesNombre = document.getElementById('detalle-titulo').textContent.split(' ')[0];
+    const mes = MESES.indexOf(mesNombre);
+    if (mes > 0) cargarGastosDetalle(anio, mes);
+  }, 350);
+});
+
+document.getElementById('btn-clear-search-detalle').addEventListener('click', () => {
+  document.getElementById('buscar-input-detalle').value = '';
+  const anio = document.getElementById('detalle-titulo').textContent.split(' ').pop();
+  const mesNombre = document.getElementById('detalle-titulo').textContent.split(' ')[0];
+  const mes = MESES.indexOf(mesNombre);
+  if (mes > 0) cargarGastosDetalle(anio, mes);
 });
 
 // ── Arrancar ──────────────────────────────────────

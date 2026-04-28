@@ -79,16 +79,16 @@
         <button class="btn-primary btn-full" id="btn-register">Crear cuenta</button>
         <p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="go-login">Inicia sesión</a></p>
       </div>
-      
+
       <!-- Panel olvidé mi contraseña -->
       <div id="panel-forgot" class="auth-panel">
         <h2>Recuperar contraseña</h2>
         <p class="auth-sub">Te enviaremos un link para restablecer tu contraseña.</p>
         <div class="field-group">
           <label>Correo electrónico</label>
-          <input type="email" id="forgot-email" placeholder="tucorreo@ejemplo.com"/>
+          <input type="email" id="forgot-email" placeholder="tucorreo@ejemplo.com" />
         </div>
-        <div id="forgot-error"   class="auth-error hidden"></div>
+        <div id="forgot-error" class="auth-error hidden"></div>
         <div id="forgot-success" class="hidden" style="
           background:rgba(62,207,142,.1);
           border:1px solid rgba(62,207,142,.3);
@@ -212,7 +212,7 @@
             <div class="field-group hidden" id="f-categoria-custom-wrap">
               <label>¿Cuál categoría? <span class="optional">(escríbela)</span></label>
               <input type="text" id="f-categoria-custom" placeholder="Ej: Salud, Mascota, Hogar…" maxlength="50" />
-              
+
               <small style="color:var(--text3); font-size:12px;">
                 Si no escribes una categoría, este gasto se guardará como <strong>“Otros”</strong>.
               </small>
@@ -315,6 +315,19 @@
             <button class="btn-back" id="btn-back-mes">← Volver</button>
             <h2 id="detalle-titulo">Mes</h2>
           </div>
+
+          <!-- Aquí también ponemos buscador y filtro cuando estamos viendo el detalle del mes -->
+          <div class="filters-bar" id="filters-detalle" style="margin-top: 1.5rem;">
+            <div class="search-wrap">
+              <span class="search-icon">⌕</span>
+              <input type="text" id="buscar-input-detalle" placeholder="Buscar en este mes…" />
+              <button class="search-clear" id="btn-clear-search-detalle" title="Limpiar búsqueda">×</button>
+            </div>
+            <select id="filtro-categoria-detalle">
+              <option value="">Todas las categorías</option>
+            </select>
+          </div>
+
           <div id="tabla-detalle" class="gastos-list"></div>
         </div>
 
@@ -899,8 +912,7 @@
     <!-- Ver foto -->
     <div id="foto-viewer" class="modal-overlay hidden">
       <div style="max-width:500px;width:90%;">
-        <img id="foto-viewer-img" src="" 
-            style="width:100%;border-radius:12px;object-fit:cover;" />
+        <img id="foto-viewer-img" src="" style="width:100%;border-radius:12px;object-fit:cover;" />
       </div>
     </div>
 

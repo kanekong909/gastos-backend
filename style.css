@@ -2609,3 +2609,35 @@ button {
 #resultados-busqueda .gasto-item {
   margin-bottom: 12px;
 }
+
+/* Buscador */
+.search-wrap {
+  position: relative;
+}
+
+.search-wrap input {
+  padding-right: 2.5rem;
+}
+
+.search-clear {
+  position: absolute;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg4);
+  color: var(--text2);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.search-clear:hover {
+  background: var(--accent);
+  color: #000;
+  transform: scale(1.08);
+}
