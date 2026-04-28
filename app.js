@@ -62,6 +62,31 @@ const fmtHora = h => {
   return `${h12}:${mm} ${ampm}`;
 };
 
+// Formato completo: "27/04/2026 • 8:40 PM"
+const fmtFullDateTime = (dateStr) => {
+  if (!dateStr) return '—';
+
+  const date = new Date(dateStr);
+  
+  const opcionesFecha = { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric' 
+  };
+  
+  const opcionesHora = { 
+    hour: 'numeric', 
+    minute: '2-digit', 
+    hour12: true 
+  };
+
+  const fechaFormateada = date.toLocaleDateString('es-CO', opcionesFecha);
+  const horaFormateada = date.toLocaleTimeString('es-CO', opcionesHora)
+                           .replace(':', ':'); // asegura dos dígitos en minutos
+
+  return `${fechaFormateada} • ${horaFormateada}`;
+};
+
 // ── FORMATO MILES ─────────────────────────────────
 function fmtInput(val) {
   const num = val.replace(/\./g, '').replace(/\D/g, '');
@@ -549,15 +574,23 @@ function openDetail(g) {
         <span class="detail-value">${billtera ? `${billtera.emoji || ''} ${billtera.nombre}` : (g.metodo_pago || '—')}</span>
       </div>
       <div class="detail-row">
-        <span class="detail-label">Fecha</span>
-        <span class="detail-value">${fmtFecha(g.fecha ? g.fecha.slice(0, 10) : '—')}</span>
+        <span class="detail-label">Fecha del gasto</span>
+        <span class="detail-value">${fmtFecha(g.fecha ? g.fecha.slice(0, 10) : '—')} • ${fmtHora(g.hora)}</span>
       </div>
+
+      <!-- Información de auditoría -->
       <div class="detail-row">
-        <span class="detail-label">Hora</span>
-        <span class="detail-value">${fmtHora(g.hora) || '—'}</span>
+        <span class="detail-label">Creado el</span>
+        <span class="detail-value">${fmtFullDateTime(g.created_at)}</span>
       </div>
+      
+      ${g.updated_at && g.updated_at !== g.created_at ? `
+      <div class="detail-row">
+        <span class="detail-label">Editado el</span>
+        <span class="detail-value">${fmtFullDateTime(g.updated_at)}</span>
+      </div>` : ''}
     </div>`;
-    
+
   document.getElementById('detail-modal').classList.remove('hidden');
 }
 
@@ -592,29 +625,50 @@ function buildGastoItem(g, onEdit, onDel) {
   const div = document.createElement('div');
   div.className = 'gasto-item';
   div.style.cursor = 'pointer';
+
   div.addEventListener('click', e => {
     if (!e.target.closest('.gasto-actions')) openDetail(g);
   });
+
   const desc = g.descripcion || g.categoria;
   const billtera = billeteras.find(b => b.id === g.billtera_id);
+
   div.innerHTML = `
-      <div class="gasto-item-top">
-        ${getCategoriaBadge(g.categoria)}
-        <div class="gasto-info">
-          <div class="gasto-desc">${desc}</div>
-          <div class="gasto-fecha">${fmtFecha(g.fecha.slice(0, 10))} · ${fmtHora(g.hora)}</div>
-        </div>
-        <div class="gasto-monto">${fmt(g.monto)}</div>
+    <div class="gasto-item-top">
+      ${getCategoriaBadge(g.categoria)}
+      
+      <div class="gasto-info">
+        <div class="gasto-desc">${desc}</div>
+        ${billtera ? `
+        <div class="gasto-billtera">
+          ${billtera.emoji || '🪙'} ${billtera.nombre}
+        </div>` : ''}
       </div>
-      <div class="gasto-item-bottom">
-        <span class="gasto-billtera">${g.metodo_pago || ''}</span>
-        <div class="gasto-actions">
-          <button class="btn-edit">Editar</button>
-          <button class="btn-del">Eliminar</button>
-        </div>
-      </div>`;
-  div.querySelector('.btn-edit').addEventListener('click', () => onEdit(g));
-  div.querySelector('.btn-del').addEventListener('click', () => onDel(g.id));
+
+      <div class="gasto-monto">${fmt(g.monto)}</div>
+    </div>
+
+    <div class="gasto-item-bottom">
+      <div class="gasto-fecha">
+        ${fmtFecha(g.fecha ? g.fecha.slice(0, 10) : '')} 
+        • ${fmtHora(g.hora)}
+      </div>
+      
+      <div class="gasto-actions">
+        <button class="btn-edit">Editar</button>
+        <button class="btn-del">Eliminar</button>
+      </div>
+    </div>`;
+
+  div.querySelector('.btn-edit').addEventListener('click', (e) => {
+    e.stopPropagation();
+    onEdit(g);
+  });
+  div.querySelector('.btn-del').addEventListener('click', (e) => {
+    e.stopPropagation();
+    onDel(g.id);
+  });
+
   return div;
 }
 
