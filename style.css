@@ -66,7 +66,7 @@ body {
   font-size: 12px;
 }
 
-/* ── AUTH OVERLAY ─────────────────────────────────── */
+/* ── AUTH OVERLAY  ───────────────── */
 .auth-overlay {
   position: fixed;
   inset: 0;
@@ -77,51 +77,64 @@ body {
   padding: 1rem;
   overflow: hidden;
 
-  background: linear-gradient(120deg,
-      var(--bg),
-      var(--bg2),
-      var(--accent-dim),
-      var(--bg3));
-  background-size: 300% 300%;
-  animation: gradientMove 12s ease infinite;
+  background: radial-gradient(circle at 30% 20%, rgba(152, 94, 1, 0.893) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(245, 166, 35, 0.06) 0%, transparent 50%),
+              linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--bg3) 100%);
+  
+  background-size: 200% 200%, 200% 200%, 100% 100%;
+  animation: authBgMove 25s ease infinite;
+}
+
+/* Orbes suaves de fondo (efecto premium) */
+.auth-overlay::before,
+.auth-overlay::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.45;
+  animation: floatOrb 30s ease-in-out infinite;
+  z-index: -1;
 }
 
 .auth-overlay::before {
-  content: "";
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, var(--accent-dim), transparent 70%);
-  top: -150px;
-  left: -150px;
-  filter: blur(80px);
-  opacity: .6;
-  animation: floatGlow 10s ease-in-out infinite;
+  width: 680px;
+  height: 680px;
+  background: radial-gradient(circle, rgba(245, 166, 35, 0.25), transparent 70%);
+  top: -15%;
+  left: -15%;
+  animation-delay: 0s;
 }
 
-@keyframes floatGlow {
-
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-
-  50% {
-    transform: translate(80px, 60px);
-  }
+.auth-overlay::after {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.18), transparent 65%);
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -12s;
 }
 
-@keyframes gradientMove {
-  0% {
-    background-position: 0% 50%;
-  }
+/* Animación suave del fondo */
+@keyframes authBgMove {
+  0%   { background-position: 0% 50%, 100% 50%, 0% 0%; }
+  50%  { background-position: 100% 50%, 0% 50%, 100% 100%; }
+  100% { background-position: 0% 50%, 100% 50%, 0% 0%; }
+}
 
+/* Animación de los orbes flotantes */
+@keyframes floatOrb {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(60px, -50px) rotate(8deg);
+  }
   50% {
-    background-position: 100% 50%;
+    transform: translate(-40px, 70px) rotate(-6deg);
   }
-
-  100% {
-    background-position: 0% 50%;
+  75% {
+    transform: translate(30px, -30px) rotate(5deg);
   }
 }
 

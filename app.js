@@ -529,6 +529,7 @@ document.getElementById('btn-update').addEventListener('click', async () => {
 // Funcion abrir detalle del gasto
 function openDetail(g) {
   const billtera = billeteras.find(b => b.id === g.billtera_id);
+
   document.getElementById('detail-content').innerHTML = `
     <div class="detail-grid">
       <div class="detail-row">
@@ -545,17 +546,18 @@ function openDetail(g) {
       </div>
       <div class="detail-row">
         <span class="detail-label">Pagado con</span>
-        <span class="detail-value">${g.metodo_pago || '—'}</span>
+        <span class="detail-value">${billtera ? `${billtera.emoji || ''} ${billtera.nombre}` : (g.metodo_pago || '—')}</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">Fecha</span>
-        <span class="detail-value">${fmtFecha(g.fecha.slice(0, 10))}</span>
+        <span class="detail-value">${fmtFecha(g.fecha ? g.fecha.slice(0, 10) : '—')}</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">Hora</span>
-        <span class="detail-value">${fmtHora(g.hora)}</span>
+        <span class="detail-value">${fmtHora(g.hora) || '—'}</span>
       </div>
     </div>`;
+    
   document.getElementById('detail-modal').classList.remove('hidden');
 }
 
