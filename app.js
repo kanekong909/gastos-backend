@@ -308,18 +308,43 @@ document.getElementById('btn-forgot').addEventListener('click', async () => {
 
 // ── Navegación ────────────────────────────────────
 function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-link, .bottom-nav-item').forEach(l => l.classList.remove('active'));
-  document.getElementById(`section-${name}`).classList.add('active');
-  document.querySelectorAll(`[data-section="${name}"]`).forEach(l => l.classList.add('active'));
+
+  // Si no viene nombre, salir
+  if (!name) return;
+
+  const section = document.getElementById(`section-${name}`);
+
+  // Si no existe la sección, salir
+  if (!section) return;
+
+  // Quitar activos
+  document.querySelectorAll('.section')
+    .forEach(s => s.classList.remove('active'));
+
+  document.querySelectorAll('.nav-link, .bottom-nav-item')
+    .forEach(l => l.classList.remove('active'));
+
+  // Activar sección
+  section.classList.add('active');
+
+  // Activar botones relacionados
+  document.querySelectorAll(`[data-section="${name}"]`)
+    .forEach(l => l.classList.add('active'));
+
+  // Cargas especiales
+  if (name === 'dashboard') cargarDashboard();
 
   if (name === 'resumen') {
-    cargarCategoriasResumen(); // 🔥 AÑADE ESTO
+    cargarCategoriasResumen();
     cargarResumen();
   }
+
   if (name === 'anteriores') cargarMeses();
+
   if (name === 'presupuestos') initPresupuestos();
+
   if (name === 'reporte') initReporte();
+
   if (name === 'graficos') initGraficos();
 }
 
@@ -1458,7 +1483,7 @@ function initApp() {
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('nav-nombre').textContent = usuario.nombre.split(' ')[0];
   setDefaultDateTime();
-  showSection('nuevo');
+  showSection('dashboard');
 
   cargarBilleteras();
   renderNavAvatar();
@@ -2980,6 +3005,74 @@ document.getElementById('btn-clear-search-detalle').addEventListener('click', ()
   const mesNombre = document.getElementById('detalle-titulo').textContent.split(' ')[0];
   const mes = MESES.indexOf(mesNombre);
   if (mes > 0) cargarGastosDetalle(anio, mes);
+});
+
+// Dashboard
+async function cargarDashboard() {
+  try {
+    const now = new Date();
+    const anio = now.getFullYear();
+    const mes = now.getMonth() + 1;
+
+    const gastos = await api(`/gastos?anio=${anio}&mes=${mes}`);
+
+    const totalGastado = gastos.reduce((sum, g) => sum + Number(g.monto), 0);
+
+    document.getElementById('dash-gastado').textContent = fmt(totalGastado);
+    document.getElementById('dash-movimientos').textContent = gastos.length;
+
+    // saldo total billeteras
+    const saldoTotal = billeteras.reduce((sum, b) => sum + Number(b.saldo), 0);
+
+    document.getElementById('dash-saldo').textContent = fmt(saldoTotal);
+    document.getElementById('dash-disponible').textContent = fmt(saldoTotal);
+
+    const ultimos = gastos.slice(0, 5);
+
+    document.getElementById('dash-ultimos').innerHTML =
+      ultimos.length
+        ? ultimos.map(g => `
+          <div style="padding:.6rem 0;border-bottom:1px solid var(--border)">
+            ${g.descripcion || g.categoria}
+            <strong style="float:right">${fmt(g.monto)}</strong>
+          </div>
+        `).join('')
+        : 'Sin movimientos este mes';
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function abrirMenuMas() {
+  document.getElementById('menu-mas-overlay')
+    .classList.remove('hidden');
+}
+
+function cerrarMenuMas() {
+  document.getElementById('menu-mas-overlay')
+    .classList.add('hidden');
+}
+
+document.getElementById('cerrar-menu-mas')
+  .addEventListener('click', cerrarMenuMas);
+
+document.getElementById('menu-mas-overlay')
+  .addEventListener('click', e => {
+    if (e.target.id === 'menu-mas-overlay') cerrarMenuMas();
+  });
+
+document.querySelectorAll('.menu-mas-item[data-section]')
+  .forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sec = btn.dataset.section;
+      cerrarMenuMas();
+      showSection(sec);
+    });
+  });
+
+document.getElementById('btn-mas').addEventListener('click', () => {
+  abrirMenuMas();
 });
 
 // ── Arrancar ──────────────────────────────────────

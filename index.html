@@ -118,6 +118,7 @@
         <span class="logo-text">KASH</span>
       </div>
       <div class="nav-links">
+        <a href="#" class="nav-link" data-section="dashboard">Dashboard</a>
         <a href="#" class="nav-link active" data-section="nuevo">Nuevo gasto</a>
         <a href="#" class="nav-link" data-section="resumen">Resumen</a>
         <a href="#" class="nav-link" data-section="anteriores">Meses anteriores</a>
@@ -135,30 +136,32 @@
 
     <!-- BOTTOM NAV MOBILE -->
     <nav class="bottom-nav" id="bottom-nav">
-      <a href="#" class="bottom-nav-item active" data-section="nuevo">
+
+      <a href="#" class="bottom-nav-item active" data-section="dashboard">
+        <span class="bnav-icon">⌂</span>
+        <span class="bnav-label">Inicio</span>
+      </a>
+
+      <a href="#" class="bottom-nav-item" data-section="nuevo">
         <span class="bnav-icon">＋</span>
         <span class="bnav-label">Nuevo</span>
       </a>
+
       <a href="#" class="bottom-nav-item" data-section="resumen">
         <span class="bnav-icon">◑</span>
         <span class="bnav-label">Resumen</span>
       </a>
-      <a href="#" class="bottom-nav-item" data-section="anteriores">
-        <span class="bnav-icon">◷</span>
-        <span class="bnav-label">Historial</span>
-      </a>
+
       <a href="#" class="bottom-nav-item" data-section="presupuestos">
         <span class="bnav-icon">◎</span>
         <span class="bnav-label">Presupuesto</span>
       </a>
-      <a href="#" class="bottom-nav-item" data-section="reporte">
-        <span class="bnav-icon">⬇</span>
-        <span class="bnav-label">Reporte</span>
-      </a>
-      <a href="#" class="bottom-nav-item" data-section="graficos">
-        <span class="bnav-icon">◈</span>
-        <span class="bnav-label">Gráficos</span>
-      </a>
+
+      <button type="button" class="bottom-nav-item" id="btn-mas">
+        <span class="bnav-icon">☰</span>
+        <span class="bnav-label">Más</span>
+        </a>
+
     </nav>
 
     <main class="container">
@@ -170,6 +173,50 @@
         <button class="banner-btn" id="banner-btn-ver">Ver pendientes</button>
         <button class="banner-close" id="banner-close">✕</button>
       </div>
+
+      <!-- ── SECCIÓN DASHBOARD ───────────────────── -->
+      <section id="section-dashboard" class="section active">
+
+        <div class="section-header">
+          <h1>Dashboard</h1>
+          <p>Resumen general de tus finanzas</p>
+        </div>
+
+        <div class="dashboard-grid">
+
+          <div class="dash-card">
+            <span class="dash-label">Saldo total</span>
+            <span class="dash-value" id="dash-saldo">$0</span>
+          </div>
+
+          <div class="dash-card">
+            <span class="dash-label">Gastado este mes</span>
+            <span class="dash-value" id="dash-gastado">$0</span>
+          </div>
+
+          <div class="dash-card">
+            <span class="dash-label">Disponible</span>
+            <span class="dash-value" id="dash-disponible">$0</span>
+          </div>
+
+          <div class="dash-card">
+            <span class="dash-label">Movimientos</span>
+            <span class="dash-value" id="dash-movimientos">0</span>
+          </div>
+
+        </div>
+
+        <div class="form-card" style="margin-top:1.5rem;">
+          <div style="font-weight:700;margin-bottom:1rem;">
+            Últimos movimientos
+          </div>
+
+          <div id="dash-ultimos">
+            Cargando...
+          </div>
+        </div>
+
+      </section>
 
       <!-- ── SECCIÓN 1: NUEVO GASTO ─────────────────────── -->
       <section id="section-nuevo" class="section active">
@@ -992,6 +1039,31 @@
         <h3>Sesión expirada</h3>
         <p>Por seguridad, tu sesión se cerró por inactividad.</p>
         <button id="btn-session-ok" class="btn-primary">Ir al login</button>
+      </div>
+    </div>
+
+    <!-- MENU MÁS MOBILE -->
+    <div id="menu-mas-overlay" class="modal-overlay hidden">
+      <div class="menu-mas-sheet">
+
+        <div class="menu-mas-handle"></div>
+
+        <button class="menu-mas-item" data-section="anteriores">
+          📅 Meses anteriores
+        </button>
+
+        <button class="menu-mas-item" data-section="reporte">
+          📄 Reporte
+        </button>
+
+        <button class="menu-mas-item" data-section="graficos">
+          📊 Gráficos
+        </button>
+
+        <button class="menu-mas-item" id="cerrar-menu-mas">
+          ✕ Cerrar
+        </button>
+
       </div>
     </div>
 
