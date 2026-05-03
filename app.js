@@ -1477,16 +1477,19 @@ function sessionNotification(msg) {
 }
 
 // ── Init app ──────────────────────────────────────
-function initApp() {
+async function initApp() {
   if (!token || !usuario) return;
+
   document.getElementById('auth-overlay').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  document.getElementById('nav-nombre').textContent = usuario.nombre.split(' ')[0];
-  setDefaultDateTime();
-  showSection('dashboard');
 
-  cargarBilleteras();
+  document.getElementById('nav-nombre').textContent =
+    usuario.nombre.split(' ')[0];
+
+  setDefaultDateTime();
+
   renderNavAvatar();
+
   bindMontoInput('pres-monto');
   bindMontoInput('f-monto');
   bindMontoInput('e-monto');
@@ -1499,6 +1502,12 @@ function initApp() {
 
   aplicarIdioma(idiomaActual);
   aplicarMoneda(monedaActual);
+
+  // 🔥 primero cargar datos
+  await cargarBilleteras();
+
+  // 🔥 luego abrir dashboard
+  showSection('dashboard');
 
   // Inactividad
   resetInactivityTimer();
@@ -3031,13 +3040,17 @@ async function cargarDashboard() {
 
     document.getElementById('dash-ultimos').innerHTML =
       ultimos.length
-        ? ultimos.map(g => `
-          <div style="padding:.6rem 0;border-bottom:1px solid var(--border)">
-            ${g.descripcion || g.categoria}
-            <strong style="float:right">${fmt(g.monto)}</strong>
+      ? ultimos.map(g => `
+        <div class="dash-mov-row">
+          <div class="dash-mov-left">
+            <div class="dash-mov-icon">💸</div>
+            <div>${g.descripcion || g.categoria}</div>
           </div>
-        `).join('')
-        : 'Sin movimientos este mes';
+
+          <div class="dash-mov-amount">${fmt(g.monto)}</div>
+        </div>
+      `).join('')
+      : 'Sin movimientos este mes';
 
   } catch (e) {
     console.error(e);

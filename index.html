@@ -174,20 +174,38 @@
         <button class="banner-close" id="banner-close">✕</button>
       </div>
 
-      <!-- ── SECCIÓN DASHBOARD ───────────────────── -->
+      <!-- ── SECCIÓN DASHBOARD V2 ───────────────────── -->
       <section id="section-dashboard" class="section active">
 
-        <div class="section-header">
-          <h1>Dashboard</h1>
-          <p>Resumen general de tus finanzas</p>
+        <div class="dash-topbar">
+          <div>
+            <h1 class="dash-title">Hola 👋</h1>
+            <p class="dash-subtitle">Tu dinero bajo control</p>
+          </div>
+
+          <div class="dash-date" id="dash-fecha">
+            Mayo 2026
+          </div>
         </div>
 
-        <div class="dashboard-grid">
+        <!-- Card principal -->
+        <div class="dash-main-card">
+          <span class="dash-main-label">Saldo Total</span>
+          <span class="dash-main-value" id="dash-saldo">$0</span>
 
-          <div class="dash-card">
-            <span class="dash-label">Saldo total</span>
-            <span class="dash-value" id="dash-saldo">$0</span>
+          <div class="dash-main-actions">
+            <button class="dash-action-btn" onclick="showSection('nuevo')">
+              + Nuevo gasto
+            </button>
+
+            <button class="dash-action-btn" onclick="showSection('presupuestos')">
+              ◎ Presupuesto
+            </button>
           </div>
+        </div>
+
+        <!-- Grid secundario -->
+        <div class="dashboard-grid">
 
           <div class="dash-card">
             <span class="dash-label">Gastado este mes</span>
@@ -204,13 +222,16 @@
             <span class="dash-value" id="dash-movimientos">0</span>
           </div>
 
-        </div>
-
-        <div class="form-card" style="margin-top:1.5rem;">
-          <div style="font-weight:700;margin-bottom:1rem;">
-            Últimos movimientos
+          <div class="dash-card">
+            <span class="dash-label">Estado</span>
+            <span class="dash-value" id="dash-estado">Estable</span>
           </div>
 
+        </div>
+
+        <!-- Últimos movimientos -->
+        <div class="dash-movimientos-box">
+          <div class="dash-box-title">Últimos movimientos</div>
           <div id="dash-ultimos">
             Cargando...
           </div>
