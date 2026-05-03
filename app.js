@@ -2551,32 +2551,39 @@ document.getElementById('btn-transferir-confirmar').addEventListener('click', as
 // ── PRESUPUESTOS ──────────────────────────────────
 async function initPresupuestos() {
   const now = new Date();
+
+  const anioActual = now.getFullYear();
+  const mesActual = now.getMonth() + 1;
+
   const anioSel = document.getElementById('pres-anio');
   const mesSel = document.getElementById('pres-mes');
 
-  try {
-    const periodos = await api('/gastos/periodos');
+  // Limpiar selects
+  anioSel.innerHTML = '';
+  mesSel.innerHTML = '';
 
-    // Años únicos de periodos con datos
-    const anios = [...new Set(periodos.map(p => p.anio))].sort((a, b) => b - a);
-
-    anioSel.innerHTML = '';
-    anios.forEach(a => anioSel.appendChild(new Option(a, a)));
-
-    // Seleccionar año actual si existe, si no el más reciente
-    if (anios.includes(now.getFullYear())) {
-      anioSel.value = now.getFullYear();
-    }
-
-    // Al cambiar año, actualizar meses
-    anioSel.addEventListener('change', () => actualizarMesesPres(periodos));
-    actualizarMesesPres(periodos);
-
-  } catch (e) {
-    console.error(e);
+  // Años (actual ±2)
+  for (let y = anioActual - 2; y <= anioActual + 2; y++) {
+    anioSel.appendChild(new Option(y, y));
   }
 
-  // Cargar categorías personalizadas en el select
+  // Meses 1 al 12
+  for (let m = 1; m <= 12; m++) {
+    mesSel.appendChild(new Option(MESES[m], m));
+  }
+
+  // Seleccionar actual
+  anioSel.value = anioActual;
+  mesSel.value = mesActual;
+
+  // Evento cambio año
+  anioSel.addEventListener('change', cargarPresupuestos);
+  mesSel.addEventListener('change', cargarPresupuestos);
+
+  // Cargar datos
+  cargarPresupuestos();
+
+  // Categorías
   await cargarCategoriasPres();
 }
 
