@@ -1470,6 +1470,7 @@ function initApp() {
   bindMontoInput('edit-pres-monto');
   bindMontoInput('rec-monto');
   bindMontoInput('rr-monto');
+  bindMontoInput('recarga-manual-input');
 
   aplicarIdioma(idiomaActual);
   aplicarMoneda(monedaActual);
