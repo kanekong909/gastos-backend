@@ -2886,6 +2886,8 @@ button {
 }
 
 .dash-mov-amount{
+  display: flex;
+  gap: 10px;
   font-weight:800;
 }
 
