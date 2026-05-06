@@ -2976,17 +2976,26 @@ document.getElementById('idioma-select')?.addEventListener('change', function ()
 // ── SELECTOR DE MONEDA ────────────────────────────
 document.getElementById('moneda-select')?.addEventListener('change', function () {
   aplicarMoneda(this.value);
-  // Recargar la vista actual para reflejar el nuevo formato
+
   const seccionActiva = document.querySelector('.section.active')?.id?.replace('section-', '');
-  if (seccionActiva === 'resumen') cargarResumen();
-  if (seccionActiva === 'anteriores') cargarMeses();
-  if (seccionActiva === 'presupuestos') cargarPresupuestos();
-  if (seccionActiva === 'graficos') {
-    const anio = document.getElementById('graf-anio').value;
-    const mes = document.getElementById('graf-mes').value;
-    cargarGraficos(anio, mes);
+
+  const reloadFunctions = {
+    'dashboard': cargarDashboard,
+    'resumen': cargarResumen,
+    'anteriores': cargarMeses,
+    'presupuestos': cargarPresupuestos,
+    'graficos': () => {
+      const anio = document.getElementById('graf-anio').value;
+      const mes = document.getElementById('graf-mes').value;
+      cargarGraficos(anio, mes);
+    }
+  };
+
+  if (reloadFunctions[seccionActiva]) {
+    reloadFunctions[seccionActiva]();
   }
-  cargarBilleteras();
+
+  cargarBilleteras(); // siempre recargar billeteras
 });
 
 // ── FILTROS EN MESES ANTERIORES (Detalle) ─────────────────
