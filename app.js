@@ -62,11 +62,15 @@ const fmtHora = h => {
   return `${h12}:${mm} ${ampm}`;
 };
 
-// Formato bonito: "5 de mayo, 7:28 PM"
-function fmtFechaCortaConHora(dateStr, horaStr) {
-  if (!dateStr) return '';
+// Formato bonito seguro: "5 de mayo, 7:28 PM"
+function fmtFechaCortaConHora(fechaStr, horaStr) {
+  if (!fechaStr) return '';
 
-  const fecha = new Date(dateStr);
+  // Parse seguro (evita problemas de timezone)
+  const [year, month, day] = fechaStr.split('-').map(Number);
+  
+  const fecha = new Date(year, month - 1, day); // Meses en JS son 0-indexed
+
   const dia = fecha.getDate();
   const mesNombre = MESES[fecha.getMonth() + 1].toLowerCase();
 
