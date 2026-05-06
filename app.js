@@ -64,26 +64,33 @@ const fmtHora = h => {
 
 // Formato bonito seguro: "5 de mayo, 7:28 PM"
 function fmtFechaCortaConHora(fechaStr, horaStr) {
-  if (!fechaStr) return '';
+  if (!fechaStr) return '—';
 
-  // Parse seguro (evita problemas de timezone)
-  const [year, month, day] = fechaStr.split('-').map(Number);
-  
-  const fecha = new Date(year, month - 1, day); // Meses en JS son 0-indexed
+  try {
+    // Parse seguro de fecha YYYY-MM-DD
+    const [year, month, day] = fechaStr.split('-').map(Number);
+    
+    if (!year || !month || !day) return '—';
 
-  const dia = fecha.getDate();
-  const mesNombre = MESES[fecha.getMonth() + 1].toLowerCase();
+    const fecha = new Date(year, month - 1, day);
 
-  let horaFormateada = '';
-  if (horaStr) {
-    const [hh, mm] = horaStr.slice(0, 5).split(':');
-    let hora = parseInt(hh);
-    const ampm = hora >= 12 ? 'PM' : 'AM';
-    hora = hora % 12 || 12;
-    horaFormateada = `, ${hora}:${mm} ${ampm}`;
+    const dia = fecha.getDate();
+    const mesIndex = fecha.getMonth() + 1;
+    const mesNombre = MESES[mesIndex] ? MESES[mesIndex].toLowerCase() : 'mes';
+
+    let horaFormateada = '';
+    if (horaStr) {
+      const [hh, mm] = horaStr.slice(0, 5).split(':');
+      let hora = parseInt(hh);
+      const ampm = hora >= 12 ? 'PM' : 'AM';
+      hora = hora % 12 || 12;
+      horaFormateada = `, ${hora}:${mm} ${ampm}`;
+    }
+
+    return `${dia} de ${mesNombre}${horaFormateada}`;
+  } catch (e) {
+    return fechaStr ? fechaStr.slice(0,10) : '—';
   }
-
-  return `${dia} de ${mesNombre}${horaFormateada}`;
 }
 
 // Formato completo: "27/04/2026 • 8:40 PM"
@@ -3121,7 +3128,7 @@ async function cargarDashboard() {
           <div class="dash-mov-amount">${fmt(g.monto)}</div>
         </div>
       `).join('')
-      : 'Sin movimientos este mes';
+      : '<div class="empty-state" style="padding:1rem 0"><p>Sin movimientos este mes</p></div>';
 
   } catch (e) {
     console.error(e);
