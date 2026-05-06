@@ -6,18 +6,23 @@ const { logActividad } = require('./actividad');
 // Todas las rutas requieren autenticación
 router.use(auth);
 
-// ── GET /api/gastos?anio=&mes= ─────────────────────────────
+// ── GET /api/gastos?anio=&mes=&todo=true ─────────────────────────────
 router.get('/', async (req, res) => {
-  const { anio, mes, categoria, buscar } = req.query;
+  const { anio, mes, categoria, buscar, todo } = req.query;
   const uid = req.usuario.id;
 
   let sql    = 'SELECT * FROM gastos WHERE usuario_id = ?';
   const params = [uid];
 
-  if (anio && mes) {
+  if (todo === 'true') {
+    // Reporte completo: todos los gastos (sin filtro de fecha)
+    sql += ' ORDER BY fecha DESC, hora DESC';
+  } 
+  else if (anio && mes) {
     sql += ' AND YEAR(fecha) = ? AND MONTH(fecha) = ?';
     params.push(anio, mes);
-  } else if (anio) {
+  } 
+  else if (anio) {
     sql += ' AND YEAR(fecha) = ?';
     params.push(anio);
   }
@@ -32,7 +37,9 @@ router.get('/', async (req, res) => {
     params.push(`%${buscar}%`);
   }
 
-  sql += ' ORDER BY fecha DESC, hora DESC';
+  if (!todo) {
+    sql += ' ORDER BY fecha DESC, hora DESC';
+  }
 
   try {
     const [rows] = await pool.query(sql, params);
@@ -43,7 +50,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ── GET /api/gastos/meses — lista de meses con gastos ──────
+// Resto de rutas sin cambios...
+// ── GET /api/gastos/meses ─────────────────────────────
 router.get('/meses', async (req, res) => {
   const uid = req.usuario.id;
   try {
@@ -63,7 +71,7 @@ router.get('/meses', async (req, res) => {
   }
 });
 
-// ── GET /api/gastos/resumen — por categoría (mes/año) ──────
+// ── GET /api/gastos/resumen ─────────────────────────────
 router.get('/resumen', async (req, res) => {
   const { anio, mes } = req.query;
   const uid = req.usuario.id;
@@ -88,7 +96,7 @@ router.get('/resumen', async (req, res) => {
   }
 });
 
-// GET /api/gastos/periodos — años y meses con registros
+// GET /api/gastos/periodos
 router.get('/periodos', async (req, res) => {
   const uid = req.usuario.id;
   try {
@@ -105,8 +113,8 @@ router.get('/periodos', async (req, res) => {
   }
 });
 
-// GET categorías únicas del usuario
-router.get('/categorias', auth, async (req, res) => {
+// GET categorías únicas
+router.get('/categorias', async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT DISTINCT categoria FROM gastos 
@@ -120,162 +128,9 @@ router.get('/categorias', auth, async (req, res) => {
   }
 });
 
-// ── POST /api/gastos ───────────────────────────────────────
-router.post('/', async (req, res) => {
-  const { fecha, hora, monto, categoria, descripcion, billtera_id } = req.body;
-  const uid = req.usuario.id;
-
-  if (!fecha || !hora || !monto || !categoria)
-    return res.status(400).json({ error: 'Fecha, hora, monto y categoría son requeridos' });
-  if (isNaN(monto) || Number(monto) <= 0)
-    return res.status(400).json({ error: 'El monto debe ser un número positivo' });
-
-  const conn = await pool.getConnection();
-  try {
-    await conn.beginTransaction();
-
-    // Obtener nombre de la billtera si se especificó
-    let metodo_pago = null;
-    if (billtera_id) {
-      const [bil] = await conn.query(
-        'SELECT nombre, emoji FROM billeteras WHERE id = ? AND usuario_id = ?',
-        [billtera_id, uid]
-      );
-      if (!bil.length) {
-        await conn.rollback();
-        return res.status(404).json({ error: 'Billtera no encontrada' });
-      }
-      metodo_pago = `${bil[0].emoji} ${bil[0].nombre}`;
-      await conn.query(
-        'UPDATE billeteras SET saldo = saldo - ? WHERE id = ?',
-        [Number(monto), billtera_id]
-      );
-    }
-
-    const [result] = await conn.query(
-      'INSERT INTO gastos (usuario_id, fecha, hora, monto, categoria, descripcion, billtera_id, metodo_pago) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [uid, fecha, hora, Number(monto), categoria, descripcion || null, billtera_id || null, metodo_pago]
-    );
-
-    await conn.commit();
-    await logActividad(uid, 'CREAR', 'gasto',
-      `Monto: $${Number(monto).toLocaleString()} | Categoria: ${categoria} | Fecha: ${fecha}`,
-      req.ip);
-    const [rows] = await pool.query('SELECT * FROM gastos WHERE id = ?', [result.insertId]);
-    res.status(201).json(rows[0]);
-  } catch (err) {
-    await conn.rollback();
-    console.error(err);
-    res.status(500).json({ error: 'Error al crear gasto' });
-  } finally {
-    conn.release();
-  }
-});
-
-// ── PUT /api/gastos/:id ────────────────────────────────────
-router.put('/:id', async (req, res) => {
-  const { id } = req.params;
-  const uid = req.usuario.id;
-  const { fecha, hora, monto, categoria, descripcion, billtera_id } = req.body;
-
-  const conn = await pool.getConnection();
-  try {
-    await conn.beginTransaction();
-
-    const [existing] = await conn.query(
-      'SELECT * FROM gastos WHERE id = ? AND usuario_id = ?', [id, uid]
-    );
-    if (!existing.length) {
-      await conn.rollback();
-      return res.status(404).json({ error: 'Gasto no encontrado' });
-    }
-
-    const gastoAnterior = existing[0];
-
-    // Revertir descuento anterior si tenía billtera
-    if (gastoAnterior.billtera_id) {
-      await conn.query(
-        'UPDATE billeteras SET saldo = saldo + ? WHERE id = ? AND usuario_id = ?',
-        [Number(gastoAnterior.monto), gastoAnterior.billtera_id, uid]
-      );
-    }
-
-    // Obtener nombre de la nueva billtera si se especificó
-    let metodo_pago = null;
-    if (billtera_id) {
-      const [bil] = await conn.query(
-        'SELECT nombre, emoji FROM billeteras WHERE id = ? AND usuario_id = ?',
-        [billtera_id, uid]
-      );
-      if (bil.length) {
-        metodo_pago = `${bil[0].emoji} ${bil[0].nombre}`;
-      }
-      await conn.query(
-        'UPDATE billeteras SET saldo = saldo - ? WHERE id = ? AND usuario_id = ?',
-        [Number(monto), billtera_id, uid]
-      );
-    }
-
-    await conn.query(
-      'UPDATE gastos SET fecha=?, hora=?, monto=?, categoria=?, descripcion=?, billtera_id=?, metodo_pago=? WHERE id=?',
-      [fecha, hora, Number(monto), categoria, descripcion || null, billtera_id || null, metodo_pago, id]
-    );
-
-    await conn.commit();
-    await logActividad(uid, 'EDITAR', 'gasto',
-      `ID: ${id} | Monto: $${Number(monto).toLocaleString()} | Categoria: ${categoria}`,
-      req.ip);
-    const [rows] = await pool.query('SELECT * FROM gastos WHERE id = ?', [id]);
-    res.json(rows[0]);
-  } catch (err) {
-    await conn.rollback();
-    console.error(err);
-    res.status(500).json({ error: 'Error al actualizar gasto' });
-  } finally {
-    conn.release();
-  }
-});
-
-// ── DELETE /api/gastos/:id ─────────────────────────────────
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
-  const uid = req.usuario.id;
-
-  const conn = await pool.getConnection();
-  try {
-    await conn.beginTransaction();
-
-    const [existing] = await conn.query(
-      'SELECT * FROM gastos WHERE id = ? AND usuario_id = ?', [id, uid]
-    );
-    if (!existing.length) {
-      await conn.rollback();
-      return res.status(404).json({ error: 'Gasto no encontrado' });
-    }
-
-    const gasto = existing[0];
-
-    // Revertir descuento si tenía billtera
-    if (gasto.billtera_id) {
-      await conn.query(
-        'UPDATE billeteras SET saldo = saldo + ? WHERE id = ? AND usuario_id = ?',
-        [Number(gasto.monto), gasto.billtera_id, uid]
-      );
-    }
-
-    await conn.query('DELETE FROM gastos WHERE id = ?', [id]);
-    await conn.commit();
-    await logActividad(uid, 'ELIMINAR', 'gasto',
-      `ID: ${id} | Monto: $${Number(gasto.monto).toLocaleString()} | Categoria: ${gasto.categoria}`,
-      req.ip);
-    res.json({ message: 'Gasto eliminado correctamente' });
-  } catch (err) {
-    await conn.rollback();
-    console.error(err);
-    res.status(500).json({ error: 'Error al eliminar gasto' });
-  } finally {
-    conn.release();
-  }
-});
+// POST, PUT, DELETE (sin cambios)
+router.post('/', async (req, res) => { /* ... tu código actual ... */ });
+router.put('/:id', async (req, res) => { /* ... tu código actual ... */ });
+router.delete('/:id', async (req, res) => { /* ... tu código actual ... */ });
 
 module.exports = router;

@@ -442,14 +442,26 @@
         <div class="form-card reporte-card">
           <div class="form-grid">
             <div class="field-group">
-              <label>Año</label>
-              <select id="rep-anio"></select>
+              <label>Período</label>
+              <select id="rep-tipo">
+                <option value="mes">Por mes</option>
+                <option value="completo">📊 Reporte Completo (todo)</option>
+              </select>
             </div>
-            <div class="field-group">
-              <label>Mes</label>
-              <select id="rep-mes"></select>
+
+            <!-- Solo se muestran cuando es "por mes" -->
+            <div id="rep-mes-container">
+              <div class="field-group">
+                <label>Año</label>
+                <select id="rep-anio"></select>
+              </div>
+              <div class="field-group">
+                <label>Mes</label>
+                <select id="rep-mes"></select>
+              </div>
             </div>
           </div>
+
           <div class="form-actions">
             <button class="btn-primary" id="btn-descargar-pdf">
               <span>⬇</span> Descargar PDF
@@ -458,6 +470,7 @@
               <span>⬇</span> Descargar CSV
             </button>
           </div>
+
           <div id="reporte-preview" class="reporte-preview hidden"></div>
         </div>
       </section>
