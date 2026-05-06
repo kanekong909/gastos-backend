@@ -62,17 +62,21 @@ const fmtHora = h => {
   return `${h12}:${mm} ${ampm}`;
 };
 
-function formatearFecha(fecha) {
-  const f = new Date(fecha);
+const fmtFechaNatural = (fecha, hora) => {
+  if (!fecha) return '';
 
-  return f.toLocaleString('es-CO', {
-    day: 'numeric',
-    month: 'long',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
-}
+  const meses = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+
+  const [y, m, d] = fecha.split('-');
+
+  const dia = parseInt(d);
+  const mes = meses[parseInt(m) - 1];
+
+  return `${dia} de ${mes}, ${fmtHora(hora)}`;
+};
 
 // Formato completo: "27/04/2026 • 8:40 PM"
 const fmtFullDateTime = (dateStr) => {
@@ -3102,7 +3106,7 @@ async function cargarDashboard() {
           </div>
 
           <div class="dash-mov-amount">
-          <span class="dash-mov-date">${formatearFecha(g.fecha)}</span>
+          <span class="dash-mov-date">${fmtFechaNatural(g.fecha, g.hora)}</span>
           <span>${fmt(g.monto)}</span>
           </div>
         </div>
