@@ -3102,8 +3102,8 @@ async function cargarDashboard() {
           </div>
 
           <div class="dash-mov-amount">
-            <span>${fmt(g.monto)}</span>
-            <span class="dash-mov-date">${formatearFecha(g.fecha)}</span>
+          <span class="dash-mov-date">${formatearFecha(g.fecha)}</span>
+          <span>${fmt(g.monto)}</span>
           </div>
         </div>
       `).join('')
