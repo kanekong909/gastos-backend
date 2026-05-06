@@ -62,6 +62,26 @@ const fmtHora = h => {
   return `${h12}:${mm} ${ampm}`;
 };
 
+// Formato bonito: "5 de mayo, 7:28 PM"
+function fmtFechaCortaConHora(dateStr, horaStr) {
+  if (!dateStr) return '';
+
+  const fecha = new Date(dateStr);
+  const dia = fecha.getDate();
+  const mesNombre = MESES[fecha.getMonth() + 1].toLowerCase();
+
+  let horaFormateada = '';
+  if (horaStr) {
+    const [hh, mm] = horaStr.slice(0, 5).split(':');
+    let hora = parseInt(hh);
+    const ampm = hora >= 12 ? 'PM' : 'AM';
+    hora = hora % 12 || 12;
+    horaFormateada = `, ${hora}:${mm} ${ampm}`;
+  }
+
+  return `${dia} de ${mesNombre}${horaFormateada}`;
+}
+
 // Formato completo: "27/04/2026 • 8:40 PM"
 const fmtFullDateTime = (dateStr) => {
   if (!dateStr) return '—';
@@ -3086,7 +3106,12 @@ async function cargarDashboard() {
         <div class="dash-mov-row">
           <div class="dash-mov-left">
             <div class="dash-mov-icon">💸</div>
-            <div>${g.descripcion || g.categoria}</div>
+            <div>
+              <div>${g.descripcion || g.categoria}</div>
+              <small style="color:var(--text3); font-size:12px;">
+                ${fmtFechaCortaConHora(g.fecha, g.hora)}
+              </small>
+            </div>
           </div>
 
           <div class="dash-mov-amount">${fmt(g.monto)}</div>
