@@ -924,9 +924,8 @@ document.getElementById('btn-back-mes').addEventListener('click', () => {
 });
 
 // ── SECCIÓN REPORTE ────────────────────────────────
+// ── SECCIÓN REPORTE ────────────────────────────────
 async function initReporte() {
-  const tipoSelect = document.getElementById('rep-tipo');
-  const mesContainer = document.getElementById('rep-mes-container');
   const anioSel = document.getElementById('rep-anio');
   const mesSel = document.getElementById('rep-mes');
 
@@ -935,26 +934,18 @@ async function initReporte() {
     const periodos = await api('/gastos/periodos');
     anioSel.innerHTML = '';
 
-    const anios = [...new Set(periodos.map(p => p.anio))].sort((a,b)=>b-a);
+    // Años únicos
+    const anios = [...new Set(periodos.map(p => p.anio))];
     anios.forEach(a => {
       const o = new Option(a, a);
       anioSel.appendChild(o);
     });
 
+    // Al cambiar año, actualizar meses disponibles
     anioSel.addEventListener('change', () => actualizarMeses(periodos));
     actualizarMeses(periodos);
-
-    // Toggle visibilidad según tipo de reporte
-    tipoSelect.addEventListener('change', () => {
-      if (tipoSelect.value === 'completo') {
-        mesContainer.classList.add('hidden');
-      } else {
-        mesContainer.classList.remove('hidden');
-      }
-    });
-
   } catch (e) {
-    console.error(e);
+    anioSel.innerHTML = '<option>Error</option>';
   }
 }
 
@@ -1006,33 +997,16 @@ document.getElementById('btn-descargar-csv').addEventListener('click', async () 
 });
 
 document.getElementById('btn-descargar-pdf').addEventListener('click', async () => {
-  const tipo = document.getElementById('rep-tipo').value;
+  const anio = document.getElementById('rep-anio').value;
+  const mes = document.getElementById('rep-mes').value;
 
   try {
     document.getElementById('btn-descargar-pdf').textContent = 'Cargando…';
-
-    let gastos = [];
-    let titulo = '';
-
-    if (tipo === 'completo') {
-      gastos = await api('/gastos?todo=true');
-      titulo = 'Reporte Completo';
-    } else {
-      const anio = document.getElementById('rep-anio').value;
-      const mes = document.getElementById('rep-mes').value;
-      gastos = await api(`/gastos?anio=${anio}&mes=${mes}`);
-      titulo = `${MESES[Number(mes)]} ${anio}`;
-    }
-
-    if (!gastos || gastos.length === 0) {
-      alert('No hay registros para generar el reporte.');
-      return;
-    }
-
-    window._pdfData = { gastos, titulo, esCompleto: tipo === 'completo' };
+    const gastos = await api(`/gastos?anio=${anio}&mes=${mes}`);
+    if (!gastos.length) { alert('No hay registros para el período.'); return; }
+    window._pdfData = { gastos, anio, mes };
     document.getElementById('pdf-pass').value = '';
     document.getElementById('pass-modal').classList.remove('hidden');
-
   } catch (e) {
     alert('Error: ' + e.message);
   } finally {
@@ -1040,7 +1014,7 @@ document.getElementById('btn-descargar-pdf').addEventListener('click', async () 
   }
 });
 
-function generarPDF(gastos, tituloPDF, esCompleto = false, password) {
+function generarPDF(gastos, anio, mes, password) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
@@ -1051,13 +1025,14 @@ function generarPDF(gastos, tituloPDF, esCompleto = false, password) {
   const gray = [152, 152, 168];
   const white = [232, 232, 236];
 
-  // Fondo
+  // ── Fondo ─────────────────────────────────────────
   doc.setFillColor(...dark);
   doc.rect(0, 0, W, H, 'F');
 
-  // Header
+  // ── Header bar ────────────────────────────────────
   doc.setFillColor(...dark2);
   doc.rect(0, 0, W, 42, 'F');
+
   doc.setFillColor(...amber);
   doc.rect(0, 42, W, 1.5, 'F');
 
@@ -1066,72 +1041,195 @@ function generarPDF(gastos, tituloPDF, esCompleto = false, password) {
   doc.setFont('helvetica', 'bold');
   doc.text('KASH', 14, 20);
 
+  doc.setFontSize(9);
+  doc.setTextColor(...gray);
+  doc.setFont('helvetica', 'normal');
+  doc.text(t('pdf_reporte'), 14, 28);
+
   doc.setFontSize(18);
   doc.setTextColor(...white);
-  doc.text(tituloPDF, W - 14, 22, { align: 'right' });
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${MESES[Number(mes)]} ${anio}`, W - 14, 22, { align: 'right' });
 
   doc.setFontSize(9);
   doc.setTextColor(...gray);
+  doc.setFont('helvetica', 'normal');
   doc.text(usuario.nombre, W - 14, 30, { align: 'right' });
+  doc.text(usuario.email, W - 14, 36, { align: 'right' });
 
-  let y = 55;
+  // ── Tarjeta resumen ───────────────────────────────
+  const total = gastos.reduce((s, g) => s + Number(g.monto), 0);
+  const porCat = {};
+  gastos.forEach(g => {
+    porCat[g.categoria] = (porCat[g.categoria] || 0) + Number(g.monto);
+  });
 
-  // Agrupar por año y mes si es completo
-  if (esCompleto) {
-    const porAnioMes = {};
+  doc.setFillColor(28, 28, 33);
+  doc.roundedRect(14, 50, W - 28, 32, 4, 4, 'F');
+  doc.setDrawColor(...amber);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(14, 50, W - 28, 32, 4, 4, 'S');
 
-    gastos.forEach(g => {
-      const fecha = g.fecha.slice(0, 7); // "2026-05"
-      if (!porAnioMes[fecha]) porAnioMes[fecha] = [];
-      porAnioMes[fecha].push(g);
-    });
+  doc.setFontSize(8);
+  doc.setTextColor(...gray);
+  doc.text(t('pdf_total_mes'), 22, 60);
 
-    // Ordenar cronológicamente
-    const keys = Object.keys(porAnioMes).sort().reverse();
+  doc.setFontSize(20);
+  doc.setTextColor(...amber);
+  doc.setFont('helvetica', 'bold');
+  doc.text(fmt(total), 22, 72);
 
-    for (const key of keys) {
-      const [anio, mes] = key.split('-').map(Number);
-      const mesGastos = porAnioMes[key];
-      const totalMes = mesGastos.reduce((s, g) => s + Number(g.monto), 0);
+  doc.setFontSize(8);
+  doc.setTextColor(...gray);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${gastos.length} registro${gastos.length !== 1 ? 's' : ''}`, 22, 78);
 
-      if (y > H - 80) {
-        doc.addPage();
-        doc.setFillColor(...dark);
-        doc.rect(0, 0, W, H, 'F');
-        y = 20;
-      }
+  // ── Tabla de registros ────────────────────────────
+  const CAT_COLORS_PDF = {
+    'Comida': [62, 207, 142],
+    'Transporte': [96, 165, 250],
+    'Entretenimiento': [167, 139, 250],
+    'Ropa': [251, 146, 60],
+    'Otros': [148, 163, 184],
+  };
+  const COLORES_CUSTOM_PDF = [
+    [251, 191, 36], [34, 211, 238], [244, 114, 182],
+    [74, 222, 128], [249, 115, 22], [168, 85, 247], [20, 184, 166],
+  ];
 
-      doc.setFontSize(14);
-      doc.setTextColor(...amber);
-      doc.text(`${MESES[mes]} ${anio} — ${fmt(totalMes)}`, 14, y);
-      y += 8;
-
-      // Mini tabla o resumen por categoría
-      const porCat = {};
-      mesGastos.forEach(g => {
-        porCat[g.categoria] = (porCat[g.categoria] || 0) + Number(g.monto);
-      });
-
-      Object.entries(porCat).forEach(([cat, val]) => {
-        doc.setFontSize(10);
-        doc.setTextColor(...white);
-        doc.text(`• ${cat}`, 18, y);
-        doc.setTextColor(...amber);
-        doc.text(fmt(val), W - 18, y, { align: 'right' });
-        y += 6;
-      });
-
-      y += 12;
-    }
-  } else {
-    // Reporte mensual (código original adaptado)
-    // ... (mantén aquí la lógica anterior del reporte mensual)
-    const total = gastos.reduce((s, g) => s + Number(g.monto), 0);
-    // ... resto del código original de tabla
+  function getCatColorPDF(categoria) {
+    if (CAT_COLORS_PDF[categoria]) return CAT_COLORS_PDF[categoria];
+    let hash = 0;
+    for (let i = 0; i < categoria.length; i++)
+      hash = categoria.charCodeAt(i) + ((hash << 5) - hash);
+    return COLORES_CUSTOM_PDF[Math.abs(hash) % COLORES_CUSTOM_PDF.length];
   }
 
-  // Footer y guardado (mantener igual)
-  doc.save(`kash_reporte_${tituloPDF.replace(/ /g, '_')}.pdf`, {
+  // Encabezado tabla
+  let y = 92;
+  doc.setFillColor(36, 36, 41);
+  doc.rect(14, y, W - 28, 8, 'F');
+
+  doc.setFontSize(7.5);
+  doc.setTextColor(...gray);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FECHA', 18, y + 5.5);
+  doc.text('HORA', 46, y + 5.5);
+  doc.text('CATEGORÍA', 63, y + 5.5);
+  doc.text('DESCRIPCIÓN', 101, y + 5.5);
+  doc.text('MÉTODO', 148, y + 5.5);
+  const labelMonto = idiomaActual === 'en' ? 'AMOUNT' : 'MONTO';
+  doc.text(`${labelMonto} (${monedaActual})`, W - 18, y + 5.5, { align: 'right' });
+
+  y += 8;
+
+  // Filas
+  doc.setFont('helvetica', 'normal');
+  gastos.forEach((g, i) => {
+    if (y > H - 20) {
+      doc.addPage();
+      doc.setFillColor(...dark);
+      doc.rect(0, 0, W, H, 'F');
+      y = 14;
+    }
+
+    if (i % 2 === 0) {
+      doc.setFillColor(20, 20, 23);
+      doc.rect(14, y, W - 28, 9, 'F');
+    }
+
+    const catColor = getCatColorPDF(g.categoria);
+
+    // Badge categoría
+    doc.setFillColor(...catColor.map(c => Math.round(c * 0.15 + dark[0] * 0.85)));
+    doc.roundedRect(61, y + 1.5, 36, 5.5, 1.5, 1.5, 'F');
+    doc.setTextColor(...catColor);
+    doc.setFontSize(6.5);
+    doc.text(g.categoria.toUpperCase(), 79, y + 5.5, { align: 'center' });
+
+    doc.setFontSize(8);
+    doc.setTextColor(...white);
+    doc.text(fmtFecha(g.fecha.slice(0, 10)), 18, y + 6);
+    doc.text(fmtHora(g.hora), 46, y + 6);
+    const desc = (g.descripcion || '-').slice(0, 22);
+    doc.text(desc, 101, y + 6);
+    const metodo = (g.metodo_pago || '-').slice(0, 10);
+    doc.text(metodo, 148, y + 6);
+    doc.setTextColor(...amber);
+    doc.setFont('helvetica', 'bold');
+    doc.text(fmt(g.monto), W - 18, y + 6, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+
+    doc.setDrawColor(46, 46, 53);
+    doc.setLineWidth(0.2);
+    doc.line(14, y + 9, W - 14, y + 9);
+
+    y += 9;
+  });
+
+  // ── Recuadro resumen por categoría ───────────────
+  const catEntries = Object.entries(porCat);
+  const altCat = catEntries.length * 10 + 14;
+
+  if (y + altCat > H - 20) {
+    doc.addPage();
+    doc.setFillColor(...dark);
+    doc.rect(0, 0, W, H, 'F');
+    y = 14;
+  }
+
+  y += 6;
+
+  doc.setFillColor(28, 28, 33);
+  doc.roundedRect(14, y, W - 28, altCat, 4, 4, 'F');
+  doc.setDrawColor(...amber);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(14, y, W - 28, altCat, 4, 4, 'S');
+
+  doc.setFontSize(7);
+  doc.setTextColor(...amber);
+  doc.setFont('helvetica', 'bold');
+  doc.text(t('pdf_resumen_cat'), 22, y + 8);
+
+  let yCat = y + 14;
+  catEntries.forEach(([cat, val]) => {
+    const pct = ((val / total) * 100).toFixed(1);
+
+    doc.setFontSize(8);
+    doc.setTextColor(...white);
+    doc.setFont('helvetica', 'normal');
+    doc.text(cat, 22, yCat);
+
+    doc.setTextColor(...amber);
+    doc.setFont('helvetica', 'bold');
+    doc.text(fmt(val), W - 40, yCat, { align: 'right' });
+
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text(`${pct}%`, W - 18, yCat, { align: 'right' });
+
+    yCat += 10;
+  });
+
+  // ── Footer ────────────────────────────────────────
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFillColor(...dark2);
+    doc.rect(0, H - 12, W, 12, 'F');
+    doc.setFillColor(...amber);
+    doc.rect(0, H - 13, W, 1, 'F');
+    doc.setFontSize(7);
+    doc.setTextColor(...gray);
+    doc.setFont('helvetica', 'normal');
+    const locale = idiomaActual === 'en' ? 'en-US' : 'es-CO';
+    doc.text(`${t('pdf_generado')} ${new Date().toLocaleDateString(locale)} · KASH`, 14, H - 5);
+    doc.text(`${t('pdf_pagina')} ${i} ${t('pdf_de')} ${pageCount}`, W - 14, H - 5, { align: 'right' });
+  }
+
+  // ── Encriptar y guardar ───────────────────────────
+  doc.save(`gastos_${MESES[Number(mes)]}_${anio}.pdf`, {
     userPassword: password,
     ownerPassword: password + '_owner',
     userPermissions: ['print', 'copy']
