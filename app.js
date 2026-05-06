@@ -1336,15 +1336,35 @@ function renderBar(gastos, anio, mes) {
   if (chartBar) chartBar.destroy();
 
   const byDay = {};
+
   gastos.forEach(g => {
-    // Si hay mes seleccionado mostrar solo el día, si no mostrar dd/mm
-    const key = mes
-      ? g.fecha.slice(8, 10)
-      : MESES[Number(g.fecha.slice(5, 7))];
+    let key;
+    if (mes) {
+      // Vista mensual → mostrar por día
+      key = g.fecha.slice(8, 10);           // "01", "02", ...
+    } else {
+      // Vista anual → mostrar por nombre del mes
+      const mesNum = Number(g.fecha.slice(5, 7));
+      key = MESES[mesNum];
+    }
     byDay[key] = (byDay[key] || 0) + Number(g.monto);
   });
 
-  const labels = Object.keys(byDay).sort();
+  // ── ORDEN CRONOLÓGICO ─────────────────────────────
+  let labels = Object.keys(byDay);
+
+  if (mes) {
+    // Ordenar días numéricamente
+    labels.sort((a, b) => Number(a) - Number(b));
+  } else {
+    // Ordenar meses cronológicamente
+    labels.sort((a, b) => {
+      const mesA = MESES.indexOf(a);
+      const mesB = MESES.indexOf(b);
+      return mesA - mesB;
+    });
+  }
+
   const data = labels.map(k => byDay[k]);
 
   chartBar = new Chart(ctx, {
@@ -1352,23 +1372,36 @@ function renderBar(gastos, anio, mes) {
     data: {
       labels,
       datasets: [{
-        label: 'Gasto diario',
+        label: mes ? 'Gasto diario' : 'Gasto mensual',
         data,
         backgroundColor: 'rgba(245,166,35,.7)',
         borderColor: '#f5a623',
         borderWidth: 1,
-        borderRadius: 6,
       }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ` ${fmt(ctx.parsed.y)}` } }
+        legend: { 
+          display: true,
+          position: 'top',
+          labels: { color: '#9898a8', font: { size: 13 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${fmt(ctx.parsed.y)}`
+          }
+        }
       },
       scales: {
-        x: { ticks: { color: '#5e5e6e', maxRotation: 45 }, grid: { color: '#1c1c21' } },
-        y: { ticks: { color: '#5e5e6e', callback: v => fmt(v) }, grid: { color: '#1c1c21' } }
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#9898a8', callback: v => fmt(v) }
+        },
+        x: {
+          ticks: { color: '#9898a8' }
+        }
       }
     }
   });
