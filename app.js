@@ -62,35 +62,16 @@ const fmtHora = h => {
   return `${h12}:${mm} ${ampm}`;
 };
 
-// Formato bonito seguro: "5 de mayo, 7:28 PM"
-function fmtFechaCortaConHora(fechaStr, horaStr) {
-  if (!fechaStr) return '—';
+function formatearFecha(fecha) {
+  const f = new Date(fecha);
 
-  try {
-    // Parse seguro de fecha YYYY-MM-DD
-    const [year, month, day] = fechaStr.split('-').map(Number);
-    
-    if (!year || !month || !day) return '—';
-
-    const fecha = new Date(year, month - 1, day);
-
-    const dia = fecha.getDate();
-    const mesIndex = fecha.getMonth() + 1;
-    const mesNombre = MESES[mesIndex] ? MESES[mesIndex].toLowerCase() : 'mes';
-
-    let horaFormateada = '';
-    if (horaStr) {
-      const [hh, mm] = horaStr.slice(0, 5).split(':');
-      let hora = parseInt(hh);
-      const ampm = hora >= 12 ? 'PM' : 'AM';
-      hora = hora % 12 || 12;
-      horaFormateada = `, ${hora}:${mm} ${ampm}`;
-    }
-
-    return `${dia} de ${mesNombre}${horaFormateada}`;
-  } catch (e) {
-    return fechaStr ? fechaStr.slice(0,10) : '—';
-  }
+  return f.toLocaleString('es-CO', {
+    day: 'numeric',
+    month: 'long',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
 }
 
 // Formato completo: "27/04/2026 • 8:40 PM"
@@ -3117,18 +3098,16 @@ async function cargarDashboard() {
         <div class="dash-mov-row">
           <div class="dash-mov-left">
             <div class="dash-mov-icon">💸</div>
-            <div>
-              <div>${g.descripcion || g.categoria}</div>
-              <small style="color:var(--text3); font-size:12px;">
-                ${fmtFechaCortaConHora(g.fecha, g.hora)}
-              </small>
-            </div>
+            <div>${g.descripcion || g.categoria}</div>
           </div>
 
-          <div class="dash-mov-amount">${fmt(g.monto)}</div>
+          <div class="dash-mov-amount">
+            <span>${fmt(g.monto)}</span>
+            <span class="dash-mov-date">${formatearFecha(g.fecha)}</span>
+          </div>
         </div>
       `).join('')
-      : '<div class="empty-state" style="padding:1rem 0"><p>Sin movimientos este mes</p></div>';
+      : 'Sin movimientos este mes';
 
   } catch (e) {
     console.error(e);
