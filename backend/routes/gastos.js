@@ -8,7 +8,7 @@ router.use(auth);
 
 // ── GET /api/gastos?anio=&mes= ─────────────────────────────
 router.get('/', async (req, res) => {
-  const { anio, mes, categoria, buscar } = req.query;
+  const { anio, mes, categoria, buscar, billtera_id } = req.query;
   const uid = req.usuario.id;
 
   let sql    = 'SELECT * FROM gastos WHERE usuario_id = ?';
@@ -32,9 +32,9 @@ router.get('/', async (req, res) => {
     params.push(`%${buscar}%`);
   }
 
-  if (req.query.billtera_id) {
+  if (billtera_id) {
     sql += ' AND billtera_id = ?';
-    params.push(req.query.billtera_id);
+    params.push(billtera_id);
   }
 
   sql += ' ORDER BY fecha DESC, hora DESC';
