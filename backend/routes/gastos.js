@@ -32,6 +32,11 @@ router.get('/', async (req, res) => {
     params.push(`%${buscar}%`);
   }
 
+  if (req.query.billtera_id) {
+    sql += ' AND billtera_id = ?';
+    params.push(req.query.billtera_id);
+  }
+
   sql += ' ORDER BY fecha DESC, hora DESC';
 
   try {

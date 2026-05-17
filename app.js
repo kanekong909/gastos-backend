@@ -738,22 +738,32 @@ async function cargarResumen() {
   tabla.innerHTML = ''; tabla.appendChild(loadingRow());
 
   try {
-    const cat = document.getElementById('filtro-categoria').value;
-    const buscar = document.getElementById('buscar-input').value.trim();
+    const cat      = document.getElementById('filtro-categoria').value;
+    const buscar   = document.getElementById('buscar-input').value.trim();
+    const billtera = document.getElementById('filtro-billtera').value;
+
     let url = `/gastos?anio=${anio}&mes=${mes}`;
-    if (cat) url += `&categoria=${encodeURIComponent(cat)}`;
-    if (buscar) url += `&buscar=${encodeURIComponent(buscar)}`;
+    if (cat)      url += `&categoria=${encodeURIComponent(cat)}`;
+    if (buscar)   url += `&buscar=${encodeURIComponent(buscar)}`;
+    if (billtera) url += `&billtera_id=${encodeURIComponent(billtera)}`;
 
     const gastos = await api(url);
     const total = gastos.reduce((s, g) => s + Number(g.monto), 0);
     document.getElementById('resumen-total').textContent = fmt(total);
+
+    // Poblar select billeteras SOLO si está vacío (primera carga)
+    const filtBill = document.getElementById('filtro-billtera');
+    if (filtBill.options.length <= 1) {
+      billeteras.forEach(b => {
+        filtBill.appendChild(new Option(`${b.emoji} ${b.nombre}`, b.id));
+      });
+    }
 
     tabla.innerHTML = '';
     if (!gastos.length) { tabla.appendChild(emptyState()); return; }
     gastos.forEach(g => tabla.appendChild(buildGastoItem(g, openEdit, async id => {
       confirmDelete(async () => {
         await api(`/gastos/${id}`, { method: 'DELETE' });
-        await cargarCategoriasResumen();
         cargarResumen();
       });
     })));
@@ -817,6 +827,7 @@ document.getElementById('buscar-input').addEventListener('input', () => {
   debounceTimer = setTimeout(cargarResumen, 400);
 });
 document.getElementById('filtro-categoria').addEventListener('change', cargarResumen);
+document.getElementById('filtro-billtera').addEventListener('change', cargarResumen);
 
 // ── SECCIÓN MESES ANTERIORES ───────────────────────
 async function cargarMeses() {
