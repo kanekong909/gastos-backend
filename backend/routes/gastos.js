@@ -32,9 +32,10 @@ router.get('/', async (req, res) => {
     params.push(`%${buscar}%`);
   }
 
-  if (billtera_id) {
+  // 🔥 CAMBIO AQUÍ - Convertir billtera_id a número
+  if (billtera_id && billtera_id !== '') {
     sql += ' AND billtera_id = ?';
-    params.push(billtera_id);
+    params.push(parseInt(billtera_id));  // ← Convertir a entero
   }
 
   sql += ' ORDER BY fecha DESC, hora DESC';

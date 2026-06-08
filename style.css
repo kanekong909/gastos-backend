@@ -3056,3 +3056,19 @@ button {
 .btn-primary.modo-edicion:hover {
   background: var(--accent);
 }
+
+/* OCULTAR PENDIENTES 7/6/2026 10:36PM */
+/* Botón ocultar pendientes */
+.btn-ocultar-pendientes {
+  transition: all var(--transition);
+}
+
+.btn-ocultar-pendientes:hover {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+/* Header de pendientes mejorado */
+.recurrentes-pendientes-header {
+  margin-bottom: 0.75rem;
+}

@@ -19,6 +19,12 @@ let isLoggingOut = false;
 let inactivityTimer;
 const INACTIVITY_TIME = 10 * 60 * 1000; // 10 minutos
 
+// Pendientes
+// 7/6/2026
+let pendientesOcultosHasta = localStorage.getItem('gd_pendientes_ocultos_hasta') 
+  ? parseInt(localStorage.getItem('gd_pendientes_ocultos_hasta')) 
+  : 0;
+
 function showSessionExpiredModal() {
   logout();
 }
@@ -405,6 +411,7 @@ function showSection(name) {
   if (name === 'resumen') {
     cargarCategoriasResumen();
     cargarResumen();
+    verificarPendientes();
   }
 
   if (name === 'anteriores') cargarMeses();
@@ -787,39 +794,62 @@ async function cargarResumen() {
   document.getElementById('resumen-titulo').textContent = `${MESES[mes]} ${anio}`;
 
   const tabla = document.getElementById('tabla-resumen');
-  tabla.innerHTML = ''; tabla.appendChild(loadingRow());
+  tabla.innerHTML = ''; 
+  tabla.appendChild(loadingRow());
 
   try {
-    const cat      = document.getElementById('filtro-categoria').value;
-    const buscar   = document.getElementById('buscar-input').value.trim();
+    const cat = document.getElementById('filtro-categoria').value;
+    const buscar = document.getElementById('buscar-input').value.trim();
     const billtera = document.getElementById('filtro-billtera').value;
+    const filtroBilltera = document.getElementById('filtro-billtera');
+
+    console.log('🔍 Filtros aplicados:', { cat, buscar, billtera }); // Debug
 
     let url = `/gastos?anio=${anio}&mes=${mes}`;
-    if (cat)      url += `&categoria=${encodeURIComponent(cat)}`;
-    if (buscar)   url += `&buscar=${encodeURIComponent(buscar)}`;
-    if (billtera) url += `&billtera_id=${encodeURIComponent(billtera)}`;
+    if (cat) url += `&categoria=${encodeURIComponent(cat)}`;
+    if (buscar) url += `&buscar=${encodeURIComponent(buscar)}`;
+    if (billtera && billtera !== '') {
+      url += `&billtera_id=${encodeURIComponent(billtera)}`;
+      console.log('✅ Aplicando filtro por billetera:', billtera);
+    }
 
     const gastos = await api(url);
+    console.log('📊 Gastos recibidos:', gastos.length); // Debug
+
     const total = gastos.reduce((s, g) => s + Number(g.monto), 0);
     document.getElementById('resumen-total').textContent = fmt(total);
 
-    // Poblar select billeteras SOLO si está vacío (primera carga)
-    const filtBill = document.getElementById('filtro-billtera');
-    if (filtBill.options.length <= 1) {
+    // Poblar select billeteras si está vacío
+    if (filtroBilltera.options.length <= 1) {
+      console.log('🔄 Poblando select de billeteras...');
+      filtroBilltera.innerHTML = '<option value="">Todas las billeteras</option>';
       billeteras.forEach(b => {
-        filtBill.appendChild(new Option(`${b.emoji} ${b.nombre}`, b.id));
+        const option = new Option(`${b.emoji} ${b.nombre}`, b.id);
+        filtroBilltera.appendChild(option);
+        console.log(`  - Añadida: ${b.emoji} ${b.nombre} (ID: ${b.id})`);
       });
+      
+      // Restaurar valor seleccionado si existía antes
+      if (billtera && billtera !== '') {
+        filtroBilltera.value = billtera;
+      }
     }
 
     tabla.innerHTML = '';
-    if (!gastos.length) { tabla.appendChild(emptyState()); return; }
+    if (!gastos.length) { 
+      tabla.appendChild(emptyState()); 
+      return; 
+    }
+    
     gastos.forEach(g => tabla.appendChild(buildGastoItem(g, openEdit, async id => {
       confirmDelete(async () => {
         await api(`/gastos/${id}`, { method: 'DELETE' });
         cargarResumen();
       });
     })));
+    
   } catch (e) {
+    console.error('❌ Error en cargarResumen:', e);
     tabla.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
   }
 }
@@ -1625,6 +1655,20 @@ async function initApp() {
   resetInactivityTimer();
 
   bindMontoRecargaInput();
+
+  // ── VERIFICACIÓN PERIÓDICA DE PENDIENTES (cada 3 horas) ──
+  function iniciarVerificacionPeriodica() {
+    // Verificar cada 3 horas (10800000 ms)
+    setInterval(() => {
+      // Solo verificar si no estamos en modo oculto o ya expiró
+      const ahora = Date.now();
+      if (pendientesOcultosHasta <= ahora) {
+        verificarPendientes();
+      }
+    }, 3 * 60 * 60 * 1000); // 3 horas
+  }
+
+  iniciarVerificacionPeriodica();
 }
 
 // ── Toggle contraseña ─────────────────────────────
@@ -2097,6 +2141,17 @@ function renderPendientes(pendientes) {
   const lista = document.getElementById('recurrentes-pendientes-lista');
   lista.innerHTML = '';
 
+  // Verificar si los pendientes están ocultos temporalmente
+  const ahora = Date.now();
+  if (pendientesOcultosHasta > ahora) {
+    wrap.classList.add('hidden');
+    return;
+  } else if (pendientesOcultosHasta > 0 && pendientesOcultosHasta <= ahora) {
+    // El tiempo expiró, limpiar
+    pendientesOcultosHasta = 0;
+    localStorage.removeItem('gd_pendientes_ocultos_hasta');
+  }
+
   if (!pendientes.length) {
     wrap.classList.add('hidden');
     return;
@@ -2104,11 +2159,36 @@ function renderPendientes(pendientes) {
 
   wrap.classList.remove('hidden');
 
+  // Agregar header con botón de ocultar
+  const existingHeader = wrap.querySelector('.recurrentes-pendientes-header');
+  if (existingHeader) existingHeader.remove();
+  
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'recurrentes-pendientes-header';
+  headerDiv.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+      <span class="rp-titulo">🔔 Pendientes este mes</span>
+      <button id="btn-ocultar-pendientes" class="btn-ocultar-pendientes" 
+        style="background: none; border: none; color: var(--text3); cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 6px;">
+        🔕 Ocultar por 3h
+      </button>
+    </div>
+  `;
+  wrap.insertBefore(headerDiv, lista);
+
+  // Event listener para el botón de ocultar
+  const btnOcultar = document.getElementById('btn-ocultar-pendientes');
+  if (btnOcultar) {
+    btnOcultar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      ocultarPendientesTemporalmente();
+    });
+  }
+
   pendientes.forEach(r => {
     const div = document.createElement('div');
     div.className = 'recurrente-pendiente-item';
 
-    // Mejoramos el texto mostrado
     const billteraInfo = r.billtera_nombre
       ? ` · ${r.billtera_emoji || ''} ${r.billtera_nombre}`
       : '';
@@ -2968,7 +3048,6 @@ async function initPresupuestos() {
   await cargarCategoriasPres();
 }
 
-
 function actualizarMesesPres(periodos) {
   const anio = document.getElementById('pres-anio').value;
   const mesSel = document.getElementById('pres-mes');
@@ -3446,6 +3525,60 @@ function mostrarToast(mensaje, tipo = 'success') {
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 2500);
 }
+
+// 7/6/2026
+// ── ESTADO DE PENDIENTES OCULTOS ──
+function ocultarPendientesTemporalmente() {
+  const ahora = Date.now();
+  const tresHoras = 3 * 60 * 60 * 1000; // 3 horas en milisegundos
+  pendientesOcultosHasta = ahora + tresHoras;
+  localStorage.setItem('gd_pendientes_ocultos_hasta', pendientesOcultosHasta.toString());
+  
+  // Ocultar el wrap visualmente
+  const wrap = document.getElementById('recurrentes-pendientes-wrap');
+  if (wrap) wrap.classList.add('hidden');
+  
+  // Mostrar notificación
+  mostrarToast('🔕 Pendientes ocultos por 3 horas. Volverán a aparecer automáticamente.', 'info');
+  
+  // Programar verificación para cuando termine el tiempo
+  setTimeout(() => {
+    if (Date.now() >= pendientesOcultosHasta) {
+      pendientesOcultosHasta = 0;
+      localStorage.removeItem('gd_pendientes_ocultos_hasta');
+      verificarPendientes(); // Volver a mostrar si hay pendientes
+      mostrarToast('🔔 Los pendientes han vuelto a aparecer', 'info');
+    }
+  }, tresHoras);
+}
+
+// ── DEPURACIÓN DEL FILTRO POR BILLETERAS ──
+function debugFiltroBilleteras() {
+  console.log('=== DEBUG FILTRO BILLETERAS ===');
+  const filtroBilltera = document.getElementById('filtro-billtera');
+  console.log('¿Existe el select?', filtroBilltera);
+  console.log('Opciones actuales:', filtroBilltera?.options.length);
+  console.log('Billeteras cargadas:', billeteras.length);
+  console.log('Contenido del select:', filtroBilltera?.innerHTML);
+  
+  // Forzar población del select
+  if (filtroBilltera && billeteras.length > 0) {
+    filtroBilltera.innerHTML = '<option value="">Todas las billeteras</option>';
+    billeteras.forEach(b => {
+      const option = new Option(`${b.emoji} ${b.nombre} (${fmt(b.saldo)})`, b.id);
+      filtroBilltera.appendChild(option);
+      console.log(`Añadida: ${b.emoji} ${b.nombre} (ID: ${b.id})`);
+    });
+  }
+}
+
+// Ejecutar después de cargar billeteras
+// Agrega esto al final de cargarBilleteras():
+const originalCargarBilleteras = cargarBilleteras;
+window.cargarBilleteras = async function() {
+  await originalCargarBilleteras();
+  debugFiltroBilleteras();
+};
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {
