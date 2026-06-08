@@ -34,6 +34,46 @@
   --transition: 0.2s cubic-bezier(.4, 0, .2, 1);
 }
 
+/* Temas adicionales */
+[data-theme="dark-blue"] {
+  --bg: #0a0e1a;
+  --bg2: #0f1422;
+  --bg3: #151b2e;
+  --bg4: #1c2338;
+  --border: #252d42;
+  --accent: #3b82f6;
+  --accent2: #2563eb;
+  --accent-dim: rgba(59, 130, 246, 0.12);
+  --green: #10b981;
+  --red: #ef4444;
+}
+
+[data-theme="dark-green"] {
+  --bg: #0a1a0f;
+  --bg2: #0f2214;
+  --bg3: #152e1a;
+  --bg4: #1c3822;
+  --border: #254230;
+  --accent: #10b981;
+  --accent2: #059669;
+  --accent-dim: rgba(16, 185, 129, 0.12);
+  --green: #34d399;
+  --red: #f87171;
+}
+
+[data-theme="dark-purple"] {
+  --bg: #140a1a;
+  --bg2: #1a0f22;
+  --bg3: #24152e;
+  --bg4: #2e1c38;
+  --border: #3d2542;
+  --accent: #a855f7;
+  --accent2: #9333ea;
+  --accent-dim: rgba(168, 85, 247, 0.12);
+  --green: #22c55e;
+  --red: #ef4444;
+}
+
 *,
 *::before,
 *::after {
@@ -3071,4 +3111,46 @@ button {
 /* Header de pendientes mejorado */
 .recurrentes-pendientes-header {
   margin-bottom: 0.75rem;
+}
+
+/* MICROFONO */
+/* ── BOTÓN MICRÓFONO ── */
+.btn-microfono {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 1.2rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn-microfono:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-microfono.escuchando {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

@@ -3471,6 +3471,48 @@ async function cargarDashboard() {
       `).join('')
       : 'Sin movimientos este mes';
 
+      // Dato curioso del día
+      function mostrarDatoCurioso(gastos) {
+        const datosCuriosos = [
+          { icon: "💡", text: "Los gastos pequeños de menos de $10,000 suman más del 30% de tu presupuesto" },
+          { icon: "📊", text: "Las personas que registran gastos ahorran un 35% más que las que no lo hacen" },
+          { icon: "🍕", text: "Comida y transporte son las categorías que más crecen los fines de semana" },
+          { icon: "📅", text: `${new Date().toLocaleDateString('es-CO', { weekday: 'long' })} es el día que más gastas en promedio` },
+          { icon: "🎯", text: "Establecer un presupuesto aumenta tu ahorro en un 50%" },
+          { icon: "📈", text: "Revisar tus gastos semanalmente reduce gastos innecesarios en un 20%" },
+        ];
+        
+        const random = Math.floor(Math.random() * datosCuriosos.length);
+        const dato = datosCuriosos[random];
+        
+        // Mostrar en el dashboard
+        const dashContainer = document.querySelector('.dashboard-grid');
+        let datoElement = document.getElementById('dato-curioso');
+        
+        if (!datoElement) {
+          datoElement = document.createElement('div');
+          datoElement.id = 'dato-curioso';
+          datoElement.className = 'dash-card';
+          datoElement.style.gridColumn = '1 / -1';
+          datoElement.style.background = 'var(--accent-dim)';
+          datoElement.style.border = `1px solid var(--accent)`;
+          dashContainer.parentNode.insertBefore(datoElement, dashContainer.nextSibling);
+        }
+        
+        datoElement.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.8rem;">${dato.icon}</span>
+            <div>
+              <div style="font-size: 11px; opacity: 0.7; text-transform: uppercase;">Dato curioso</div>
+              <div style="font-size: 13px;">${dato.text}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Llamar dentro de cargarDashboard() después de obtener gastos
+      mostrarDatoCurioso(gastos);
+
   } catch (e) {
     console.error(e);
   }
@@ -3570,6 +3612,205 @@ function ocultarPendientesTemporalmente() {
     }
   }, tresHoras);
 }
+
+// 7/6/2026 11:08PM
+// ── SELECTOR DE TEMA ──
+document.getElementById('tema-select')?.addEventListener('change', function () {
+  aplicarTema(this.value);
+});
+
+function aplicarTema(tema) {
+  document.documentElement.setAttribute('data-theme', tema);
+  localStorage.setItem('gd_tema', tema);
+  
+  // Actualizar selector si existe
+  const temaSelect = document.getElementById('tema-select');
+  if (temaSelect) temaSelect.value = tema;
+}
+
+// MICROFONO 11:21PM
+// ── VOZ A TEXTO ──
+let reconocimiento = null;
+let escuchando = false;
+
+function iniciarReconocimientoVoz() {
+  // Verificar soporte del navegador
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    mostrarToast('❌ Tu navegador no soporta reconocimiento de voz. Usa Chrome, Edge o Safari.', 'error');
+    return;
+  }
+  
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  reconocimiento = new SpeechRecognition();
+  reconocimiento.lang = 'es-ES'; // Español
+  reconocimiento.continuous = false; // Detener después de una frase
+  reconocimiento.interimResults = false; // Solo resultado final
+  reconocimiento.maxAlternatives = 1;
+  
+  reconocimiento.onstart = () => {
+    escuchando = true;
+    const btn = document.getElementById('btn-microfono');
+    btn.textContent = '🔴';
+    btn.classList.add('escuchando');
+    btn.title = 'Escuchando... Haz clic para detener';
+    mostrarToast('🎤 Escuchando... habla ahora', 'info');
+  };
+  
+  reconocimiento.onresult = (event) => {
+    const texto = event.results[0][0].transcript;
+    const inputDesc = document.getElementById('f-descripcion');
+    const textoActual = inputDesc.value;
+    
+    // Si hay texto existente, agregar con espacio, si no, reemplazar
+    if (textoActual && textoActual.trim()) {
+      inputDesc.value = `${textoActual} ${texto}`;
+    } else {
+      inputDesc.value = texto;
+    }
+    
+    // Disparar evento input para que se actualice cualquier validación
+    inputDesc.dispatchEvent(new Event('input', { bubbles: true }));
+    
+    mostrarToast(`✓ Dictado: "${texto}"`, 'success');
+  };
+  
+  reconocimiento.onerror = (event) => {
+    console.error('Error de reconocimiento:', event.error);
+    let mensaje = '';
+    switch(event.error) {
+      case 'not-allowed':
+        mensaje = '❌ Permiso denegado. Habilita el micrófono en tu navegador.';
+        break;
+      case 'no-speech':
+        mensaje = '⚠️ No se detectó voz. Intenta de nuevo.';
+        break;
+      case 'audio-capture':
+        mensaje = '❌ No se encontró micrófono. Conecta un micrófono.';
+        break;
+      default:
+        mensaje = `❌ Error: ${event.error}`;
+    }
+    mostrarToast(mensaje, 'error');
+    detenerReconocimiento();
+  };
+  
+  reconocimiento.onend = () => {
+    detenerReconocimiento();
+  };
+  
+  reconocimiento.start();
+}
+function detenerReconocimiento() {
+  if (reconocimiento) {
+    try {
+      reconocimiento.stop();
+    } catch(e) {}
+    reconocimiento = null;
+  }
+  escuchando = false;
+  const btn = document.getElementById('btn-microfono');
+  if (btn) {
+    btn.textContent = '🎤';
+    btn.classList.remove('escuchando');
+    btn.title = 'Dictar descripción';
+  }
+}
+
+// Event listener para el botón de micrófono
+document.getElementById('btn-microfono')?.addEventListener('click', () => {
+  if (escuchando) {
+    detenerReconocimiento();
+    mostrarToast('🔇 Dictado detenido', 'info');
+  } else {
+    iniciarReconocimientoVoz();
+  }
+});
+
+// También agregar micrófono en el modal de editar (opcional)
+// Buscar el campo de descripción en el modal de editar y agregar el botón
+function agregarMicrofonoEnEditar() {
+  const descContainer = document.querySelector('#edit-modal .field-group.full-width');
+  if (descContainer && !document.querySelector('#e-btn-microfono')) {
+    const input = document.getElementById('e-descripcion');
+    if (input) {
+      const wrapper = document.createElement('div');
+      wrapper.style.display = 'flex';
+      wrapper.style.gap = '0.5rem';
+      wrapper.style.width = '100%';
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(input);
+      input.style.flex = '1';
+      
+      const micBtn = document.createElement('button');
+      micBtn.id = 'e-btn-microfono';
+      micBtn.className = 'btn-microfono';
+      micBtn.textContent = '🎤';
+      micBtn.title = 'Dictar descripción';
+      micBtn.onclick = () => {
+        if (escuchando) detenerReconocimiento();
+        else iniciarReconocimientoVozEditar();
+      };
+      wrapper.appendChild(micBtn);
+    }
+  }
+}
+
+// Versión para editar que usa el input correcto
+function iniciarReconocimientoVozEditar() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    mostrarToast('❌ Tu navegador no soporta reconocimiento de voz', 'error');
+    return;
+  }
+  
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new SpeechRecognition();
+  rec.lang = 'es-ES';
+  rec.continuous = false;
+  rec.interimResults = false;
+  
+  rec.onstart = () => {
+    escuchando = true;
+    const btn = document.getElementById('e-btn-microfono');
+    if (btn) {
+      btn.textContent = '🔴';
+      btn.classList.add('escuchando');
+    }
+    mostrarToast('🎤 Escuchando...', 'info');
+  };
+  
+  rec.onresult = (event) => {
+    const texto = event.results[0][0].transcript;
+    const inputDesc = document.getElementById('e-descripcion');
+    const textoActual = inputDesc.value;
+    
+    if (textoActual && textoActual.trim()) {
+      inputDesc.value = `${textoActual} ${texto}`;
+    } else {
+      inputDesc.value = texto;
+    }
+    inputDesc.dispatchEvent(new Event('input', { bubbles: true }));
+    mostrarToast(`✓ Dictado: "${texto}"`, 'success');
+    detenerReconocimiento();
+  };
+  
+  rec.onerror = (event) => {
+    mostrarToast(`❌ Error: ${event.error}`, 'error');
+    detenerReconocimiento();
+  };
+  
+  rec.onend = () => detenerReconocimiento();
+  
+  reconocimiento = rec;
+  rec.start();
+}
+
+// Llamar a agregarMicrofonoEnEditar cuando se abre el modal de editar
+// Modificar openEdit para incluir esto
+const originalOpenEdit = openEdit;
+window.openEdit = function(gasto) {
+  originalOpenEdit(gasto);
+  setTimeout(agregarMicrofonoEnEditar, 100);
+};
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {

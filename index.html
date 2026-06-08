@@ -295,7 +295,10 @@
 
             <div class="field-group full-width">
               <label>Descripción <span class="optional">(opcional)</span></label>
-              <input type="text" id="f-descripcion" placeholder="¿En qué gastaste?" />
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="f-descripcion" placeholder="¿En qué gastaste?" style="flex: 1;" />
+                <button type="button" id="btn-microfono" class="btn-microfono" title="Dictar descripción">🎤</button>
+              </div>
             </div>
 
           </div>
@@ -977,6 +980,16 @@
             <option value="USD">🇺🇸 US Dollar</option>
             <option value="EUR">🇪🇺 Euro</option>
             <option value="GBP">🇬🇧 British Pound</option>
+          </select>
+        </div>
+        <!-- Selector de temas -->
+        <div class="field-group" style="margin-bottom:0;margin-top:.5rem;">
+          <label id="label-tema">Tema</label>
+          <select id="tema-select" style="width:100%;">
+            <option value="dark">🌙 Oscuro (ámbar)</option>
+            <option value="dark-blue">🔵 Oscuro azul</option>
+            <option value="dark-green">🟢 Oscuro verde</option>
+            <option value="dark-purple">🟣 Oscuro morado</option>
           </select>
         </div>
         <div class="form-actions" style="margin-top:.9rem;gap:.65rem;">
