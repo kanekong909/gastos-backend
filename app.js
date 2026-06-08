@@ -501,7 +501,7 @@ function openEdit(gasto) {
   document.getElementById('e-monto').value = Number(gasto.monto).toLocaleString('es-CO');
   document.getElementById('e-descripcion').value = gasto.descripcion || '';
 
-  // Categoría — detectar si es fija o personalizada
+  // Categoría
   const categoriasFijas = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
   const esCategoriaFija = categoriasFijas.includes(gasto.categoria);
 
@@ -515,16 +515,23 @@ function openEdit(gasto) {
     document.getElementById('e-categoria-custom-wrap').classList.remove('hidden');
   }
 
-  // Actualizar opciones del select de billtera
+  // 🔥 ACTUALIZAR SELECT DE BILLETERAS
   const eSel = document.getElementById('e-billtera');
   eSel.innerHTML = '<option value="">Sin especificar</option>';
   billeteras.forEach(b => {
     const o = new Option(`${b.emoji} ${b.nombre} — ${fmt(b.saldo)}`, b.id);
     eSel.appendChild(o);
   });
-  if (gasto.billtera_id) eSel.value = gasto.billtera_id;
+  
+  // 🔥 CORREGIDO: Seleccionar la billetera si existe
+  if (gasto.billtera_id) {
+    eSel.value = gasto.billtera_id;
+    console.log(`✅ Billetera seleccionada: ${gasto.billtera_id}`);
+  } else {
+    eSel.value = '';
+    console.log(`⚠️ Gasto sin billetera asignada (ID: ${gasto.id})`);
+  }
 
-  // Al final de openEdit(), antes de classList.remove('hidden')
   validarFechaBilltera('e-fecha', 'e-billtera');
   document.getElementById('edit-modal').classList.remove('hidden');
 }
