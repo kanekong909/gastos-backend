@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
   const { anio, mes, categoria, buscar, billtera_id } = req.query;
   const uid = req.usuario.id;
 
-  let sql    = 'SELECT * FROM gastos WHERE usuario_id = ?';
+  let sql = 'SELECT * FROM gastos WHERE usuario_id = ?';
   const params = [uid];
 
   if (anio && mes) {
@@ -32,10 +32,15 @@ router.get('/', async (req, res) => {
     params.push(`%${buscar}%`);
   }
 
-  // 🔥 CAMBIO AQUÍ - Convertir billtera_id a número
+  // 🔥 Manejar el filtro por billetera (incluyendo NULL)
   if (billtera_id && billtera_id !== '') {
-    sql += ' AND billtera_id = ?';
-    params.push(parseInt(billtera_id));  // ← Convertir a entero
+    if (billtera_id === 'null' || billtera_id === 'sin-billtera') {
+      sql += ' AND billtera_id IS NULL';
+    } else {
+      const billteraNum = parseInt(billtera_id);
+      sql += ' AND billtera_id = ?';
+      params.push(billteraNum);
+    }
   }
 
   sql += ' ORDER BY fecha DESC, hora DESC';

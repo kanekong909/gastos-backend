@@ -800,39 +800,51 @@ async function cargarResumen() {
   try {
     const cat = document.getElementById('filtro-categoria').value;
     const buscar = document.getElementById('buscar-input').value.trim();
-    const billtera = document.getElementById('filtro-billtera').value;
-    const filtroBilltera = document.getElementById('filtro-billtera');
-
-    console.log('🔍 Filtros aplicados:', { cat, buscar, billtera }); // Debug
+    const billteraValue = document.getElementById('filtro-billtera').value;
 
     let url = `/gastos?anio=${anio}&mes=${mes}`;
     if (cat) url += `&categoria=${encodeURIComponent(cat)}`;
     if (buscar) url += `&buscar=${encodeURIComponent(buscar)}`;
-    if (billtera && billtera !== '') {
-      url += `&billtera_id=${encodeURIComponent(billtera)}`;
-      console.log('✅ Aplicando filtro por billetera:', billtera);
-    }
 
-    const gastos = await api(url);
-    console.log('📊 Gastos recibidos:', gastos.length); // Debug
+    let gastos = await api(url);
+    
+    // 🔥 FILTRO POR BILLETERA (incluyendo NULL)
+    if (billteraValue && billteraValue !== '') {
+      if (billteraValue === 'sin-billtera') {
+        // Filtrar gastos sin billetera asignada
+        gastos = gastos.filter(g => g.billtera_id === null);
+        console.log('🔍 Filtro: gastos sin billetera');
+      } else {
+        // Filtrar por billetera específica
+        const billteraNum = parseInt(billteraValue);
+        gastos = gastos.filter(g => g.billtera_id === billteraNum);
+        console.log(`🔍 Filtro: billetera ID ${billteraNum}`);
+      }
+    }
 
     const total = gastos.reduce((s, g) => s + Number(g.monto), 0);
     document.getElementById('resumen-total').textContent = fmt(total);
 
-    // Poblar select billeteras si está vacío
-    if (filtroBilltera.options.length <= 1) {
-      console.log('🔄 Poblando select de billeteras...');
+    // Poblar select de billeteras
+    const filtroBilltera = document.getElementById('filtro-billtera');
+    if (filtroBilltera.options.length <= 1 && billeteras.length > 0) {
       filtroBilltera.innerHTML = '<option value="">Todas las billeteras</option>';
-      billeteras.forEach(b => {
-        const option = new Option(`${b.emoji} ${b.nombre}`, b.id);
-        filtroBilltera.appendChild(option);
-        console.log(`  - Añadida: ${b.emoji} ${b.nombre} (ID: ${b.id})`);
-      });
+      // Agregar opción "Sin billetera"
+      const sinBilleraOption = document.createElement('option');
+      sinBilleraOption.value = 'sin-billtera';
+      sinBilleraOption.textContent = '❌ Sin billetera asignada';
+      filtroBilltera.appendChild(sinBilleraOption);
       
-      // Restaurar valor seleccionado si existía antes
-      if (billtera && billtera !== '') {
-        filtroBilltera.value = billtera;
-      }
+      // Agregar separador visual
+      const separator = document.createElement('option');
+      separator.disabled = true;
+      separator.textContent = '──────────';
+      filtroBilltera.appendChild(separator);
+      
+      // Agregar billeteras del usuario
+      billeteras.forEach(b => {
+        filtroBilltera.appendChild(new Option(`${b.emoji} ${b.nombre}`, b.id));
+      });
     }
 
     tabla.innerHTML = '';
@@ -849,7 +861,7 @@ async function cargarResumen() {
     })));
     
   } catch (e) {
-    console.error('❌ Error en cargarResumen:', e);
+    console.error('❌ Error:', e);
     tabla.innerHTML = `<div class="empty-state"><p>Error: ${e.message}</p></div>`;
   }
 }
@@ -3551,34 +3563,6 @@ function ocultarPendientesTemporalmente() {
     }
   }, tresHoras);
 }
-
-// ── DEPURACIÓN DEL FILTRO POR BILLETERAS ──
-function debugFiltroBilleteras() {
-  console.log('=== DEBUG FILTRO BILLETERAS ===');
-  const filtroBilltera = document.getElementById('filtro-billtera');
-  console.log('¿Existe el select?', filtroBilltera);
-  console.log('Opciones actuales:', filtroBilltera?.options.length);
-  console.log('Billeteras cargadas:', billeteras.length);
-  console.log('Contenido del select:', filtroBilltera?.innerHTML);
-  
-  // Forzar población del select
-  if (filtroBilltera && billeteras.length > 0) {
-    filtroBilltera.innerHTML = '<option value="">Todas las billeteras</option>';
-    billeteras.forEach(b => {
-      const option = new Option(`${b.emoji} ${b.nombre} (${fmt(b.saldo)})`, b.id);
-      filtroBilltera.appendChild(option);
-      console.log(`Añadida: ${b.emoji} ${b.nombre} (ID: ${b.id})`);
-    });
-  }
-}
-
-// Ejecutar después de cargar billeteras
-// Agrega esto al final de cargarBilleteras():
-const originalCargarBilleteras = cargarBilleteras;
-window.cargarBilleteras = async function() {
-  await originalCargarBilleteras();
-  debugFiltroBilleteras();
-};
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {
