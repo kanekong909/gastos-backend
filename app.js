@@ -105,25 +105,77 @@ const fmtFullDateTime = (dateStr) => {
 
 // ── FORMATO MILES ─────────────────────────────────
 function fmtInput(val) {
-  const num = val.replace(/\./g, '').replace(/\D/g, '');
+  // Eliminar cualquier caracter que no sea dígito
+  const num = val.replace(/\D/g, '');
   if (!num) return '';
+  // Convertir a número y formatear con separadores de miles
   return Number(num).toLocaleString('es-CO');
 }
 
 function getNumericValue(inputId) {
   const raw = document.getElementById(inputId).value;
-  return Number(raw.replace(/\./g, '').replace(/,/g, '').replace(/\D/g, '')) || 0;
+  // Eliminar puntos (separadores de miles) y convertir a número
+  const cleanValue = raw.replace(/\./g, '');
+  const number = parseFloat(cleanValue);
+  return isNaN(number) ? 0 : number;
 }
 
 function bindMontoInput(inputId) {
   const input = document.getElementById(inputId);
-  input.addEventListener('input', function () {
-    const pos = this.selectionStart;
-    const prevLen = this.value.length;
-    this.value = fmtInput(this.value);
+  if (!input) return;
+  
+  input.addEventListener('input', function(e) {
+    // Guardar posición del cursor
+    const cursorPos = this.selectionStart;
+    const rawValue = this.value;
+    
+    // Extraer solo dígitos
+    const digits = rawValue.replace(/\D/g, '');
+    
+    if (!digits) {
+      this.value = '';
+      return;
+    }
+    
+    // Formatear con separadores de miles
+    const numericValue = parseInt(digits, 10);
+    const formattedValue = numericValue.toLocaleString('es-CO');
+    
+    // Actualizar valor
+    this.value = formattedValue;
+    
     // Ajustar posición del cursor
-    const diff = this.value.length - prevLen;
-    this.setSelectionRange(pos + diff, pos + diff);
+    const newCursorPos = formattedValue.length - (rawValue.length - cursorPos);
+    this.setSelectionRange(newCursorPos, newCursorPos);
+  });
+}
+
+// formatear el input de recarga manual
+function bindMontoRecargaInput() {
+  const input = document.getElementById('recarga-manual-input');
+  if (!input) return;
+  
+  input.addEventListener('input', function() {
+    // Guardar posición del cursor
+    const cursorPos = this.selectionStart;
+    const rawValue = this.value.replace(/\./g, '').replace(/\D/g, '');
+    
+    if (!rawValue) {
+      this.value = '';
+      return;
+    }
+    
+    const numericValue = parseInt(rawValue, 10);
+    const formattedValue = numericValue.toLocaleString('es-CO');
+    
+    // Calcular diferencia de longitud para ajustar cursor
+    const oldLen = this.value.length;
+    this.value = formattedValue;
+    const newLen = this.value.length;
+    const diff = newLen - oldLen;
+    
+    // Ajustar cursor
+    this.setSelectionRange(cursorPos + diff, cursorPos + diff);
   });
 }
 
@@ -1571,6 +1623,8 @@ async function initApp() {
 
   // Inactividad
   resetInactivityTimer();
+
+  bindMontoRecargaInput();
 }
 
 // ── Toggle contraseña ─────────────────────────────
@@ -1732,20 +1786,44 @@ document.getElementById('toggle-recargar').addEventListener('click', () => {
   modoRecarga = 'recargar';
   document.getElementById('toggle-recargar').classList.add('active');
   document.getElementById('toggle-restar').classList.remove('active');
+  
+  // 🔥 Cambiar texto de los botones rápidos
   document.querySelectorAll('.btn-recarga').forEach(b => {
-    b.textContent = `+$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto) / 1000) + 'K' : b.dataset.monto}`;
+    const monto = Number(b.dataset.monto);
+    const montoFormateado = monto >= 1000 ? (monto / 1000) + 'K' : monto;
+    b.textContent = `+$${montoFormateado}`;
     b.classList.remove('btn-recarga-restar');
   });
+  
+  // 🔥 Cambiar texto del botón principal
+  const btnAgregar = document.getElementById('btn-recarga-manual');
+  if (btnAgregar) btnAgregar.textContent = '+ Agregar';
+  
+  // 🔥 Cambiar el placeholder del input
+  const inputManual = document.getElementById('recarga-manual-input');
+  if (inputManual) inputManual.placeholder = 'Monto a sumar';
 });
 
 document.getElementById('toggle-restar').addEventListener('click', () => {
   modoRecarga = 'restar';
   document.getElementById('toggle-restar').classList.add('active');
   document.getElementById('toggle-recargar').classList.remove('active');
+  
+  // 🔥 Cambiar texto de los botones rápidos
   document.querySelectorAll('.btn-recarga').forEach(b => {
-    b.textContent = `-$${Number(b.dataset.monto) >= 1000 ? (Number(b.dataset.monto) / 1000) + 'K' : b.dataset.monto}`;
+    const monto = Number(b.dataset.monto);
+    const montoFormateado = monto >= 1000 ? (monto / 1000) + 'K' : monto;
+    b.textContent = `-$${montoFormateado}`;
     b.classList.add('btn-recarga-restar');
   });
+  
+  // 🔥 Cambiar texto del botón principal
+  const btnAgregar = document.getElementById('btn-recarga-manual');
+  if (btnAgregar) btnAgregar.textContent = '− Restar';
+  
+  // 🔥 Cambiar el placeholder del input
+  const inputManual = document.getElementById('recarga-manual-input');
+  if (inputManual) inputManual.placeholder = 'Monto a restar';
 });
 
 document.getElementById('billtera-modal-close').addEventListener('click', () => {
@@ -1787,51 +1865,109 @@ document.querySelectorAll('.btn-recarga').forEach(btn => {
 // Recarga manual
 document.getElementById('btn-recarga-manual').addEventListener('click', async () => {
   if (!billteraActiva) return;
-  const raw = Number(document.getElementById('recarga-manual-input').value);
-  if (!raw || raw <= 0) return;
-  const monto = modoRecarga === 'restar' ? -raw : raw;
+  
+  const rawValue = document.getElementById('recarga-manual-input').value;
+  const numericValue = parseFloat(rawValue.replace(/\./g, '')) || 0;
+  
+  if (numericValue <= 0) {
+    showError('billtera-error', `Ingresa un monto válido mayor a 0 para ${modoRecarga === 'recargar' ? 'agregar' : 'restar'}`);
+    return;
+  }
+  
+  const monto = modoRecarga === 'restar' ? -numericValue : numericValue;
+  const accionTexto = modoRecarga === 'recargar' ? 'agregando' : 'restando';
+  
   try {
+    const btn = document.getElementById('btn-recarga-manual');
+    const textoOriginal = btn.textContent;
+    btn.textContent = `${modoRecarga === 'recargar' ? '➕' : '➖'} ${accionTexto}...`;
+    btn.disabled = true;
+    
     const updated = await api(`/billeteras/${billteraActiva.id}/recargar`, {
       method: 'PUT',
       body: JSON.stringify({ monto })
     });
+    
     billteraActiva = updated;
     const idx = billeteras.findIndex(b => b.id === updated.id);
     if (idx !== -1) billeteras[idx] = updated;
     abrirBillteraModal(updated);
     renderFabBilleteras();
     actualizarSelectBilltera();
-
-    // limpiar input después de éxito
+    
+    // Limpiar input después de éxito
     document.getElementById('recarga-manual-input').value = '';
+    
+    // Mostrar notificación temporal
+    const notif = document.createElement('div');
+    notif.className = 'toast-notification';
+    notif.textContent = `✓ ${modoRecarga === 'recargar' ? 'Agregado' : 'Restado'} ${fmt(numericValue)}`;
+    notif.style.cssText = `
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg3);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 9999;
+      animation: fadeOut 2s ease forwards;
+    `;
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 2000);
+    
   } catch (e) {
-    showError('billtera-error', e.message || 'No se pudo realizar la operación');
+    showError('billtera-error', e.message || `No se pudo ${modoRecarga === 'recargar' ? 'agregar' : 'restar'}`);
+  } finally {
+    const btn = document.getElementById('btn-recarga-manual');
+    btn.textContent = modoRecarga === 'recargar' ? '+ Agregar' : '− Restar';
+    btn.disabled = false;
   }
 });
 
 // Establecer saldo manualmente
 document.getElementById('btn-establecer-saldo').addEventListener('click', async () => {
   if (!billteraActiva) return;
-  const nuevoSaldo = Number(document.getElementById('recarga-manual-input').value);
-  if (nuevoSaldo < 0 || isNaN(nuevoSaldo)) return;
-
+  
+  // 🔥 Obtener el nuevo saldo deseado (valor absoluto)
+  const rawValue = document.getElementById('recarga-manual-input').value;
+  const nuevoSaldoDeseado = parseFloat(rawValue.replace(/\./g, '')) || 0;
+  
+  if (nuevoSaldoDeseado < 0) {
+    showError('billtera-error', 'El saldo no puede ser negativo');
+    return;
+  }
+  
   const saldoActual = Number(billteraActiva.saldo);
-  const diferencia = nuevoSaldo - saldoActual;
-
-  if (diferencia === 0) return; // nada que cambiar
-
+  const diferencia = nuevoSaldoDeseado - saldoActual;
+  
+  if (diferencia === 0) {
+    // No hay cambio, solo limpiar input
+    document.getElementById('recarga-manual-input').value = '';
+    return;
+  }
+  
   try {
     const updated = await api(`/billeteras/${billteraActiva.id}/recargar`, {
       method: 'PUT',
       body: JSON.stringify({ monto: diferencia })
     });
+    
     billteraActiva = updated;
     const idx = billeteras.findIndex(b => b.id === updated.id);
     if (idx !== -1) billeteras[idx] = updated;
     abrirBillteraModal(updated);
     renderFabBilleteras();
     actualizarSelectBilltera();
+    
+    // Limpiar input después de éxito
     document.getElementById('recarga-manual-input').value = '';
+    
+    // Mostrar notificación breve
+    sessionNotification(`✓ Saldo establecido a ${fmt(nuevoSaldoDeseado)}`);
   } catch (e) {
     showError('billtera-error', e.message || 'No se pudo establecer el saldo');
   }
@@ -2000,21 +2136,38 @@ let recurrenteEditId = null;
 function abrirEditarRecurrente(r) {
   recurrenteEditId = r.id;
   document.getElementById('rec-nombre').value = r.nombre;
-  document.getElementById('rec-monto').value = r.monto;
+  
+  // Formatear el monto correctamente
+  const montoNumero = Number(r.monto);
+  document.getElementById('rec-monto').value = montoNumero.toLocaleString('es-CO');
+  
   document.getElementById('rec-dia').value = r.dia_mes;
+  
   const catsFijas = ['Comida', 'Transporte', 'Entretenimiento', 'Ropa', 'Otros'];
   if (catsFijas.includes(r.categoria)) {
     document.getElementById('rec-categoria').value = r.categoria;
   } else {
     document.getElementById('rec-categoria').value = 'Otros';
   }
+  
   document.getElementById('rec-descripcion').value = r.descripcion || '';
   document.getElementById('rec-billtera').value = r.billtera_id || '';
 
   const btn = document.getElementById('btn-crear-recurrente');
-  btn.textContent = 'Actualizar recurrente';
+  btn.textContent = t('btn_editar_rec');
   btn.dataset.modo = 'editar';
-
+  
+  // 🔥 Agregar clase visual para indicar modo edición
+  btn.classList.add('modo-edicion');
+  
+  // 🔥 Mostrar un mensaje en el formulario
+  const formTitulo = document.querySelector('#recurrentes-modal .recurrente-form-titulo');
+  if (formTitulo) {
+    formTitulo.innerHTML = '✏️ Editando recurrente';
+    formTitulo.style.color = 'var(--accent)';
+  }
+  
+  // Scroll al formulario
   document.getElementById('rec-nombre').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -2073,7 +2226,10 @@ function abrirRegistrarRecurrente(r) {
   document.getElementById('registrar-rec-titulo').textContent = `Registrar: ${r.nombre}`;
   document.getElementById('rr-fecha').value = now.toISOString().slice(0, 10);
   document.getElementById('rr-hora').value = now.toTimeString().slice(0, 5);
-  document.getElementById('rr-monto').value = r.monto;
+  
+  // 🔥 CORREGIDO: Mostrar monto formateado
+  document.getElementById('rr-monto').value = Number(r.monto).toLocaleString('es-CO');
+  
   document.getElementById('rr-categoria').value = r.categoria;
   document.getElementById('rr-descripcion').value = r.descripcion || r.nombre;
 
@@ -2084,6 +2240,45 @@ function abrirRegistrarRecurrente(r) {
 
   document.getElementById('registrar-rec-modal').classList.remove('hidden');
 }
+
+// ── CANCELAR EDICIÓN DE RECURRENTE ──
+function cancelarEdicionRecurrente() {
+  // Limpiar el ID de edición
+  recurrenteEditId = null;
+  
+  // Resetear el botón a modo "crear"
+  const btn = document.getElementById('btn-crear-recurrente');
+  btn.textContent = t('btn_guardar_rec');
+  btn.dataset.modo = 'crear';
+  btn.classList.remove('modo-edicion'); // 👈 quitar clase visual
+  
+  // 🔥 RESTAURAR TÍTULO DEL FORMULARIO
+  const formTitulo = document.querySelector('#recurrentes-modal .recurrente-form-titulo');
+  if (formTitulo) {
+    formTitulo.innerHTML = '+ Nuevo recurrente';
+    formTitulo.style.color = '';
+  }
+  
+  // Limpiar el formulario
+  document.getElementById('rec-nombre').value = '';
+  document.getElementById('rec-monto').value = '';
+  document.getElementById('rec-dia').value = '';
+  document.getElementById('rec-categoria').value = '';
+  document.getElementById('rec-descripcion').value = '';
+  document.getElementById('rec-billtera').value = '';
+  
+  // Ocultar cualquier error
+  const errorEl = document.getElementById('rec-error');
+  if (errorEl) errorEl.classList.add('hidden');
+  
+  // Mostrar notificación opcional
+  mostrarToast('Edición cancelada', 'info');
+}
+
+// Event listener para el botón de cancelar
+document.getElementById('btn-cancelar-edicion-rec')?.addEventListener('click', () => {
+  cancelarEdicionRecurrente();
+});
 
 // Banner cerrar
 document.getElementById('banner-close').addEventListener('click', () => {
@@ -2108,7 +2303,8 @@ document.getElementById('recurrentes-modal-close').addEventListener('click', () 
 // Crear recurrente
 document.getElementById('btn-crear-recurrente').addEventListener('click', async () => {
   const nombre = document.getElementById('rec-nombre').value.trim();
-  const monto = document.getElementById('rec-monto').value;
+  const montoRaw = document.getElementById('rec-monto').value;
+  const monto = parseInt(montoRaw.replace(/\./g, ''), 10) || 0;
   const dia = document.getElementById('rec-dia').value;
   const cat = document.getElementById('rec-categoria').value;
   const desc = document.getElementById('rec-descripcion').value.trim();
@@ -2116,25 +2312,54 @@ document.getElementById('btn-crear-recurrente').addEventListener('click', async 
   const btn = document.getElementById('btn-crear-recurrente');
   const modoEditar = btn.dataset.modo === 'editar';
 
-  if (!nombre || !monto || !dia || !cat)
-    return showError('rec-error', 'Nombre, monto, día y categoría son obligatorios');
-  if (dia < 1 || dia > 31)
-    return showError('rec-error', 'El día debe estar entre 1 y 31');
+  if (!nombre || !monto || !dia || !cat) {
+    return showError('rec-error', t('err_rec_campos'));
+  }
+  if (dia < 1 || dia > 31) {
+    return showError('rec-error', t('err_rec_dia'));
+  }
 
   try {
-    btn.textContent = 'Guardando…';
+    btn.textContent = t('guardando');
+    btn.disabled = true;
 
     if (modoEditar) {
       await api(`/recurrentes/${recurrenteEditId}`, {
         method: 'PUT',
-        body: JSON.stringify({ nombre, monto: Number(monto), dia_mes: Number(dia), categoria: cat, descripcion: desc, billtera_id: bill || null, activo: 1 })
+        body: JSON.stringify({ 
+          nombre, 
+          monto: Number(monto), 
+          dia_mes: Number(dia), 
+          categoria: cat, 
+          descripcion: desc, 
+          billtera_id: bill || null, 
+          activo: 1 
+        })
       });
+      
+      // 🔥 Limpiar estado de edición después de guardar
       recurrenteEditId = null;
       btn.dataset.modo = 'crear';
+      btn.classList.remove('modo-edicion');
+      
+      // 🔥 Restaurar título del formulario
+      const formTitulo = document.querySelector('#recurrentes-modal .recurrente-form-titulo');
+      if (formTitulo) {
+        formTitulo.innerHTML = '+ Nuevo recurrente';
+        formTitulo.style.color = '';
+      }
+      
     } else {
       await api('/recurrentes', {
         method: 'POST',
-        body: JSON.stringify({ nombre, monto: Number(monto), dia_mes: Number(dia), categoria: cat, descripcion: desc, billtera_id: bill || null })
+        body: JSON.stringify({ 
+          nombre, 
+          monto: Number(monto), 
+          dia_mes: Number(dia), 
+          categoria: cat, 
+          descripcion: desc, 
+          billtera_id: bill || null 
+        })
       });
     }
 
@@ -2148,11 +2373,14 @@ document.getElementById('btn-crear-recurrente').addEventListener('click', async 
 
     await cargarRecurrentes();
     await verificarPendientes();
+    
+    mostrarToast(`✓ Recurrente ${modoEditar ? 'actualizado' : 'creado'}`, 'success');
+    
   } catch (e) {
     showError('rec-error', e.message);
   } finally {
-    btn.textContent = 'Guardar recurrente';
-    btn.dataset.modo = 'crear';
+    btn.textContent = modoEditar ? t('btn_editar_rec') : t('btn_guardar_rec');
+    btn.disabled = false;
   }
 });
 
@@ -2167,28 +2395,49 @@ document.getElementById('btn-rr-cancelar').addEventListener('click', () => {
 document.getElementById('btn-rr-guardar').addEventListener('click', async () => {
   const fecha = document.getElementById('rr-fecha').value;
   const hora = document.getElementById('rr-hora').value;
-  const monto = document.getElementById('rr-monto').value;
+  
+  // 🔥 CORREGIDO: Obtener monto correctamente
+  const montoRaw = document.getElementById('rr-monto').value;
+  const monto = parseFloat(montoRaw.replace(/\./g, '').replace(/,/g, '')) || 0;
+  
   const cat = document.getElementById('rr-categoria').value;
   const desc = document.getElementById('rr-descripcion').value.trim();
   const bill = document.getElementById('rr-billtera').value;
 
-  if (!fecha || !hora || !monto || !cat)
-    return showError('rr-error', 'Completa todos los campos obligatorios');
+  if (!fecha || !hora || !monto || !cat) {
+    return showError('rr-error', t('err_rec_campos_ob'));
+  }
 
   try {
-    document.getElementById('btn-rr-guardar').textContent = 'Guardando…';
+    const btn = document.getElementById('btn-rr-guardar');
+    btn.textContent = t('guardando');
+    btn.disabled = true;
+    
     await api('/gastos', {
       method: 'POST',
-      body: JSON.stringify({ fecha, hora, monto: Number(monto), categoria: cat, descripcion: desc, billtera_id: bill || null })
+      body: JSON.stringify({ 
+        fecha, 
+        hora, 
+        monto: Number(monto), 
+        categoria: cat, 
+        descripcion: desc, 
+        billtera_id: bill || null 
+      })
     });
+    
     document.getElementById('registrar-rec-modal').classList.add('hidden');
     await verificarPendientes();
     cargarResumen();
     cargarBilleteras();
+    
+    mostrarToast('✓ Gasto registrado', 'success');
+    
   } catch (e) {
     showError('rr-error', e.message);
   } finally {
-    document.getElementById('btn-rr-guardar').textContent = 'Guardar gasto';
+    const btn = document.getElementById('btn-rr-guardar');
+    btn.textContent = t('btn_rr_guardar');
+    btn.disabled = false;
   }
 });
 
@@ -3159,6 +3408,44 @@ document.querySelectorAll('.menu-mas-item[data-section]')
 document.getElementById('btn-mas').addEventListener('click', () => {
   abrirMenuMas();
 });
+
+// ── FUNCIÓN PARA MOSTRAR TOAST NOTIFICATIONS ──
+function mostrarToast(mensaje, tipo = 'success') {
+  // Eliminar toast anterior si existe
+  const toastAnterior = document.querySelector('.toast-notification');
+  if (toastAnterior) toastAnterior.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast-notification';
+  toast.textContent = mensaje;
+  
+  const colores = {
+    success: 'var(--green)',
+    error: 'var(--red)',
+    info: 'var(--accent)'
+  };
+  
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg3);
+    border: 1px solid ${colores[tipo] || colores.success};
+    color: ${colores[tipo] || colores.success};
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    white-space: nowrap;
+    box-shadow: var(--shadow);
+    animation: fadeOut 2.5s ease forwards;
+  `;
+  
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
 
 // ── Arrancar ──────────────────────────────────────
 if (token && usuario) {

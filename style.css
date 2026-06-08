@@ -3016,3 +3016,43 @@ button {
   background:rgba(245,166,35,.12);
   color:var(--accent);
 }
+
+/* ── BOTÓN AGREGAR/RESTAR DINÁMICO ── */
+#btn-recarga-manual {
+  transition: all var(--transition);
+}
+
+/* Cuando está en modo restar (se añade una clase) */
+#btn-recarga-manual.modo-restar {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+#btn-recarga-manual.modo-restar:hover {
+  background: rgba(248, 113, 113, 0.25);
+  border-color: var(--red);
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+    visibility: hidden;
+  }
+}
+/* Modo edición en botón */
+.btn-primary.modo-edicion {
+  background: var(--accent2);
+  color: white;
+}
+
+.btn-primary.modo-edicion:hover {
+  background: var(--accent);
+}
