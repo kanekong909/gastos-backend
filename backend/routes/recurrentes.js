@@ -24,35 +24,50 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/recurrentes/pendientes — los que no tienen gasto este mes y su día ya llegó
+// GET /api/recurrentes/pendientes
 router.get('/pendientes', async (req, res) => {
   const uid = req.usuario.id;
-  const now = new Date();
-  const anio = now.getFullYear();
-  const mes  = now.getMonth() + 1;
-  const dia  = now.getDate();
+  const hoy = new Date();
+  const anioActual = hoy.getFullYear();
+  const mesActual = hoy.getMonth() + 1;
+  const diaActual = hoy.getDate();
 
   try {
+    // Obtener recurrentes activos cuyo día sea <= hoy
+    // y que NO hayan sido registrados aún en el mes actual
     const [rows] = await pool.query(
-      `SELECT r.*, b.nombre AS billtera_nombre, b.emoji AS billtera_emoji
+      `SELECT r.*, 
+              b.nombre as billtera_nombre, 
+              b.emoji as billtera_emoji,
+              (SELECT COUNT(*) FROM gastos g 
+               WHERE g.usuario_id = r.usuario_id 
+                 AND g.categoria = r.categoria 
+                 AND g.monto = r.monto
+                 AND YEAR(g.fecha) = ? 
+                 AND MONTH(g.fecha) = ?
+                 AND DAY(g.fecha) <= ?
+                 AND g.descripcion LIKE CONCAT('%', r.nombre, '%')) as ya_registrado
        FROM recurrentes r
        LEFT JOIN billeteras b ON r.billtera_id = b.id
-       WHERE r.usuario_id = ?
-         AND r.activo = 1
+       WHERE r.usuario_id = ? 
+         AND r.activo = 1 
          AND r.dia_mes <= ?
          AND NOT EXISTS (
-           SELECT 1 FROM gastos g
-           WHERE g.usuario_id = r.usuario_id
-             AND g.descripcion = r.descripcion
-             AND g.monto = r.monto
-             AND g.categoria = r.categoria
-             AND YEAR(g.fecha) = ?
+           SELECT 1 FROM gastos g 
+           WHERE g.usuario_id = r.usuario_id 
+             AND YEAR(g.fecha) = ? 
              AND MONTH(g.fecha) = ?
-         )
-       ORDER BY r.dia_mes ASC`,
-      [uid, dia, anio, mes]
+             AND DAY(g.fecha) <= ?
+             AND g.monto = r.monto
+             AND (g.descripcion LIKE CONCAT('%', r.nombre, '%') OR g.categoria = r.categoria)
+         )`,
+      [anioActual, mesActual, diaActual, uid, diaActual, anioActual, mesActual, diaActual]
     );
-    res.json(rows);
+    
+    // Filtrar los que no están registrados
+    const pendientes = rows.filter(r => !r.ya_registrado);
+    
+    res.json(pendientes);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al obtener pendientes' });
